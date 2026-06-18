@@ -74,12 +74,12 @@ jobs:
       - name: Run Tests
         run: flutter test
 
-      - name: Build iOS App Bundle (No Codesign)
-        run: flutter build ios --release --no-codesign
+      - name: Build iOS App Bundle (Simulator)
+        run: flutter build ios --simulator
 
       - name: Zip iOS Build Product
         run: |
-          cd build/ios/iphoneos
+          cd build/ios/iphonesimulator
           zip -r ../../../GNNscan_iOS_Bundle.zip Runner.app
 
       - name: Upload iOS Artifact

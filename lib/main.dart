@@ -195,7 +195,7 @@ class _MainScreenState extends State<MainScreen> {
               'timestamp': DateTime.now().toLocal().toString().substring(0, 19),
               'durationMs': durationMs,
               'findingsCount': findingsCount,
-              'status': _activeScanEngine != null && !_activeScanEngine!._isAborted ? 'COMPLETED' : 'ABORTED',
+              'status': _activeScanEngine != null && !_activeScanEngine!.isAborted ? 'COMPLETED' : 'ABORTED',
               'resultData': discoveredHostsData
             };
 

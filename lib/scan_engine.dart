@@ -16,6 +16,7 @@ class ScanEngine {
   final Function() onFinished;
 
   bool _isAborted = false;
+  bool get isAborted => _isAborted;
 
   ScanEngine({
     required this.targetInput,
@@ -143,12 +144,12 @@ class ScanEngine {
     Future<void> runWorker() async {
       while (true) {
         if (_isAborted) break;
-        int currentTaskIndex;
-        synchronized() {
-          if (nextTaskIndex >= tasks.length) {
-            return;
-          }
-          currentTaskIndex = nextTaskIndex++;
+        if (nextTaskIndex >= tasks.length) {
+          break;
+        }
+        int currentTaskIndex = nextTaskIndex++;
+        if (currentTaskIndex >= tasks.length) {
+          break;
         }
 
         try {
@@ -161,11 +162,6 @@ class ScanEngine {
 
     final workers = List.generate(poolSize, (_) => runWorker());
     await Future.wait(workers);
-  }
-
-  final _lock = Object();
-  void synchronized(void Function() block) {
-    block();
   }
 
   // Resolve target strings into IP address list
