@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>GNNscan - Brutalist Threat Reconnaissance</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Geist:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <style>
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1a1a1c;
+            border-radius: 0;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00dbe9;
+        }
+
+        .terminal-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: #00f0ff;
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(rgba(26, 26, 28, 0.5) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(26, 26, 28, 0.5) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .bloom-text {
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+        }
+
+        .border-glow-focus:focus-within {
+            border-color: #00f0ff !important;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+        
+        * { border-radius: 0 !important; }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            height: 18px;
+        }
+
+        .scan-progress-shimmer {
+            background: linear-gradient(90deg, #00f0ff 0%, #7df4ff 50%, #00f0ff 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary": "#dbfcff",
+                      "outline-variant": "#3b494b",
+                      "outline": "#849495",
+                      "on-tertiary": "#680008",
+                      "on-primary-fixed-variant": "#004f54",
+                      "surface-variant": "#353436",
+                      "inverse-on-surface": "#313031",
+                      "on-secondary-fixed": "#002203",
+                      "on-primary": "#00363a",
+                      "surface-container-low": "#1c1b1c",
+                      "on-tertiary-fixed-variant": "#930010",
+                      "tertiary-fixed-dim": "#ffb3ad",
+                      "inverse-primary": "#006970",
+                      "on-error": "#690005",
+                      "tertiary-fixed": "#ffdad6",
+                      "surface-container-lowest": "#0e0e0f",
+                      "on-secondary": "#003907",
+                      "on-background": "#e5e2e3",
+                      "primary-container": "#00f0ff",
+                      "inverse-surface": "#e5e2e3",
+                      "tertiary": "#fff3f2",
+                      "surface-tint": "#00dbe9",
+                      "secondary-container": "#13ff43",
+                      "surface-container": "#201f20",
+                      "surface-bright": "#3a393a",
+                      "secondary-fixed-dim": "#00e639",
+                      "on-secondary-fixed-variant": "#00530e",
+                      "surface-container-high": "#2a2a2b",
+                      "error": "#ffb4ab",
+                      "background": "#131314",
+                      "on-primary-fixed": "#002022",
+                      "secondary-fixed": "#72ff70",
+                      "primary-fixed": "#7df4ff",
+                      "on-surface": "#e5e2e3",
+                      "primary-fixed-dim": "#00dbe9",
+                      "on-tertiary-fixed": "#410003",
+                      "on-error-container": "#ffdad6",
+                      "on-tertiary-container": "#c00119",
+                      "on-primary-container": "#006970",
+                      "on-secondary-container": "#007117",
+                      "on-surface-variant": "#b9cacb",
+                      "surface": "#131314",
+                      "surface-dim": "#131314",
+                      "tertiary-container": "#ffcec9",
+                      "error-container": "#93000a",
+                      "surface-container-highest": "#353436",
+                      "secondary": "#ecffe3"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0px",
+                      "lg": "0px",
+                      "xl": "0px",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "8px",
+                      "row-height-sm": "24px",
+                      "margin": "12px",
+                      "panel-padding": "8px",
+                      "unit": "4px",
+                      "row-height-md": "32px"
+              },
+              "fontFamily": {
+                      "label-xs": ["JetBrains Mono"],
+                      "headline-sm": ["Geist"],
+                      "display-tech": ["Geist"],
+                      "data-mono-bold": ["JetBrains Mono"],
+                      "body-md": ["Geist"],
+                      "data-mono": ["JetBrains Mono"]
+              },
+              "fontSize": {
+                      "label-xs": ["10px", {"lineHeight": "12px", "fontWeight": "500"}],
+                      "headline-sm": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                      "display-tech": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "data-mono-bold": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                      "body-md": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                      "data-mono": ["12px", {"lineHeight": "16px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container overflow-hidden font-body-md text-body-md">
+
+    <!-- Global Aside Sidebar -->
+    <aside class="h-screen w-64 fixed left-0 top-0 border-r border-outline-variant bg-background flex flex-col py-4 z-50">
+        <div class="px-6 mb-8">
+            <h1 class="font-display-tech text-display-tech text-primary-container uppercase tracking-tighter cursor-pointer" onclick="switchView('dashboard')">GNNscan</h1>
+            <p class="font-data-mono text-label-xs text-outline">V.2.4.0-STABLE</p>
+        </div>
+        <nav class="flex-1 space-y-1">
+            <!-- Navigation Items -->
+            <div id="nav-dashboard" onclick="switchView('dashboard')" class="nav-item text-primary-container bg-surface-container-highest border-l-4 border-primary-container px-6 py-3 flex items-center gap-3 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">radar</span>
+                <span class="font-data-mono text-data-mono">Network Discovery</span>
+            </div>
+            <div id="nav-scan-results" onclick="switchView('scan-results')" class="nav-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors px-6 py-3 flex items-center gap-3 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">pause</span>
+                <span class="font-data-mono text-data-mono">Active Scans</span>
+            </div>
+            <div id="nav-history" onclick="switchView('history')" class="nav-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors px-6 py-3 flex items-center gap-3 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">history</span>
+                <span class="font-data-mono text-data-mono">Target History</span>
+            </div>
+            <div id="nav-configuration" onclick="switchView('configuration')" class="nav-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors px-6 py-3 flex items-center gap-3 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">settings_suggest</span>
+                <span class="font-data-mono text-data-mono">Advanced Configuration</span>
+            </div>
+        </nav>
+        <footer class="mt-auto px-6 pt-4 border-t border-outline-variant">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-surface-container-high flex items-center justify-center border border-outline-variant">
+                    <span class="material-symbols-outlined text-primary-fixed-dim text-sm">shield</span>
+                </div>
+                <div>
+                    <p class="font-data-mono-bold text-data-mono-bold text-on-surface">ANALYST_01</p>
+                    <p class="font-data-mono text-label-xs text-secondary-fixed-dim">[ AUTHENTICATED ]</p>
+                </div>
+            </div>
+        </footer>
+    </aside>
+
+    <!-- Global Header -->
+    <header class="flex justify-between items-center h-12 px-margin w-[calc(100%-16rem)] ml-64 bg-surface-container-lowest border-b border-outline-variant fixed top-0 z-40">
+        <div class="flex items-center gap-4">
+            <span id="header-title" class="font-data-mono-bold text-on-surface text-sm tracking-widest">BLUE_TEAM_TERMINAL</span>
+            <div class="h-4 w-px bg-outline-variant"></div>
+            <div class="flex gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="font-data-mono text-label-xs text-outline">CPU</span>
+                    <div class="w-16 h-2 bg-surface-container-high border border-outline-variant overflow-hidden">
+                        <div class="h-full bg-primary-container transition-all duration-500" id="cpu-bar" style="width: 12%;"></div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-data-mono text-label-xs text-outline">MEM</span>
+                    <div class="w-16 h-2 bg-surface-container-high border border-outline-variant overflow-hidden">
+                        <div class="h-full bg-secondary-fixed-dim transition-all duration-500" id="mem-bar" style="width: 38%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-6 h-full">
+            <div id="header-scan-progress-container" class="hidden flex items-center bg-surface-container-high px-3 h-8 border-x border-outline-variant shrink-0 gap-3">
+                <span class="text-label-xs font-data-mono text-on-surface-variant">SCANNING</span>
+                <div class="h-1.5 bg-surface-dim relative overflow-hidden w-24">
+                    <div id="header-scan-progress-bar" class="absolute inset-0 scan-progress-shimmer" style="width: 0%"></div>
+                </div>
+                <span id="header-scan-progress-text" class="text-label-xs font-data-mono-bold text-primary-container">0.0%</span>
+            </div>
+            <div class="flex items-center gap-4 text-outline font-data-mono text-label-xs">
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">memory</span>
+                    <span>1.2 THz</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">sensors</span>
+                    <span id="header-active-count">0 ACTIVE</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">lan</span>
+                    <span id="header-local-ip">127.0.0.1</span>
+                </div>
+            </div>
+            <div id="global-system-status" class="h-full flex items-center px-4 bg-surface-container-high border-l border-outline-variant text-secondary-fixed-dim font-data-mono-bold text-label-xs whitespace-nowrap">
+                [ SYSTEM_OK ]
+            </div>
+        </div>
+    </header>
+
+    <!-- VIEW 1: Dashboard (Network Discovery) -->
+    <main id="view-dashboard" class="view-stage ml-64 mt-12 p-gutter h-[calc(100vh-3rem)] overflow-hidden flex flex-col gap-gutter bg-background grid-bg">
+        <!-- Target Acquisition Section -->
+        <section class="flex-none p-6 border border-outline-variant bg-surface-container-lowest relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-0.5 bg-primary-container/30"></div>
+            <div class="relative z-10 flex flex-col gap-6 max-w-4xl mx-auto py-8">
+                <div class="space-y-2">
+                    <h2 class="font-data-mono-bold text-primary-fixed-dim text-sm uppercase tracking-widest">Target Acquisition</h2>
+                    <p class="font-data-mono text-on-surface-variant text-sm">Enter IPv4, IPv6, Subnet, or Domain for deep-packet reconnaissance.</p>
+                </div>
+                <div class="flex items-stretch gap-2">
+                    <div class="flex-1 relative">
+                        <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                            <span class="material-symbols-outlined text-outline">terminal</span>
+                        </div>
+                        <input id="scan-target" class="w-full bg-surface-container-low border border-outline-variant px-12 py-4 font-data-mono text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container/20 transition-all placeholder:text-outline-variant" placeholder="192.168.1.1 / 192.168.1.0/24 / google.com" type="text" onkeydown="if(event.key==='Enter') triggerStartScan()"/>
+                    </div>
+                    <button id="btn-scan-action" onclick="triggerStartScan()" class="bg-primary-container text-on-primary-fixed font-data-mono-bold px-8 flex items-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all">
+                        <span id="icon-scan-action" class="material-symbols-outlined">rocket_launch</span>
+                        <span id="text-scan-action">INITIATE SCAN</span>
+                    </button>
+                </div>
+                <div class="flex gap-4 items-center">
+                    <span class="font-data-mono text-label-xs text-outline">QUICK_PRESETS:</span>
+                    <button onclick="applyPreset('LOCAL_NET')" class="border border-outline-variant font-data-mono text-label-xs px-3 py-1 hover:border-primary hover:text-primary transition-all">LOCAL_NET</button>
+                    <button onclick="applyPreset('CLOUD_ASSET')" class="border border-outline-variant font-data-mono text-label-xs px-3 py-1 hover:border-primary hover:text-primary transition-all">CLOUD_ASSET</button>
+                    <button onclick="applyPreset('EXTERNAL_IP')" class="border border-outline-variant font-data-mono text-label-xs px-3 py-1 hover:border-primary hover:text-primary transition-all">EXTERNAL_IP</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scan Modules Grid -->
+        <section class="flex-none grid grid-cols-3 gap-gutter h-40">
+            <article id="mod-common" onclick="selectModule('common')" class="border border-primary-container bg-surface-container-lowest p-4 flex flex-col justify-between group cursor-pointer hover:border-primary-container transition-all relative">
+                <div class="absolute top-0 right-2 font-data-mono text-[9px] text-primary-container font-bold" id="mod-common-check">[ ACTIVE ]</div>
+                <div class="flex justify-between items-start">
+                    <div class="p-2 border border-outline-variant group-hover:border-primary-container group-hover:text-primary-container transition-all">
+                        <span class="material-symbols-outlined text-2xl">search</span>
+                    </div>
+                    <span class="font-data-mono text-label-xs text-outline group-hover:text-primary-container">MOD_01</span>
+                </div>
+                <div>
+                    <h3 class="font-data-mono-bold text-on-surface uppercase tracking-wider text-sm mb-1">Common Scan</h3>
+                    <p class="font-data-mono text-label-xs text-on-surface-variant leading-relaxed">Fast Sweep focusing on top exposed ports.</p>
+                </div>
+                <div class="pt-1 border-t border-outline-variant/30 flex justify-between items-center">
+                    <span class="font-data-mono text-label-xs text-secondary-fixed-dim">EST: 2m</span>
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </div>
+            </article>
+            <article id="mod-full" onclick="selectModule('full')" class="border border-outline-variant bg-surface-container-lowest p-4 flex flex-col justify-between group cursor-pointer hover:border-primary-container transition-all relative">
+                <div class="absolute top-0 right-2 font-data-mono text-[9px] text-primary-container font-bold hidden" id="mod-full-check">[ ACTIVE ]</div>
+                <div class="flex justify-between items-start">
+                    <div class="p-2 border border-outline-variant group-hover:border-primary-container group-hover:text-primary-container transition-all">
+                        <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+                    </div>
+                    <span class="font-data-mono text-label-xs text-outline group-hover:text-primary-container">MOD_02</span>
+                </div>
+                <div>
+                    <h3 class="font-data-mono-bold text-on-surface uppercase tracking-wider text-sm mb-1">Full Port Scan</h3>
+                    <p class="font-data-mono text-label-xs text-on-surface-variant leading-relaxed">Deep analysis scanning 1000 ports.</p>
+                </div>
+                <div class="pt-1 border-t border-outline-variant/30 flex justify-between items-center">
+                    <span class="font-data-mono text-label-xs text-secondary-fixed-dim">EST: 15m</span>
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </div>
+            </article>
+            <article id="mod-service" onclick="selectModule('service')" class="border border-outline-variant bg-surface-container-lowest p-4 flex flex-col justify-between group cursor-pointer hover:border-primary-container transition-all relative">
+                <div class="absolute top-0 right-2 font-data-mono text-[9px] text-primary-container font-bold hidden" id="mod-service-check">[ ACTIVE ]</div>
+                <div class="flex justify-between items-start">
+                    <div class="p-2 border border-outline-variant group-hover:border-primary-container group-hover:text-primary-container transition-all">
+                        <span class="material-symbols-outlined text-2xl">dns</span>
+                    </div>
+                    <span class="font-data-mono text-label-xs text-outline group-hover:text-primary-container">MOD_03</span>
+                </div>
+                <div>
+                    <h3 class="font-data-mono-bold text-on-surface uppercase tracking-wider text-sm mb-1">Service Discovery</h3>
+                    <p class="font-data-mono text-label-xs text-on-surface-variant leading-relaxed">Fingerprint versions & banners across targets.</p>
+                </div>
+                <div class="pt-1 border-t border-outline-variant/30 flex justify-between items-center">
+                    <span class="font-data-mono text-label-xs text-secondary-fixed-dim">EST: 5m</span>
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </div>
+            </article>
+        </section>
+
+        <!-- Terminal Section -->
+        <section class="flex-1 flex flex-col border border-outline-variant bg-surface-container-lowest min-h-0 overflow-hidden">
+            <header class="flex justify-between items-center p-2 border-b border-outline-variant bg-background">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-sm text-primary-fixed-dim">code</span>
+                    <h3 class="font-data-mono-bold text-data-mono-bold text-on-surface">SYSTEM_LOG :: REAL_TIME_STREAM</h3>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex gap-2">
+                        <div id="terminal-pulse" class="w-1.5 h-1.5 bg-secondary-fixed-dim rounded-full animate-pulse"></div>
+                        <span id="terminal-status-text" class="font-data-mono text-label-xs text-secondary-fixed-dim">LISTENING</span>
+                    </div>
+                    <span onclick="downloadTerminalLogs()" class="material-symbols-outlined text-sm text-outline cursor-pointer hover:text-on-surface">download</span>
+                    <span onclick="clearTerminalLogs()" class="material-symbols-outlined text-sm text-outline cursor-pointer hover:text-on-surface">delete</span>
+                </div>
+            </header>
+            <div class="flex-1 p-4 font-data-mono text-data-mono overflow-y-auto space-y-1 bg-surface-container-low" id="terminal-content">
+                <div class="flex gap-4 opacity-75">
+                    <span class="text-outline shrink-0">[ SYSTEM ]</span>
+                    <span class="text-secondary-fixed-dim">[ INFO ]</span>
+                    <span class="text-on-surface-variant">Kernel initialized. Loading GNNscan modules...</span>
+                </div>
+                <div class="flex gap-4 opacity-75">
+                    <span class="text-outline shrink-0">[ SYSTEM ]</span>
+                    <span class="text-secondary-fixed-dim">[ INFO ]</span>
+                    <span class="text-on-surface-variant">Ready. Input a target and press INITIATE SCAN.</span>
+                </div>
+            </div>
+            <footer class="p-2 border-t border-outline-variant bg-background flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="font-data-mono text-label-xs text-outline">TERMINAL_INPUT:</span>
+                    <div class="flex items-center">
+                        <span class="font-data-mono text-label-xs text-primary-container">&gt;</span>
+                        <div class="terminal-cursor"></div>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-center">
+                    <span class="font-data-mono text-label-xs text-outline" id="log-count-display">ROWS: 2</span>
+                    <span class="font-data-mono text-label-xs text-outline">BUFFER: ACTIVE</span>
+                    <span class="font-data-mono text-label-xs text-on-tertiary-container bg-tertiary-container/10 px-2 border border-tertiary-container/30">MONITOR</span>
+                </div>
+            </footer>
+        </section>
+    </main>
+
+    <!-- VIEW 2: Active Scans (Scan Results) -->
+    <main id="view-scan-results" class="view-stage hidden ml-64 mt-12 h-[calc(100vh-3rem)] flex overflow-hidden">
+        <!-- Left Panel: Discovered Hosts Tree -->
+        <aside class="w-1/3 min-w-[320px] border-r border-outline-variant flex flex-col bg-surface-dim">
+            <div class="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-low shrink-0">
+                <h3 class="font-data-mono-bold text-label-xs uppercase text-on-surface-variant tracking-widest">Discovered Hosts</h3>
+                <span class="text-label-xs font-data-mono text-primary-fixed-dim" id="hosts-found-count">FOUND: 0</span>
+            </div>
+            <div class="flex-1 overflow-y-auto p-2 font-data-mono text-data-mono" id="hosts-tree-container">
+                <!-- Tree view populated dynamically -->
+                <p class="text-on-surface-variant p-4 italic text-center">No host data yet. Run a scan to see results.</p>
+            </div>
+            <div class="p-4 bg-surface-container-lowest border-t border-outline-variant shrink-0">
+                <div class="flex justify-between items-center text-[10px] font-data-mono uppercase text-on-surface-variant mb-2">
+                    <span>Live Telemetry</span>
+                    <span class="text-primary-fixed-dim" id="telemetry-mode">STREAMING</span>
+                </div>
+                <div class="h-12 w-full flex items-end space-x-1" id="telemetry-bar-chart">
+                    <div class="flex-1 bg-primary-container/20 h-[20%]"></div>
+                    <div class="flex-1 bg-primary-container/40 h-[50%]"></div>
+                    <div class="flex-1 bg-primary-container/20 h-[30%]"></div>
+                    <div class="flex-1 bg-primary-container/60 h-[70%]"></div>
+                    <div class="flex-1 bg-primary-container/30 h-[40%]"></div>
+                    <div class="flex-1 bg-primary-container/50 h-[80%]"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Panel: Port List Table -->
+        <section class="flex-1 flex flex-col bg-background overflow-hidden">
+            <!-- Table Header / Host Details -->
+            <div class="p-4 border-b border-outline-variant flex justify-between items-end bg-surface-container-low shrink-0">
+                <div>
+                    <h2 class="text-headline-sm font-data-mono-bold text-on-surface" id="selected-host-title">Target: Select a host</h2>
+                    <p class="text-label-xs font-data-mono text-on-surface-variant mt-1">Host Identity: <span class="text-primary-fixed-dim" id="selected-host-os">N/A</span></p>
+                </div>
+                <div class="flex space-x-4">
+                    <div class="text-right">
+                        <p class="text-[10px] text-on-surface-variant uppercase">Latency</p>
+                        <p class="font-data-mono-bold text-secondary-fixed-dim" id="selected-host-latency">N/A</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Optimized Data Table -->
+            <div class="flex-1 overflow-auto relative">
+                <table class="w-full border-collapse font-data-mono text-sm table-fixed">
+                    <thead class="sticky top-0 bg-surface-container-lowest z-10 shadow-sm">
+                        <tr>
+                            <th class="w-20 text-left px-4 py-2 border-b border-outline-variant text-label-xs text-on-surface-variant uppercase tracking-wider">Port</th>
+                            <th class="w-20 text-left px-4 py-2 border-b border-outline-variant text-label-xs text-on-surface-variant uppercase tracking-wider">Prot</th>
+                            <th class="w-32 text-left px-4 py-2 border-b border-outline-variant text-label-xs text-on-surface-variant uppercase tracking-wider">State</th>
+                            <th class="w-32 text-left px-4 py-2 border-b border-outline-variant text-label-xs text-on-surface-variant uppercase tracking-wider">Service</th>
+                            <th class="text-left px-4 py-2 border-b border-outline-variant text-label-xs text-on-surface-variant uppercase tracking-wider">Version</th>
+                            <th class="w-28 text-right px-4 py-2 border-b border-outline-variant text-label-xs text-on-surface-variant uppercase tracking-wider">Vuln</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-data-mono divide-y divide-outline-variant/20" id="ports-table-body">
+                        <tr>
+                            <td colspan="6" class="text-center p-8 text-on-surface-variant italic">Select an IP address on the left to see open ports.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- VIEW 3: Target History -->
+    <main id="view-history" class="view-stage hidden ml-64 mt-12 p-margin h-[calc(100vh-3rem)] overflow-y-auto bg-background flex flex-col gap-4">
+        <!-- Dashboard Stats Grid -->
+        <div class="grid grid-cols-4 gap-gutter flex-none">
+            <div class="bg-surface-dim border border-outline-variant p-3 flex flex-col justify-between group hover:border-primary-container transition-colors duration-200">
+                <span class="font-data-mono text-on-surface-variant text-label-xs uppercase tracking-wider">Total Operations</span>
+                <div class="flex items-baseline gap-2">
+                    <span id="stats-total-scans" class="font-display-tech text-[28px] text-primary-container leading-none">0</span>
+                    <span class="font-data-mono text-label-xs text-outline uppercase">Completed</span>
+                </div>
+            </div>
+            <div class="bg-surface-dim border border-outline-variant p-3 flex flex-col justify-between group hover:border-primary-container transition-colors duration-200">
+                <span class="font-data-mono text-on-surface-variant text-label-xs uppercase tracking-wider">Total Findings</span>
+                <div class="flex items-baseline gap-2">
+                    <span id="stats-total-findings" class="font-display-tech text-[28px] text-error leading-none">0</span>
+                    <span class="font-data-mono text-label-xs text-outline uppercase">Issues</span>
+                </div>
+            </div>
+            <div class="bg-surface-dim border border-outline-variant p-3 flex flex-col justify-between group hover:border-primary-container transition-colors duration-200">
+                <span class="font-data-mono text-on-surface-variant text-label-xs uppercase tracking-wider">Mean Scan Duration</span>
+                <div class="flex items-baseline gap-2">
+                    <span id="stats-mean-duration" class="font-display-tech text-[28px] text-on-surface leading-none">0:00</span>
+                    <span class="font-data-mono text-label-xs text-on-surface-variant uppercase">Min:Sec</span>
+                </div>
+            </div>
+            <div class="bg-surface-dim border border-primary-fixed-dim/40 p-3 flex flex-col justify-between bg-on-primary-fixed/20">
+                <span class="font-data-mono text-primary-fixed-dim text-label-xs uppercase tracking-wider font-bold">Network Status</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="font-display-tech text-[28px] text-primary-fixed-dim leading-none bloom-text">ONLINE</span>
+                    <span class="font-data-mono text-label-xs text-primary-fixed-dim uppercase">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Controls -->
+        <div class="h-12 flex items-center justify-between px-2 bg-surface-container border border-outline-variant shrink-0 flex-none">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center border border-outline-variant bg-surface-container-lowest px-2 h-8 border-glow-focus">
+                    <span class="material-symbols-outlined text-[18px] text-on-surface-variant mr-2">search</span>
+                    <input id="history-filter" oninput="filterHistoryTable()" class="bg-transparent border-none focus:ring-0 text-data-mono text-[11px] w-64 placeholder:text-outline p-0" placeholder="FILTER BY TARGET..." type="text"/>
+                </div>
+                <button onclick="clearHistory()" class="border border-error/40 hover:bg-error-container/20 text-error font-data-mono text-[11px] h-8 px-4 flex items-center gap-2 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                    CLEAR ALL HISTORY
+                </button>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="font-data-mono text-label-xs text-on-surface-variant uppercase">Export:</span>
+                <button onclick="exportHistory('csv')" class="border border-outline-variant hover:bg-surface-container-high text-on-surface font-data-mono text-label-xs h-8 px-3 uppercase">CSV</button>
+                <button onclick="exportHistory('json')" class="border border-outline-variant hover:bg-surface-container-high text-on-surface font-data-mono text-label-xs h-8 px-3 uppercase">JSON</button>
+            </div>
+        </div>
+
+        <!-- Main Table Container -->
+        <div class="flex-1 bg-surface-dim border border-outline-variant overflow-hidden flex flex-col min-h-0">
+            <div class="overflow-y-auto flex-1">
+                <table class="w-full border-collapse font-data-mono text-[11px] text-left">
+                    <thead class="sticky top-0 bg-surface-container-high border-b border-outline-variant z-10">
+                        <tr>
+                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider border-r border-outline-variant/30 w-1/4">Target Identity</th>
+                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider border-r border-outline-variant/30 w-1/4">Timestamp Local</th>
+                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider border-r border-outline-variant/30 w-1/6">Duration</th>
+                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider border-r border-outline-variant/30 w-1/6">Open Ports</th>
+                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant/20" id="history-table-body">
+                        <!-- Filled dynamically -->
+                        <tr>
+                            <td colspan="5" class="text-center p-8 text-on-surface-variant italic">No scanning operations logged.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- VIEW 4: Advanced Configuration -->
+    <main id="view-configuration" class="view-stage hidden ml-64 mt-12 h-[calc(100vh-3rem)] overflow-y-auto bg-background p-margin flex flex-col gap-4">
+        <!-- Configuration Header -->
+        <div class="flex-none flex items-center justify-between border-b border-outline-variant pb-4">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="font-data-mono text-label-xs text-primary-fixed-dim bg-on-primary-fixed/30 px-1.5 py-0.5 border border-primary-fixed-dim/20">CONFIG_MODE</span>
+                    <span class="font-data-mono text-label-xs text-on-surface-variant">/ SYSTEM / ENGINE_PARAMS / ADVANCED</span>
+                </div>
+                <h2 class="font-display-tech text-display-tech text-on-surface uppercase tracking-tight">Engine Parameters</h2>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="resetSettings()" class="bg-surface-container border border-outline-variant text-on-surface font-data-mono text-data-mono px-4 h-8 hover:bg-surface-container-high transition-colors rounded-sm">
+                    RESET_DEFAULTS
+                </button>
+                <button onclick="commitSettings()" class="bg-primary-container text-on-primary font-data-mono-bold text-data-mono px-4 h-8 hover:opacity-90 transition-opacity rounded-sm">
+                    COMMIT_CHANGES
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabbed Interface Container -->
+        <div class="flex-1 flex gap-gutter min-h-0 overflow-hidden">
+            <!-- Tab Controls (Left) -->
+            <div class="w-48 flex flex-col gap-1 shrink-0">
+                <button class="config-tab-btn active text-left px-3 py-2.5 bg-surface-container-lowest border border-outline-variant border-l-2 border-l-primary-container font-data-mono text-data-mono-bold text-primary-fixed-dim rounded-sm" onclick="switchConfigTab('engine-config')">
+                    01. ENGINE_CONFIG
+                </button>
+                <button class="config-tab-btn text-left px-3 py-2.5 bg-surface-container-low border border-outline-variant border-l-2 border-l-transparent font-data-mono text-data-mono text-on-surface-variant hover:bg-surface-container-high rounded-sm transition-all" onclick="switchConfigTab('proxy-vpn')">
+                    02. PROXY_VPN
+                </button>
+                <button class="config-tab-btn text-left px-3 py-2.5 bg-surface-container-low border border-outline-variant border-l-2 border-l-transparent font-data-mono text-data-mono text-on-surface-variant hover:bg-surface-container-high rounded-sm transition-all" onclick="switchConfigTab('script-editor')">
+                    03. SCRIPT_EDITOR
+                </button>
+            </div>
+            <!-- Tab Content Pane -->
+            <div class="flex-1 bg-surface-container-lowest border border-outline-variant overflow-hidden relative rounded-sm flex flex-col">
+                <!-- Tab: Engine Config -->
+                <div class="config-tab-content h-full p-8 space-y-10 overflow-y-auto" id="config-engine-config">
+                    <section>
+                        <h3 class="font-data-mono-bold text-data-mono text-primary-fixed-dim mb-6 flex items-center">
+                            <span class="material-symbols-outlined text-[18px] mr-2">terminal</span> THREAD_MANAGEMENT
+                        </h3>
+                        <div class="grid grid-cols-2 gap-12">
+                            <div class="space-y-5">
+                                <div class="flex justify-between items-end">
+                                    <label class="font-data-mono text-label-xs text-on-surface-variant uppercase tracking-wider">MAX_THREADS (CONCURRENT PORTS)</label>
+                                    <span id="val-max-threads" class="font-data-mono-bold text-primary-container text-data-mono">64</span>
+                                </div>
+                                <input id="cfg-max-threads" class="w-full h-1.5 bg-surface-container accent-primary-container cursor-pointer appearance-none rounded-full" max="256" min="10" type="range" value="64" oninput="document.getElementById('val-max-threads').textContent=this.value"/>
+                                <p class="font-data-mono text-label-xs text-on-surface-variant opacity-60 italic">Concurrent connection workers for TCP scanning.</p>
+                            </div>
+                            <div class="space-y-5">
+                                <div class="flex justify-between items-end">
+                                    <label class="font-data-mono text-label-xs text-on-surface-variant uppercase tracking-wider">IO_TIMEOUT (MS)</label>
+                                    <span id="val-timeout" class="font-data-mono-bold text-primary-container text-data-mono">500</span>
+                                </div>
+                                <input id="cfg-timeout" class="w-full h-1.5 bg-surface-container accent-primary-container cursor-pointer appearance-none rounded-full" max="3000" min="100" step="50" type="range" value="500" oninput="document.getElementById('val-timeout').textContent=this.value"/>
+                                <p class="font-data-mono text-label-xs text-on-surface-variant opacity-60 italic">Maximum connection wait latency before timeout.</p>
+                            </div>
+                        </div>
+                    </section>
+                    <section>
+                        <h3 class="font-data-mono-bold text-data-mono text-primary-fixed-dim mb-6 flex items-center">
+                            <span class="material-symbols-outlined text-[18px] mr-2">security</span> SCAN_SENSITIVITY
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-surface-container border border-outline-variant hover:border-outline transition-colors group">
+                                <div>
+                                    <p class="font-data-mono-bold text-data-mono text-on-surface">AGGRESSIVE_PORT_SCANNING</p>
+                                    <p class="font-data-mono text-label-xs text-on-surface-variant opacity-70 mt-1">Shorter delays between connection attempts.</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input id="cfg-aggressive" checked="" class="sr-only peer" type="checkbox"/>
+                                    <div class="w-10 h-5 bg-surface-container-highest border border-outline-variant peer-checked:bg-primary-container/30 peer-checked:border-primary-container after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-on-surface-variant after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-5 peer-checked:after:bg-primary-container"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-surface-container border border-outline-variant hover:border-outline transition-colors group">
+                                <div>
+                                    <p class="font-data-mono-bold text-data-mono text-on-surface">BANNER_GRABBING_ENGINE</p>
+                                    <p class="font-data-mono text-label-xs text-on-surface-variant opacity-70 mt-1">Read server headers for precise application fingerprinting.</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input id="cfg-banner-grab" checked="" class="sr-only peer" type="checkbox"/>
+                                    <div class="w-10 h-5 bg-surface-container-highest border border-outline-variant peer-checked:bg-primary-container/30 peer-checked:border-primary-container after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-on-surface-variant after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-5 peer-checked:after:bg-primary-container"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                
+                <!-- Tab: Proxy/VPN -->
+                <div class="config-tab-content hidden h-full p-8 space-y-8 overflow-y-auto" id="config-proxy-vpn">
+                    <section>
+                        <h3 class="font-data-mono-bold text-data-mono text-primary-fixed-dim mb-6 flex items-center">
+                            <span class="material-symbols-outlined text-[18px] mr-2">vpn_lock</span> NETWORK_INTERFACE
+                        </h3>
+                        <div class="grid grid-cols-1 gap-3">
+                            <div class="bg-surface-container border border-primary-container p-4 flex justify-between items-center group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-2.5 h-2.5 bg-secondary-fixed shadow-[0_0_10px_rgba(114,255,112,0.4)]"></div>
+                                    <div>
+                                        <p class="font-data-mono-bold text-data-mono text-on-surface" id="active-interface-name">SYSTEM_DEFAULT_INTERFACE</p>
+                                        <p class="font-data-mono text-label-xs text-on-surface-variant mt-0.5">Primary routing table interface.</p>
+                                    </div>
+                                </div>
+                                <span class="font-data-mono text-label-xs text-secondary-fixed border border-secondary-fixed/30 px-2.5 py-1 bg-secondary-fixed/5 uppercase tracking-wide">Active</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                
+                <!-- Tab: Script Editor -->
+                <div class="config-tab-content hidden h-full flex flex-col overflow-hidden" id="config-script-editor">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant bg-surface-container-low flex-none">
+                        <div class="flex items-center gap-4">
+                            <span class="font-data-mono-bold text-data-mono text-primary-fixed-dim uppercase tracking-widest">custom_scan_script.json</span>
+                            <span class="text-[10px] font-data-mono text-secondary-fixed bg-secondary-fixed/5 px-2 py-0.5 border border-secondary-fixed/20 rounded-sm">LINT_PASSED</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 relative font-data-mono text-[12px] leading-relaxed overflow-hidden">
+                        <textarea id="cfg-custom-script" class="w-full h-full bg-surface-container-lowest font-data-mono text-xs text-on-surface-variant p-6 resize-none border-none focus:ring-0 outline-none" spellcheck="false">{
+  "engine_hook": "pre_scan",
+  "meta": {
+    "author": "ANALYST_01",
+    "version": "1.0.4",
+    "target": "TCP_STACK_VAL"
+  },
+  "rules": [
+    {
+      "match": "SYN_ACK_MISMATCH",
+      "action": "DROP_AND_LOG",
+      "threshold": 0.85
+    }
+  ]
+}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Visual Accents -->
+    <div class="fixed bottom-margin right-margin flex flex-col gap-2 pointer-events-none opacity-40 z-30">
+        <div class="h-[1px] w-32 bg-primary-container"></div>
+        <div class="h-[1px] w-24 bg-primary-container self-end"></div>
+    </div>
+
+    <!-- Page Logic Script -->
+    <script>
+        // Active scan tracking variables
+        let activeView = 'dashboard';
+        let activeModule = 'common';
+        let currentTarget = '';
+        let scanIsRunning = false;
+        let selectedHostIp = null;
+        let hostsData = {}; // Stores key: hostIp, value: {ip, label, isUp, ports: []}
+        let historyData = [];
+
+        // UI Tabs switching
+        function switchView(viewName) {
+            activeView = viewName;
+            
+            // Hide all views
+            document.querySelectorAll('.view-stage').forEach(el => {
+                el.classList.add('hidden');
+            });
+            // Show selected
+            document.getElementById('view-' + viewName).classList.remove('hidden');
+
+            // Update nav selection
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.className = "nav-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors px-6 py-3 flex items-center gap-3 cursor-pointer";
+            });
+            document.getElementById('nav-' + viewName).className = "nav-item text-primary-container bg-surface-container-highest border-l-4 border-primary-container px-6 py-3 flex items-center gap-3 cursor-pointer";
+
+            // Update header title
+            const headerTitle = document.getElementById('header-title');
+            if (viewName === 'dashboard') {
+                headerTitle.textContent = 'BLUE_TEAM_TERMINAL';
+            } else if (viewName === 'scan-results') {
+                headerTitle.textContent = 'ACTIVE_RECONNAISSANCE';
+            } else if (viewName === 'history') {
+                headerTitle.textContent = 'RECON_LOGS_HISTORY';
+            } else if (viewName === 'configuration') {
+                headerTitle.textContent = 'ENGINE_PARAMETERS';
+            }
+
+            if (viewName === 'history') {
+                requestHistoryFromDart();
+            }
+        }
+
+        // Configuration internal tabs switching
+        function switchConfigTab(tabId) {
+            document.querySelectorAll('.config-tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById('config-' + tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.config-tab-btn').forEach(btn => {
+                btn.className = "config-tab-btn text-left px-3 py-2.5 bg-surface-container-low border border-outline-variant border-l-2 border-l-transparent font-data-mono text-data-mono text-on-surface-variant hover:bg-surface-container-high rounded-sm transition-all";
+                if (btn.getAttribute('onclick').includes(tabId)) {
+                    btn.className = "config-tab-btn active text-left px-3 py-2.5 bg-surface-container-lowest border border-outline-variant border-l-2 border-l-primary-container font-data-mono text-data-mono-bold text-primary-fixed-dim rounded-sm";
+                }
+            });
+        }
+
+        // Apply quick presets to input
+        function applyPreset(presetType) {
+            const input = document.getElementById('scan-target');
+            if (presetType === 'LOCAL_NET') {
+                input.value = '192.168.1.0/24';
+            } else if (presetType === 'CLOUD_ASSET') {
+                input.value = 'google.com';
+            } else if (presetType === 'EXTERNAL_IP') {
+                input.value = '1.1.1.1';
+            }
+        }
+
+        // Select scanning module
+        function selectModule(modName) {
+            activeModule = modName;
+            document.querySelectorAll('section.grid > article').forEach(el => {
+                el.className = "border border-outline-variant bg-surface-container-lowest p-4 flex flex-col justify-between group cursor-pointer hover:border-primary-container transition-all relative";
+            });
+            document.querySelectorAll('section.grid > article [id$="-check"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            document.getElementById('mod-' + modName).className = "border border-primary-container bg-surface-container-lowest p-4 flex flex-col justify-between group cursor-pointer hover:border-primary-container transition-all relative";
+            document.getElementById('mod-' + modName + '-check').classList.remove('hidden');
+        }
+
+        // Trigger scan action
+        function triggerStartScan() {
+            const targetInput = document.getElementById('scan-target').value.trim();
+            if (!targetInput) {
+                alert('Please enter a target!');
+                return;
+            }
+
+            if (scanIsRunning) {
+                // Cancel scan
+                scanIsRunning = false;
+                updateScanButtonState(false);
+                if (window.flutter_inappwebview) {
+                    window.flutter_inappwebview.callHandler('stopScan');
+                }
+                addLog('SYSTEM', 'WARN', 'Scan execution aborted by analyst.');
+            } else {
+                // Start scan
+                currentTarget = targetInput;
+                scanIsRunning = true;
+                updateScanButtonState(true);
+                
+                // Reset active scan data
+                hostsData = {};
+                selectedHostIp = null;
+                updateHostsTreeView();
+                updatePortsTable();
+
+                addLog('SYSTEM', 'INFO', 'Initializing module GNNscan_' + activeModule.toUpperCase() + '...');
+                addLog('SYSTEM', 'INFO', 'Target acquired: ' + targetInput);
+
+                if (window.flutter_inappwebview) {
+                    window.flutter_inappwebview.callHandler('startScan', {
+                        target: targetInput,
+                        module: activeModule
+                    });
+                } else {
+                    // Simulation mode for browser testing
+                    simulateScan(targetInput);
+                }
+            }
+        }
+
+        function updateScanButtonState(isRunning) {
+            const btn = document.getElementById('btn-scan-action');
+            const icon = document.getElementById('icon-scan-action');
+            const text = document.getElementById('text-scan-action');
+            const termPulse = document.getElementById('terminal-pulse');
+            const termStatus = document.getElementById('terminal-status-text');
+
+            if (isRunning) {
+                btn.className = "bg-error text-on-error font-data-mono-bold px-8 flex items-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all";
+                icon.textContent = "stop";
+                text.textContent = "ABORT SCAN";
+                termPulse.className = "w-1.5 h-1.5 bg-error rounded-full animate-pulse";
+                termStatus.className = "font-data-mono text-label-xs text-error";
+                termStatus.textContent = "SCANNING";
+                document.getElementById('header-scan-progress-container').classList.remove('hidden');
+            } else {
+                btn.className = "bg-primary-container text-on-primary-fixed font-data-mono-bold px-8 flex items-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all";
+                icon.textContent = "rocket_launch";
+                text.textContent = "INITIATE SCAN";
+                termPulse.className = "w-1.5 h-1.5 bg-secondary-fixed-dim rounded-full animate-pulse";
+                termStatus.className = "font-data-mono text-label-xs text-secondary-fixed-dim";
+                termStatus.textContent = "LISTENING";
+                document.getElementById('header-scan-progress-container').classList.add('hidden');
+            }
+        }
+
+        // Bridge: Add log to terminal
+        function addLog(timestamp, type, msg) {
+            const content = document.getElementById('terminal-content');
+            const div = document.createElement('div');
+            div.className = 'flex gap-4 animate-in fade-in slide-in-from-left-2 duration-300';
+            
+            let typeColor = 'text-secondary-fixed-dim';
+            if (type === 'WARN') typeColor = 'text-error';
+            if (type === 'COMM') typeColor = 'text-primary-fixed-dim';
+
+            let displayTime = timestamp;
+            if (timestamp === 'SYSTEM') {
+                displayTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false});
+            }
+
+            div.innerHTML = `
+                <span class="text-outline shrink-0">[ ${displayTime} ]</span>
+                <span class="${typeColor} shrink-0">[ ${type} ]</span>
+                <span class="text-on-surface-variant">${msg}</span>
+            `;
+            content.appendChild(div);
+            content.scrollTop = content.scrollHeight;
+
+            // Update row count display
+            const count = content.children.length;
+            document.getElementById('log-count-display').textContent = 'ROWS: ' + count;
+        }
+
+        // Bridge: Host discovered
+        function addHostDiscovered(ip, label, isUp) {
+            if (!hostsData[ip]) {
+                hostsData[ip] = { ip: ip, label: label || 'UNKNOWN', isUp: isUp, ports: [] };
+            } else {
+                hostsData[ip].isUp = isUp;
+                if (label) hostsData[ip].label = label;
+            }
+
+            // Update total active hosts count
+            let activeCount = 0;
+            for (let k in hostsData) {
+                if (hostsData[k].isUp) activeCount++;
+            }
+            document.getElementById('header-active-count').textContent = activeCount + ' ACTIVE';
+            document.getElementById('hosts-found-count').textContent = 'FOUND: ' + Object.keys(hostsData).length;
+
+            updateHostsTreeView();
+        }
+
+        // Bridge: Port discovered on host
+        function addPortDiscovered(ip, port, protocol, state, service, version, vulnScore, vulnLevel) {
+            if (!hostsData[ip]) {
+                addHostDiscovered(ip, null, true);
+            }
+            // Avoid duplicate ports
+            const ports = hostsData[ip].ports;
+            const idx = ports.findIndex(p => p.port === port && p.protocol === protocol);
+            const portInfo = { port, protocol, state, service, version, vulnScore, vulnLevel };
+            if (idx === -1) {
+                ports.push(portInfo);
+            } else {
+                ports[idx] = portInfo;
+            }
+
+            if (selectedHostIp === ip) {
+                updatePortsTable();
+            }
+        }
+
+        // Update hosts tree HTML view
+        function updateHostsTreeView() {
+            const container = document.getElementById('hosts-tree-container');
+            if (Object.keys(hostsData).length === 0) {
+                container.innerHTML = `<p class="text-on-surface-variant p-4 italic text-center">No host data yet. Run a scan to see results.</p>`;
+                return;
+            }
+
+            let html = `<div class="mb-4">
+                <div class="flex items-center space-x-2 py-1 px-2 hover:bg-surface-container-high cursor-pointer group">
+                    <span class="material-symbols-outlined text-sm text-outline">keyboard_arrow_down</span>
+                    <span class="material-symbols-outlined text-sm text-primary-fixed-dim">dns</span>
+                    <span class="text-on-surface font-bold">DISCOVERED TARGETS</span>
+                </div>
+                <ul class="ml-6 border-l border-outline-variant mt-1 space-y-0.5 list-none">`;
+
+            for (let ip in hostsData) {
+                const host = hostsData[ip];
+                const isSelected = selectedHostIp === ip;
+                const activeClasses = isSelected ? 'bg-surface-container-highest border-l-2 border-primary-container relative group text-primary-container font-data-mono-bold' : 'hover:bg-surface-container-high transition-all cursor-pointer group text-on-surface-variant';
+                const statusDot = host.isUp ? 'bg-secondary-fixed-dim shadow-[0_0_5px_rgba(0,230,57,0.5)]' : 'bg-error';
+                const tag = isSelected ? 'SELECTED_TARGET' : host.label;
+                const tagColor = isSelected ? 'text-primary-fixed-dim' : 'text-on-surface-variant';
+
+                html += `
+                <li>
+                    <div onclick="selectHost('${ip}')" class="flex items-center justify-between py-1.5 px-3 ${activeClasses}">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-1.5 h-1.5 ${statusDot} rounded-full"></div>
+                            <span>${host.ip}</span>
+                        </div>
+                        <span class="text-[10px] ${tagColor}">${tag}</span>
+                    </div>
+                </li>`;
+            }
+
+            html += `</ul></div>`;
+            container.innerHTML = html;
+        }
+
+        // Select host from tree view
+        function selectHost(ip) {
+            selectedHostIp = ip;
+            updateHostsTreeView();
+            
+            const host = hostsData[ip];
+            document.getElementById('selected-host-title').textContent = 'Target: ' + host.ip;
+            document.getElementById('selected-host-os').textContent = host.label;
+            document.getElementById('selected-host-latency').textContent = host.isUp ? '0.8ms' : 'TIMEOUT';
+
+            updatePortsTable();
+        }
+
+        // Update ports list table
+        function updatePortsTable() {
+            const body = document.getElementById('ports-table-body');
+            if (!selectedHostIp || !hostsData[selectedHostIp]) {
+                body.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-on-surface-variant italic">Select an IP address on the left to see open ports.</td></tr>`;
+                return;
+            }
+
+            const host = hostsData[selectedHostIp];
+            if (host.ports.length === 0) {
+                body.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-on-surface-variant italic">No open ports found on this host yet.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            // Sort ports numerically
+            const sortedPorts = [...host.ports].sort((a, b) => a.port - b.port);
+            sortedPorts.forEach(p => {
+                let badgeClass = 'bg-secondary-fixed-dim/10 text-secondary-fixed-dim border border-secondary-fixed-dim/30';
+                if (p.state.toUpperCase() === 'CLOSED') {
+                    badgeClass = 'bg-surface-container-high/40 text-outline border border-outline/30';
+                } else if (p.state.toUpperCase() !== 'OPEN') {
+                    badgeClass = 'bg-error-container/20 text-error border border-error/30';
+                }
+
+                let vulnClass = 'text-on-surface-variant';
+                if (p.vulnLevel === 'HIGH' || p.vulnLevel === 'CRITICAL') vulnClass = 'text-error font-data-mono-bold';
+                else if (p.vulnLevel === 'MEDIUM') vulnClass = 'text-tertiary-fixed-dim';
+
+                const displayVuln = p.vulnScore !== 'N/A' ? `${p.vulnScore} <span class="text-[10px]">${p.vulnLevel}</span>` : 'N/A';
+
+                html += `
+                <tr class="hover:bg-surface-container-high transition-colors">
+                    <td class="px-4 py-2 text-primary-fixed-dim">${p.port}</td>
+                    <td class="px-4 py-2">${p.protocol}</td>
+                    <td class="px-4 py-2">
+                        <span class="status-badge ${badgeClass}">[ ${p.state.toUpperCase()} ]</span>
+                    </td>
+                    <td class="px-4 py-2">${p.service}</td>
+                    <td class="px-4 py-2 text-on-surface-variant truncate">${p.version || 'UNKNOWN'}</td>
+                    <td class="px-4 py-2 text-right ${vulnClass}">${displayVuln}</td>
+                </tr>`;
+            });
+
+            body.innerHTML = html;
+        }
+
+        // Bridge: Update progress
+        function onProgressUpdate(progressPercent) {
+            document.getElementById('header-scan-progress-bar').style.width = progressPercent + '%';
+            document.getElementById('header-scan-progress-text').textContent = progressPercent.toFixed(1) + '%';
+        }
+
+        // Bridge: Scan completed
+        function onScanFinished() {
+            scanIsRunning = false;
+            updateScanButtonState(false);
+            addLog('SYSTEM', 'INFO', 'Reconnaissance operation complete.');
+            
+            // Auto switch to results page to show findings
+            switchView('scan-results');
+            
+            // Re-fetch history since a new scan completed
+            requestHistoryFromDart();
+        }
+
+        // Bridge: Load Settings
+        function loadSettingsFromDart() {
+            if (window.flutter_inappwebview) {
+                window.flutter_inappwebview.callHandler('loadSettings').then(settings => {
+                    if (settings) {
+                        applySettingsToUI(settings);
+                    }
+                });
+            }
+        }
+
+        function applySettingsToUI(settings) {
+            document.getElementById('cfg-max-threads').value = settings.maxThreads || 64;
+            document.getElementById('val-max-threads').textContent = settings.maxThreads || 64;
+            document.getElementById('cfg-timeout').value = settings.timeoutMs || 500;
+            document.getElementById('val-timeout').textContent = settings.timeoutMs || 500;
+            document.getElementById('cfg-aggressive').checked = settings.aggressive || false;
+            document.getElementById('cfg-banner-grab').checked = settings.bannerGrabbing || false;
+            document.getElementById('cfg-custom-script').value = settings.customScript || '';
+        }
+
+        // UI trigger: Commit settings
+        function commitSettings() {
+            const maxThreads = parseInt(document.getElementById('cfg-max-threads').value);
+            const timeoutMs = parseInt(document.getElementById('cfg-timeout').value);
+            const aggressive = document.getElementById('cfg-aggressive').checked;
+            const bannerGrabbing = document.getElementById('cfg-banner-grab').checked;
+            const customScript = document.getElementById('cfg-custom-script').value;
+
+            const settings = {
+                maxThreads,
+                timeoutMs,
+                aggressive,
+                bannerGrabbing,
+                customScript
+            };
+
+            if (window.flutter_inappwebview) {
+                window.flutter_inappwebview.callHandler('saveSettings', settings).then(success => {
+                    if (success) {
+                        alert('ENGINE PARAMETERS COMMITTED.');
+                    }
+                });
+            } else {
+                alert('MOCK MODE: Settings saved.');
+            }
+        }
+
+        // UI trigger: Reset defaults
+        function resetSettings() {
+            const defaults = {
+                maxThreads: 64,
+                timeoutMs: 500,
+                aggressive: true,
+                bannerGrabbing: true,
+                customScript: JSON.stringify({
+                  "engine_hook": "pre_scan",
+                  "meta": {
+                    "author": "ANALYST_01",
+                    "version": "1.0.4",
+                    "target": "TCP_STACK_VAL"
+                  },
+                  "rules": [
+                    {
+                      "match": "SYN_ACK_MISMATCH",
+                      "action": "DROP_AND_LOG",
+                      "threshold": 0.85
+                    }
+                  ]
+                }, null, 2)
+            };
+            applySettingsToUI(defaults);
+        }
+
+        // Bridge: Load History
+        function requestHistoryFromDart() {
+            if (window.flutter_inappwebview) {
+                window.flutter_inappwebview.callHandler('loadHistory').then(history => {
+                    if (history) {
+                        historyData = history;
+                        populateHistoryTable(history);
+                    }
+                });
+            }
+        }
+
+        function populateHistoryTable(history) {
+            const body = document.getElementById('history-table-body');
+            
+            // Calculate Stats
+            const totalScans = history.length;
+            let totalFindings = 0;
+            let totalDurationMs = 0;
+
+            history.forEach(item => {
+                totalFindings += (item.findingsCount || 0);
+                totalDurationMs += (item.durationMs || 0);
+            });
+
+            const avgDurationSec = totalScans > 0 ? Math.floor((totalDurationMs / totalScans) / 1000) : 0;
+            const meanMin = Math.floor(avgDurationSec / 60);
+            const meanSec = avgDurationSec % 60;
+            
+            document.getElementById('stats-total-scans').textContent = totalScans;
+            document.getElementById('stats-total-findings').textContent = totalFindings;
+            document.getElementById('stats-mean-duration').textContent = meanMin + ':' + (meanSec < 10 ? '0' : '') + meanSec;
+
+            if (totalScans === 0) {
+                body.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-on-surface-variant italic">No scanning operations logged.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            history.forEach(item => {
+                const dateStr = item.timestamp || 'N/A';
+                const durationSec = Math.floor((item.durationMs || 0) / 1000);
+                const min = Math.floor(durationSec / 60);
+                const sec = durationSec % 60;
+                const durationStr = min + ':' + (sec < 10 ? '0' : '') + sec;
+
+                let statusBadge = `<div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-secondary-fixed shadow-[0_0_4px_#72ff70]"></span>
+                    <span class="text-secondary-fixed uppercase">[ COMPLETED ]</span>
+                </div>`;
+                if (item.status === 'ABORTED') {
+                    statusBadge = `<div class="flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-error shadow-[0_0_4px_#ffb4ab]"></span>
+                        <span class="text-error uppercase">[ ABORTED ]</span>
+                    </div>`;
+                }
+
+                html += `
+                <tr class="hover:bg-surface-container-high transition-colors cursor-pointer" onclick="loadHistoryItemToActive('${item.target}')">
+                    <td class="p-2 border-r border-outline-variant/20">
+                        <div class="flex flex-col">
+                            <span class="text-primary-container font-bold">${item.target}</span>
+                            <span class="text-[9px] text-on-surface-variant">MODULE: ${item.module.toUpperCase()}</span>
+                        </div>
+                    </td>
+                    <td class="p-2 border-r border-outline-variant/20 uppercase">${dateStr}</td>
+                    <td class="p-2 border-r border-outline-variant/20">${durationStr}</td>
+                    <td class="p-2 border-r border-outline-variant/20 text-primary-fixed-dim font-bold">${item.findingsCount} OPEN</td>
+                    <td class="p-2">${statusBadge}</td>
+                </tr>`;
+            });
+
+            body.innerHTML = html;
+        }
+
+        // Click history item: load it back to scan-results for inspection!
+        function loadHistoryItemToActive(target) {
+            // Find history item
+            const item = historyData.find(h => h.target === target);
+            if (!item || !item.resultData) return;
+
+            // Load host details into Active view
+            hostsData = item.resultData;
+            selectedHostIp = null;
+            updateHostsTreeView();
+            updatePortsTable();
+
+            switchView('scan-results');
+        }
+
+        function filterHistoryTable() {
+            const query = document.getElementById('history-filter').value.toLowerCase();
+            const filtered = historyData.filter(h => h.target.toLowerCase().includes(query) || h.module.toLowerCase().includes(query));
+            populateHistoryTable(filtered);
+        }
+
+        function clearHistory() {
+            if (confirm('Permanently wipe scan history logs?')) {
+                if (window.flutter_inappwebview) {
+                    window.flutter_inappwebview.callHandler('clearHistory').then(() => {
+                        requestHistoryFromDart();
+                    });
+                } else {
+                    historyData = [];
+                    populateHistoryTable([]);
+                }
+            }
+        }
+
+        function exportHistory(format) {
+            if (window.flutter_inappwebview) {
+                window.flutter_inappwebview.callHandler('exportHistory', format).then(filePath => {
+                    if (filePath) {
+                        alert('EXPORTED SUCCESS: ' + filePath);
+                    }
+                });
+            } else {
+                alert('MOCK MODE: Exported to ' + format.toUpperCase());
+            }
+        }
+
+        // Terminal UI options
+        function clearTerminalLogs() {
+            document.getElementById('terminal-content').innerHTML = '';
+            document.getElementById('log-count-display').textContent = 'ROWS: 0';
+        }
+
+        function downloadTerminalLogs() {
+            const logsText = document.getElementById('terminal-content').innerText;
+            if (window.flutter_inappwebview) {
+                window.flutter_inappwebview.callHandler('saveLogs', logsText).then(filePath => {
+                    if (filePath) alert('LOGS SAVED: ' + filePath);
+                });
+            } else {
+                alert('MOCK MODE: Logs copied.');
+            }
+        }
+
+        // Browser Simulation Mode (when running outside Flutter)
+        function simulateScan(target) {
+            addLog('SYSTEM', 'INFO', 'Running in simulator sandbox.');
+            let progress = 0;
+            const interval = setInterval(() => {
+                if (!scanIsRunning) {
+                    clearInterval(interval);
+                    return;
+                }
+                progress += 5;
+                onProgressUpdate(progress);
+
+                if (progress === 15) {
+                    addLog('SYSTEM', 'COMM', 'Host 192.168.1.1 responds [GATEWAY].');
+                    addHostDiscovered('192.168.1.1', 'Cisco Gateway Core', true);
+                    addPortDiscovered('192.168.1.1', 80, 'TCP', 'open', 'http', 'nginx/1.22.0', '1.2', 'LOW');
+                    addPortDiscovered('192.168.1.1', 443, 'TCP', 'open', 'https', 'nginx/1.22.0', '1.2', 'LOW');
+                } else if (progress === 45) {
+                    addLog('SYSTEM', 'COMM', 'Host 192.168.1.42 responds [SELECTED_TARGET].');
+                    addHostDiscovered('192.168.1.42', 'Ubuntu Linux Host', true);
+                    addPortDiscovered('192.168.1.42', 22, 'TCP', 'open', 'ssh', 'OpenSSH 8.9p1', '2.4', 'LOW');
+                    addPortDiscovered('192.168.1.42', 80, 'TCP', 'open', 'http', 'Apache httpd 2.4.52', '7.5', 'HIGH');
+                    addPortDiscovered('192.168.1.42', 3306, 'TCP', 'filtered', 'mysql', 'MySQL 8.0.33', 'N/A', 'LOW');
+                } else if (progress === 75) {
+                    addLog('SYSTEM', 'COMM', 'Host 192.168.1.55 responds [DB_SERVER].');
+                    addHostDiscovered('192.168.1.55', 'PostgreSQL DB Host', true);
+                    addPortDiscovered('192.168.1.55', 5432, 'TCP', 'open', 'postgresql', 'PostgreSQL 14.2', '0.0', 'LOW');
+                }
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    onScanFinished();
+                }
+            }, 300);
+        }
+
+        // Background simulation for telemetry
+        function initTelemetryStats() {
+            setInterval(() => {
+                const cpuVal = Math.floor(Math.random() * 20) + (scanIsRunning ? 40 : 5);
+                const memVal = Math.floor(Math.random() * 5) + (scanIsRunning ? 55 : 35);
+                
+                document.getElementById('cpu-bar').style.width = cpuVal + '%';
+                document.getElementById('mem-bar').style.width = memVal + '%';
+            }, 3000);
+        }
+
+        window.onload = () => {
+            initTelemetryStats();
+            // Try loading settings from Dart
+            setTimeout(loadSettingsFromDart, 1000);
+            setTimeout(requestHistoryFromDart, 1000);
+        };
+    </script>
+</body>
+</html>

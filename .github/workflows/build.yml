@@ -1,0 +1,90 @@
+name: GNNscan Build CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build Windows App & Installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run Tests
+        run: flutter test
+
+      - name: Build Windows Application
+        run: flutter build windows --release
+
+      - name: Verify Build Artifacts
+        run: |
+          if (Test-Path "build\windows\x64\runner\Release\gnnscan.exe") {
+            Write-Host "Windows build success!"
+          } else {
+            Write-Error "Windows executable missing!"
+            exit 1
+          }
+
+      - name: Compile Inno Setup Installer
+        run: iscc setup.iss
+
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GNNscan-Windows-Installer
+          path: GNNscan_Setup.exe
+          if-no-files-found: error
+
+  build-ios:
+    name: Build iOS Bundle
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run Tests
+        run: flutter test
+
+      - name: Build iOS App Bundle (No Codesign)
+        run: flutter build ios --release --no-codesign
+
+      - name: Zip iOS Build Product
+        run: |
+          cd build/ios/iphoneos
+          zip -r ../../../GNNscan_iOS_Bundle.zip Runner.app
+
+      - name: Upload iOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GNNscan-iOS-Bundle
+          path: GNNscan_iOS_Bundle.zip
+          if-no-files-found: error
