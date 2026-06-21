@@ -111,7 +111,7 @@ jobs:
         run: flutter test
 
       - name: Build macOS Application
-        run: flutter build macos --release --no-codesign
+        run: flutter build macos --release
 
       - name: Zip macOS App Bundle
         run: |
