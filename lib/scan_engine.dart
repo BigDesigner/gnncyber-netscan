@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 class ScanEngine {
@@ -10,7 +11,7 @@ class ScanEngine {
 
   // Callbacks to communicate status back to UI
   final Function(String timestamp, String type, String msg) onLog;
-  final Function(String ip, String label, bool isUp) onHostDiscovered;
+  final Function(String ip, String label, bool isUp, String mac, String vendor) onHostDiscovered;
   final Function(String ip, int port, String protocol, String state, String service, String version, String vulnScore, String vulnLevel) onPortDiscovered;
   final Function(double progress) onProgress;
   final Function() onFinished;
@@ -54,7 +55,11 @@ class ScanEngine {
 
       _log('INFO', 'Resolved ${ipList.length} IP target address(es).');
 
-      // 1. Host Discovery (TCP Ping)
+      // Fetch initial ARP table
+      _log('INFO', 'Querying local network ARP mappings...');
+      Map<String, String> arpTable = await _getArpTable();
+
+      // 1. Host Discovery (TCP Ping & ARP Sweep)
       _log('INFO', 'Starting host discovery sweep...');
       List<String> activeHosts = [];
       int completedHosts = 0;
@@ -64,18 +69,30 @@ class ScanEngine {
         worker: (ip) async {
           if (_isAborted) return;
           _log('INFO', 'Sweeping target: $ip');
-          bool isUp = await _pingHost(ip);
+          
+          bool isUp = false;
+          // If already dynamic in ARP cache, it is up
+          if (arpTable.containsKey(ip)) {
+            isUp = true;
+          } else {
+            isUp = await _pingHost(ip);
+          }
+          
           completedHosts++;
           onProgress((completedHosts / ipList.length) * 30.0); // Host discovery occupies first 30% of progress
 
           if (isUp) {
             _log('COMM', 'Host responds active: $ip');
             activeHosts.add(ip);
-            onHostDiscovered(ip, 'ACTIVE_NODE', true);
+            
+            final mac = arpTable[ip] ?? 'N/A';
+            final vendor = mac != 'N/A' ? await _getMacVendor(mac) : 'UNKNOWN';
+            
+            onHostDiscovered(ip, 'ACTIVE_NODE', true, mac, vendor);
           } else {
             // For single target, still show it as unreachable
             if (ipList.length == 1) {
-              onHostDiscovered(ip, 'UNREACHABLE', false);
+              onHostDiscovered(ip, 'UNREACHABLE', false, 'N/A', 'UNKNOWN');
             }
           }
         },
@@ -84,6 +101,22 @@ class ScanEngine {
       if (_isAborted) {
         onFinished();
         return;
+      }
+
+      // Update ARP table after sweep to capture stimulated ARP responses
+      _log('INFO', 'Updating host resolution mappings via ARP cache...');
+      arpTable = await _getArpTable();
+      
+      // Add any hosts that responded to ARP but were missed by TCP ping
+      for (var ip in ipList) {
+        if (!activeHosts.contains(ip) && arpTable.containsKey(ip)) {
+          activeHosts.add(ip);
+          _log('COMM', 'Host resolved from ARP cache: $ip');
+          
+          final mac = arpTable[ip]!;
+          final vendor = await _getMacVendor(mac);
+          onHostDiscovered(ip, 'ACTIVE_NODE', true, mac, vendor);
+        }
       }
 
       _log('INFO', 'Host discovery complete. Active hosts: ${activeHosts.length}');
@@ -141,7 +174,6 @@ class ScanEngine {
     if (poolSize == 0) return;
 
     int nextTaskIndex = 0;
-    final completer = Completer<void>();
 
     Future<void> runWorker() async {
       while (true) {
@@ -401,5 +433,55 @@ class ScanEngine {
       case 5900: return 'vnc';
       default: return 'unknown';
     }
+  }
+
+  // Get local ARP table mappings
+  Future<Map<String, String>> _getArpTable() async {
+    final Map<String, String> table = {};
+    try {
+      final result = await Process.run('arp', ['-a']);
+      if (result.exitCode == 0) {
+        final ipRegex = RegExp(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b');
+        final macRegex = RegExp(r'\b([0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}\b');
+        
+        final lines = result.stdout.toString().split('\n');
+        for (var line in lines) {
+          final ipMatch = ipRegex.firstMatch(line);
+          final macMatch = macRegex.firstMatch(line);
+          if (ipMatch != null && macMatch != null) {
+            final ip = ipMatch.group(0)!;
+            final mac = macMatch.group(0)!.toUpperCase().replaceAll('-', ':');
+            
+            // Filter out broadcast and multicast MACs
+            if (mac != 'FF:FF:FF:FF:FF:FF' && !mac.startsWith('01:00:5E')) {
+              table[ip] = mac;
+            }
+          }
+        }
+      }
+    } catch (_) {}
+    return table;
+  }
+
+  // Query MAC vendor asynchronously
+  Future<String> _getMacVendor(String mac) async {
+    try {
+      final cleanMac = mac.replaceAll(':', '').replaceAll('-', '').toLowerCase();
+      if (cleanMac.length >= 6) {
+        final prefix = cleanMac.substring(0, 6);
+        final client = HttpClient();
+        client.connectionTimeout = const Duration(seconds: 2);
+        
+        final uri = Uri.parse('https://macvendors.com/query/$prefix');
+        final request = await client.getUrl(uri);
+        final response = await request.close();
+        
+        if (response.statusCode == 200) {
+          final body = await response.transform(utf8.decoder).join();
+          return body.trim();
+        }
+      }
+    } catch (_) {}
+    return 'UNKNOWN';
   }
 }

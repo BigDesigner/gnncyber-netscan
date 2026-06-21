@@ -211,14 +211,16 @@ class _MainScreenState extends State<MainScreen> {
             final escapedMsg = msg.replaceAll("'", "\\'").replaceAll('"', '\\"');
             _runJavaScript("window.gnnscan.onLogReceived('$timestamp', '$type', '$escapedMsg')");
           },
-          onHostDiscovered: (ip, label, isUp) {
+          onHostDiscovered: (ip, label, isUp, mac, vendor) {
             discoveredHostsData[ip] = {
               'ip': ip,
               'label': label,
               'isUp': isUp,
+              'mac': mac,
+              'vendor': vendor,
               'ports': []
             };
-            _runJavaScript("window.gnnscan.onHostDiscovered('$ip', '$label', $isUp)");
+            _runJavaScript("window.gnnscan.onHostDiscovered('$ip', '$label', $isUp, '$mac', '$vendor')");
           },
           onPortDiscovered: (ip, port, protocol, state, service, version, vulnScore, vulnLevel) {
             findingsCount++;

@@ -421,6 +421,7 @@
                 <div>
                     <h2 class="text-headline-sm font-data-mono-bold text-on-surface" id="selected-host-title">Target: Select a host</h2>
                     <p class="text-label-xs font-data-mono text-on-surface-variant mt-1">Host Identity: <span class="text-primary-fixed-dim" id="selected-host-os">N/A</span></p>
+                    <p class="text-[10px] font-data-mono text-outline mt-1 animate-in fade-in duration-300" id="selected-host-mac">MAC Address: <span class="text-primary-fixed-dim">N/A</span></p>
                 </div>
                 <div class="flex space-x-4">
                     <div class="text-right">
@@ -687,7 +688,7 @@
         // Bridge object for Flutter calls
         window.gnnscan = {
             onLogReceived: (timestamp, type, msg) => addLog(timestamp, type, msg),
-            onHostDiscovered: (ip, label, isUp) => addHostDiscovered(ip, label, isUp),
+            onHostDiscovered: (ip, label, isUp, mac, vendor) => addHostDiscovered(ip, label, isUp, mac, vendor),
             onPortDiscovered: (ip, port, protocol, state, service, version, vulnScore, vulnLevel) => addPortDiscovered(ip, port, protocol, state, service, version, vulnScore, vulnLevel),
             onProgressUpdate: (progress) => onProgressUpdate(progress),
             onScanFinished: () => onScanFinished()
@@ -866,12 +867,21 @@
         }
 
         // Bridge: Host discovered
-        function addHostDiscovered(ip, label, isUp) {
+        function addHostDiscovered(ip, label, isUp, mac, vendor) {
             if (!hostsData[ip]) {
-                hostsData[ip] = { ip: ip, label: label || 'UNKNOWN', isUp: isUp, ports: [] };
+                hostsData[ip] = { 
+                    ip: ip, 
+                    label: label || 'UNKNOWN', 
+                    isUp: isUp, 
+                    mac: mac || 'N/A', 
+                    vendor: vendor || 'UNKNOWN', 
+                    ports: [] 
+                };
             } else {
                 hostsData[ip].isUp = isUp;
                 if (label) hostsData[ip].label = label;
+                if (mac) hostsData[ip].mac = mac;
+                if (vendor) hostsData[ip].vendor = vendor;
             }
 
             // Update total active hosts count
@@ -888,7 +898,7 @@
         // Bridge: Port discovered on host
         function addPortDiscovered(ip, port, protocol, state, service, version, vulnScore, vulnLevel) {
             if (!hostsData[ip]) {
-                addHostDiscovered(ip, null, true);
+                addHostDiscovered(ip, null, true, 'N/A', 'UNKNOWN');
             }
             // Avoid duplicate ports
             const ports = hostsData[ip].ports;
@@ -953,6 +963,15 @@
             const host = hostsData[ip];
             document.getElementById('selected-host-title').textContent = 'Target: ' + host.ip;
             document.getElementById('selected-host-os').textContent = host.label;
+            
+            const macSpan = document.getElementById('selected-host-mac');
+            if (host.mac && host.mac !== 'N/A') {
+                macSpan.innerHTML = `MAC Address: <span class="text-primary-fixed-dim font-bold">${host.mac}</span>` + 
+                    (host.vendor && host.vendor !== 'UNKNOWN' ? ` <span class="text-outline">[ ${host.vendor} ]</span>` : '');
+            } else {
+                macSpan.innerHTML = `MAC Address: <span class="text-primary-fixed-dim">N/A</span>`;
+            }
+            
             // Generate a realistic latency (e.g. 3ms to 18ms) to avoid slashed-zero font ambiguity (0.8ms looks like 8.8ms)
             const randomLatency = (Math.floor(Math.random() * 16) + 3) + 'ms';
             document.getElementById('selected-host-latency').textContent = host.isUp ? randomLatency : 'TIMEOUT';
