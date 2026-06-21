@@ -358,5 +358,25 @@ class _MainScreenState extends State<MainScreen> {
         }
       },
     );
+
+    // 9. openExternalUrl (Opens a URL in the system's default browser)
+    controller.addJavaScriptHandler(
+      handlerName: 'openExternalUrl',
+      callback: (args) async {
+        try {
+          final urlString = args[0] as String;
+          if (Platform.isWindows) {
+            await Process.run('cmd', ['/c', 'start', '', urlString]);
+          } else if (Platform.isMacOS) {
+            await Process.run('open', [urlString]);
+          } else if (Platform.isLinux) {
+            await Process.run('xdg-open', [urlString]);
+          }
+          return true;
+        } catch (_) {
+          return false;
+        }
+      },
+    );
   }
 }

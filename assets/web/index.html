@@ -1010,9 +1010,25 @@
 
                 const displayVuln = p.vulnScore !== 'N/A' ? `${p.vulnScore} <span class="text-[10px]">${p.vulnLevel}</span>` : 'N/A';
 
+                let portDisplay = `${p.port}`;
+                const serviceLower = p.service.toLowerCase();
+                const isWebPort = [80, 443, 8080, 8443, 5000, 5001, 3000, 8000, 8081, 8888].includes(p.port) || 
+                                  serviceLower.startsWith('http') || 
+                                  serviceLower.startsWith('https') ||
+                                  serviceLower.includes('http-') ||
+                                  serviceLower.includes('https-');
+                if (isWebPort) {
+                    const protocol = (p.port === 443 || p.port === 8443 || p.port === 5001 || serviceLower.includes('https')) ? 'https' : 'http';
+                    const targetUrl = `${protocol}://${host.ip}:${p.port}`;
+                    portDisplay = `<div class="flex items-center gap-1.5">
+                        <span>${p.port}</span>
+                        <span onclick="event.stopPropagation(); openExternalLink('${targetUrl}')" class="material-symbols-outlined text-[13px] text-primary-container hover:text-primary-fixed cursor-pointer transition-colors" title="Open Web Interface: ${targetUrl}">open_in_new</span>
+                    </div>`;
+                }
+
                 html += `
                 <tr class="hover:bg-surface-container-high transition-colors">
-                    <td class="px-4 py-2 text-primary-fixed-dim">${p.port}</td>
+                    <td class="px-4 py-2 text-primary-fixed-dim">${portDisplay}</td>
                     <td class="px-4 py-2">${p.protocol}</td>
                     <td class="px-4 py-2">
                         <span class="status-badge ${badgeClass}">[ ${p.state.toUpperCase()} ]</span>
@@ -1237,6 +1253,14 @@
                 });
             } else {
                 alert('MOCK MODE: Exported to ' + format.toUpperCase());
+            }
+        }
+
+        function openExternalLink(url) {
+            if (window.flutter_inappwebview) {
+                window.flutter_inappwebview.callHandler('openExternalUrl', url);
+            } else {
+                window.open(url, '_blank');
             }
         }
 
