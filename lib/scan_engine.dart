@@ -299,7 +299,28 @@ class ScanEngine {
         (data) {
           if (completer.isCompleted) return;
           timer.cancel();
-          final response = String.fromCharCodes(data).trim();
+          
+          // Strip Telnet/binary negotiation options (bytes starting with 255 / 0xFF)
+          List<int> cleanBytes = [];
+          for (int i = 0; i < data.length; i++) {
+            if (data[i] == 255) {
+              if (i + 2 < data.length) {
+                i += 2; // Skip standard 3-byte IAC command sequences
+              } else {
+                i = data.length; // Skip to end
+              }
+            } else {
+              cleanBytes.add(data[i]);
+            }
+          }
+
+          final String response;
+          if (cleanBytes.isEmpty && port == 23) {
+            response = 'Telnet Service (Active Negotiation)';
+          } else {
+            response = String.fromCharCodes(cleanBytes).trim();
+          }
+          
           socket.destroy();
 
           if (port == 80 || port == 8080 || port == 443) {

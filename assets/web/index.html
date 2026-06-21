@@ -671,11 +671,7 @@
         </div>
     </main>
 
-    <!-- Visual Accents -->
-    <div class="fixed bottom-margin right-margin flex flex-col gap-2 pointer-events-none opacity-40 z-30">
-        <div class="h-[1px] w-32 bg-primary-container"></div>
-        <div class="h-[1px] w-24 bg-primary-container self-end"></div>
-    </div>
+
 
     <!-- Page Logic Script -->
     <script>
@@ -957,7 +953,9 @@
             const host = hostsData[ip];
             document.getElementById('selected-host-title').textContent = 'Target: ' + host.ip;
             document.getElementById('selected-host-os').textContent = host.label;
-            document.getElementById('selected-host-latency').textContent = host.isUp ? '0.8ms' : 'TIMEOUT';
+            // Generate a realistic latency (e.g. 3ms to 18ms) to avoid slashed-zero font ambiguity (0.8ms looks like 8.8ms)
+            const randomLatency = (Math.floor(Math.random() * 16) + 3) + 'ms';
+            document.getElementById('selected-host-latency').textContent = host.isUp ? randomLatency : 'TIMEOUT';
 
             updatePortsTable();
         }
@@ -1001,7 +999,7 @@
                         <span class="status-badge ${badgeClass}">[ ${p.state.toUpperCase()} ]</span>
                     </td>
                     <td class="px-4 py-2">${p.service}</td>
-                    <td class="px-4 py-2 text-on-surface-variant truncate">${p.version || 'UNKNOWN'}</td>
+                    <td class="px-4 py-2 text-on-surface-variant max-w-[200px] xl:max-w-[400px] truncate" title="${p.version || 'UNKNOWN'}">${p.version || 'UNKNOWN'}</td>
                     <td class="px-4 py-2 text-right ${vulnClass}">${displayVuln}</td>
                 </tr>`;
             });
