@@ -14,6 +14,7 @@ DisableProgramGroupPage=yes
 LicenseFile=README.md
 OutputDir=.
 OutputBaseFilename=GNNscan_Setup
+SetupIconFile=assets\app.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern

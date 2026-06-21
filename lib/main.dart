@@ -62,18 +62,41 @@ class _MainScreenState extends State<MainScreen> {
 
       _server!.listen((HttpRequest request) async {
         final path = request.uri.path;
+        
+        String assetPath = '';
         if (path == '/' || path == '/index.html') {
-          try {
-            final html = await rootBundle.loadString('assets/web/index.html');
-            request.response.headers.contentType = ContentType.html;
-            request.response.write(html);
-          } catch (e) {
-            request.response.statusCode = HttpStatus.internalServerError;
-            request.response.write('Error loading UI assets: $e');
-          }
+          assetPath = 'assets/web/index.html';
         } else {
+          final cleanPath = path.startsWith('/') ? path.substring(1) : path;
+          if (cleanPath == 'app.png' || cleanPath == 'gnnecosystem-logo.png') {
+            assetPath = 'assets/$cleanPath';
+          } else {
+            assetPath = 'assets/web/$cleanPath';
+          }
+        }
+
+        try {
+          final ByteData data = await rootBundle.load(assetPath);
+          final buffer = data.buffer.asUint8List();
+          
+          if (assetPath.endsWith('.html')) {
+            request.response.headers.contentType = ContentType.html;
+          } else if (assetPath.endsWith('.png')) {
+            request.response.headers.contentType = ContentType.parse('image/png');
+          } else if (assetPath.endsWith('.jpg') || assetPath.endsWith('.jpeg')) {
+            request.response.headers.contentType = ContentType.parse('image/jpeg');
+          } else if (assetPath.endsWith('.ico')) {
+            request.response.headers.contentType = ContentType.parse('image/x-icon');
+          } else if (assetPath.endsWith('.css')) {
+            request.response.headers.contentType = ContentType.parse('text/css');
+          } else if (assetPath.endsWith('.js')) {
+            request.response.headers.contentType = ContentType.parse('application/javascript');
+          }
+
+          request.response.add(buffer);
+        } catch (e) {
           request.response.statusCode = HttpStatus.notFound;
-          request.response.write('Not Found');
+          request.response.write('Asset not found: $e');
         }
         await request.response.close();
       });
