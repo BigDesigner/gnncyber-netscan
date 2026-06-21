@@ -4,10 +4,15 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - main
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-windows:
@@ -124,3 +129,41 @@ jobs:
           name: GNNscan-macOS-App
           path: GNNscan_macOS.zip
           if-no-files-found: error
+
+  release:
+    name: Create GitHub Release
+    needs: [build-windows, build-ios, build-macos]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        
+      - name: Download Windows Installer
+        uses: actions/download-artifact@v4
+        with:
+          name: GNNscan-Windows-Installer
+          path: ./
+          
+      - name: Download iOS Bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: GNNscan-iOS-Bundle
+          path: ./
+          
+      - name: Download macOS App
+        uses: actions/download-artifact@v4
+        with:
+          name: GNNscan-macOS-App
+          path: ./
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            GNNscan_Setup.exe
+            GNNscan_iOS_Bundle.zip
+            GNNscan_macOS.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
