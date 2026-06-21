@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -39,11 +40,42 @@ class _MainScreenState extends State<MainScreen> {
   InAppWebViewController? _webViewController;
   ScanEngine? _activeScanEngine;
   DateTime? _scanStartTime;
+  WebViewEnvironment? _webViewEnvironment;
+  bool _envInitDone = false;
 
   @override
   void initState() {
     super.initState();
-    _startLocalServer();
+    _initApp();
+  }
+
+  Future<void> _initApp() async {
+    await _initWebViewEnvironment();
+    await _startLocalServer();
+  }
+
+  Future<void> _initWebViewEnvironment() async {
+    if (!kIsWeb && Platform.isWindows) {
+      try {
+        final availableVersion = await WebViewEnvironment.getAvailableVersion();
+        if (availableVersion != null) {
+          final appSupportDir = await getApplicationSupportDirectory();
+          final userDataPath = '${appSupportDir.path}${Platform.pathSeparator}WebView2Data';
+          _webViewEnvironment = await WebViewEnvironment.create(
+            settings: WebViewEnvironmentSettings(
+              userDataFolder: userDataPath,
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('Failed to initialize WebViewEnvironment: $e');
+      }
+    }
+    if (mounted) {
+      setState(() {
+        _envInitDone = true;
+      });
+    }
   }
 
   @override
@@ -112,7 +144,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_port == 0) {
+    if (_port == 0 || (!kIsWeb && Platform.isWindows && !_envInitDone)) {
       return const Scaffold(
         backgroundColor: Color(0xFF131314),
         body: Center(
@@ -130,6 +162,7 @@ class _MainScreenState extends State<MainScreen> {
       body: SafeArea(
         child: InAppWebView(
           initialUrlRequest: URLRequest(url: initialUrl),
+          webViewEnvironment: _webViewEnvironment,
           initialSettings: InAppWebViewSettings(
             javaScriptEnabled: true,
             useOnLoadResource: true,
