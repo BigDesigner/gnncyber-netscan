@@ -254,7 +254,8 @@ class _MainScreenState extends State<MainScreen> {
               'durationMs': durationMs,
               'findingsCount': findingsCount,
               'status': _activeScanEngine != null && !_activeScanEngine!.isAborted ? 'COMPLETED' : 'ABORTED',
-              'resultData': discoveredHostsData
+              'resultData': discoveredHostsData,
+              'scanHost': Platform.localHostname
             };
 
             await HistoryDb.saveHistoryItem(historyItem);
@@ -283,7 +284,9 @@ class _MainScreenState extends State<MainScreen> {
     controller.addJavaScriptHandler(
       handlerName: 'loadSettings',
       callback: (args) async {
-        return await HistoryDb.loadSettings();
+        final settings = await HistoryDb.loadSettings();
+        settings['hostname'] = Platform.localHostname;
+        return settings;
       },
     );
 
@@ -346,9 +349,10 @@ class _MainScreenState extends State<MainScreen> {
             // CSV
             final file = File('${directory.path}/gnnscan_export_${DateTime.now().millisecondsSinceEpoch}.csv');
             final csvBuffer = StringBuffer();
-            csvBuffer.writeln('Target,Module,Timestamp,DurationMs,FindingsCount,Status');
+            csvBuffer.writeln('Target,Module,Timestamp,DurationMs,FindingsCount,Status,OperatorHost');
             for (var item in history) {
-              csvBuffer.writeln('${item['target']},${item['module']},${item['timestamp']},${item['durationMs']},${item['findingsCount']},${item['status']}');
+              final scanHost = item['scanHost'] ?? 'UNKNOWN';
+              csvBuffer.writeln('${item['target']},${item['module']},${item['timestamp']},${item['durationMs']},${item['findingsCount']},${item['status']},$scanHost');
             }
             await file.writeAsString(csvBuffer.toString(), flush: true);
             return file.path;
@@ -375,6 +379,23 @@ class _MainScreenState extends State<MainScreen> {
           return true;
         } catch (_) {
           return false;
+        }
+      },
+    );
+
+    // 10. saveExportFile (Saves single scan details export files to Documents directory)
+    controller.addJavaScriptHandler(
+      handlerName: 'saveExportFile',
+      callback: (args) async {
+        try {
+          final fileName = args[0] as String;
+          final content = args[1] as String;
+          final directory = await getApplicationDocumentsDirectory();
+          final file = File('${directory.path}/$fileName');
+          await file.writeAsString(content, flush: true);
+          return file.path;
+        } catch (_) {
+          return null;
         }
       },
     );

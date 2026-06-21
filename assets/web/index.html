@@ -200,7 +200,7 @@
                     <span class="material-symbols-outlined text-primary-fixed-dim text-sm">shield</span>
                 </div>
                 <div>
-                    <p class="font-data-mono-bold text-data-mono-bold text-on-surface">ANALYST_01</p>
+                    <p id="sidebar-hostname" class="font-data-mono-bold text-data-mono-bold text-on-surface">ANALYST_01</p>
                     <p class="font-data-mono text-label-xs text-secondary-fixed-dim">[ AUTHENTICATED ]</p>
                 </div>
             </div>
@@ -514,15 +514,16 @@
                         <tr>
                             <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider border-r border-outline-variant/30 w-1/4">Target Identity</th>
                             <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider border-r border-outline-variant/30 w-1/4">Timestamp Local</th>
-                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider border-r border-outline-variant/30 w-1/6">Duration</th>
-                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider border-r border-outline-variant/30 w-1/6">Open Ports</th>
-                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider">Status</th>
+                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider border-r border-outline-variant/30 w-[10%]">Duration</th>
+                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider border-r border-outline-variant/30 w-[10%]">Open Ports</th>
+                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider border-r border-outline-variant/30 w-[15%]">Status</th>
+                            <th class="p-2 font-label-xs text-on-surface-variant uppercase tracking-wider w-[15%]">Export</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-outline-variant/20" id="history-table-body">
                         <!-- Filled dynamically -->
                         <tr>
-                            <td colspan="5" class="text-center p-8 text-on-surface-variant italic">No scanning operations logged.</td>
+                            <td colspan="6" class="text-center p-8 text-on-surface-variant italic">No scanning operations logged.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1083,6 +1084,10 @@
             document.getElementById('cfg-aggressive').checked = settings.aggressive || false;
             document.getElementById('cfg-banner-grab').checked = settings.bannerGrabbing || false;
             document.getElementById('cfg-custom-script').value = settings.customScript || '';
+            
+            if (settings.hostname) {
+                document.getElementById('sidebar-hostname').textContent = settings.hostname.toUpperCase();
+            }
         }
 
         // UI trigger: Commit settings
@@ -1172,7 +1177,7 @@
             document.getElementById('stats-mean-duration').textContent = meanMin + ':' + (meanSec < 10 ? '0' : '') + meanSec;
 
             if (totalScans === 0) {
-                body.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-on-surface-variant italic">No scanning operations logged.</td></tr>`;
+                body.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-on-surface-variant italic">No scanning operations logged.</td></tr>`;
                 return;
             }
 
@@ -1200,13 +1205,19 @@
                     <td class="p-2 border-r border-outline-variant/20">
                         <div class="flex flex-col">
                             <span class="text-primary-container font-bold">${item.target}</span>
-                            <span class="text-[9px] text-on-surface-variant">MODULE: ${item.module.toUpperCase()}</span>
+                            <span class="text-[9px] text-on-surface-variant">MODULE: ${item.module.toUpperCase()} ${item.scanHost ? `| HOST: ${item.scanHost.toUpperCase()}` : ''}</span>
                         </div>
                     </td>
                     <td class="p-2 border-r border-outline-variant/20 uppercase">${dateStr}</td>
                     <td class="p-2 border-r border-outline-variant/20">${durationStr}</td>
                     <td class="p-2 border-r border-outline-variant/20 text-primary-fixed-dim font-bold">${item.findingsCount} OPEN</td>
-                    <td class="p-2">${statusBadge}</td>
+                    <td class="p-2 border-r border-outline-variant/20">${statusBadge}</td>
+                    <td class="p-2">
+                        <div class="flex items-center gap-1.5" onclick="event.stopPropagation();">
+                            <button onclick="exportSingleScan('${item.target}', '${item.timestamp}', 'json')" class="border border-outline-variant/50 hover:bg-surface-container-highest hover:border-primary-container text-on-surface text-[9px] px-1.5 py-0.5 rounded-sm uppercase transition-colors" title="Export this scan details as JSON">JSON</button>
+                            <button onclick="exportSingleScan('${item.target}', '${item.timestamp}', 'csv')" class="border border-outline-variant/50 hover:bg-surface-container-highest hover:border-primary-container text-on-surface text-[9px] px-1.5 py-0.5 rounded-sm uppercase transition-colors" title="Export this scan details as CSV">CSV</button>
+                        </div>
+                    </td>
                 </tr>`;
             });
 
@@ -1256,6 +1267,56 @@
                 });
             } else {
                 alert('MOCK MODE: Exported to ' + format.toUpperCase());
+            }
+        }
+
+        function exportSingleScan(target, timestamp, format) {
+            const item = historyData.find(h => h.target === target && h.timestamp === timestamp);
+            if (!item || !item.resultData) {
+                alert('No scan details found to export.');
+                return;
+            }
+
+            const cleanTarget = target.replace(/[^a-zA-Z0-9.-]/g, '_');
+            const cleanTime = timestamp.replace(/[^0-9]/g, '_');
+
+            if (format === 'json') {
+                const fileName = `gnnscan_details_${cleanTarget}_${cleanTime}.json`;
+                const content = JSON.stringify(item.resultData, null, 2);
+                
+                if (window.flutter_inappwebview) {
+                    window.flutter_inappwebview.callHandler('saveExportFile', fileName, content).then(filePath => {
+                        if (filePath) alert('EXPORTED SUCCESS:\n' + filePath);
+                    });
+                } else {
+                    alert('MOCK MODE: Exported to ' + fileName + '\n\n' + content.substring(0, 300) + '...');
+                }
+            } else if (format === 'csv') {
+                const fileName = `gnnscan_details_${cleanTarget}_${cleanTime}.csv`;
+                
+                // Build CSV content
+                let csv = 'Host IP,Status,Identity,MAC Address,Vendor,Port,Protocol,State,Service,Version,Vuln Score,Vuln Level,Operator Host\n';
+                const hosts = item.resultData;
+                const scanHost = item.scanHost || 'UNKNOWN';
+                for (let ip in hosts) {
+                    const host = hosts[ip];
+                    const ports = host.ports || [];
+                    if (ports.length === 0) {
+                        csv += `"${host.ip}","${host.isUp ? 'UP' : 'DOWN'}","${host.label}","${host.mac || 'N/A'}","${host.vendor || 'UNKNOWN'}","","","","","","","","${scanHost}"\n`;
+                    } else {
+                        ports.forEach(p => {
+                            csv += `"${host.ip}","${host.isUp ? 'UP' : 'DOWN'}","${host.label}","${host.mac || 'N/A'}","${host.vendor || 'UNKNOWN'}","${p.port}","${p.protocol}","${p.state}","${p.service}","${p.version || 'UNKNOWN'}","${p.vulnScore}","${p.vulnLevel}","${scanHost}"\n`;
+                        });
+                    }
+                }
+
+                if (window.flutter_inappwebview) {
+                    window.flutter_inappwebview.callHandler('saveExportFile', fileName, csv).then(filePath => {
+                        if (filePath) alert('EXPORTED SUCCESS:\n' + filePath);
+                    });
+                } else {
+                    alert('MOCK MODE: Exported to ' + fileName + '\n\n' + csv.substring(0, 300) + '...');
+                }
             }
         }
 

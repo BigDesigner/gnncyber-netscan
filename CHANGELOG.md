@@ -3,6 +3,8 @@
 ## v2.5.0
 - **Sol Cihaz Listesinde Üretici (Vendor) Bilgisi:** Keşfedilen tüm IP adreslerinin hemen altına cihazların marka/üretici isimleri (örn. Apple, Synology, HP, Zyxel) eklenerek arayüzde gezinirken hızlıca görülmesi sağlandı.
 - **Otomatik CI/CD Sürüm Yönetimi:** Sürüm yayınlama ve etiketleme işlemleri tamamen `CHANGELOG.md` tabanlı otomatikleştirildi, böylece her push'ta çift aksiyon çalışması önlendi.
+- **Bireysel Tarama Detaylarını Dışa Aktarma (JSON & CSV):** Hedef Geçmişi (Target History) tablosuna her tarama satırı için bağımsız JSON ve CSV aktarım butonları eklendi. Bu sayede taranan IP adresleri, donanım MAC/Vendor bilgileri, açık portlar, servisler, versiyonlar ve zafiyet dereceleri detaylı olarak dışa aktarılabilmektedir.
+- **Dinamik HOSTNAME ve Operatör Damgası:** Sol alt köşedeki profil alanı, taramayı gerçekleştiren makinenin yerel bilgisayar adıyla (`Platform.localHostname`) dinamik olarak güncellendi. Başlatılan tarama loglarına ve kaydedilen geçmiş verilerine bu HOSTNAME bilgisi basılarak Blue Team analizleri için tam izlenebilirlik sağlandı.
 
 ## v2.4.0
 - **Yerel Ağda ARP Tabanlı Cihaz Keşfi:** TCP ping isteklerini engelleyen güvenlik duvarına sahip yerel cihazların tespiti için dinamik sistem ARP tablosu okuma özelliği eklendi.

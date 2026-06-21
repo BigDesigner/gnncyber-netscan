@@ -45,6 +45,7 @@ class ScanEngine {
   // Starts the scanning process
   Future<void> run() async {
     try {
+      _log('INFO', 'Initiating scan engine on host: ${Platform.localHostname}');
       _log('INFO', 'Resolving target scope...');
       List<String> ipList = await _resolveTargets(targetInput);
       if (ipList.isEmpty) {
