@@ -1,5 +1,7 @@
 # Changelog
 
+## v2.6.9
+- **Arayüz (UI) Kilitlenme ve Tarama İptali (Abort) İyileştirmesi:** Full Port Scan (65.535 port) sırasında her bir portun taranmasıyla ilgili arayüze log gönderilmesi, WebView köprüsünde büyük bir mesaj darboğazı oluşturuyordu. Bu durum, "Abort Scan" tuşuna basıldığında arka plan motoru anında dursa bile, arayüzün kuyruktaki on binlerce eski mesajı yazdırmaya devam etmesine (taramak akıyor gibi görünmesine) sebep oluyordu. Kapalı veya filtrelenmiş portların terminale yazdırılması devre dışı bırakılarak (Nmap'teki standart davranış gibi sadece açık portların ve genel durumların raporlanması sağlandı) bu darboğaz tamamen çözüldü. Artık tarama anında iptal ediliyor ve loglar temiz bir şekilde duruyor.
 ## v2.6.8
 - **Yeni Tarama Modu eklendi (Quick Scan):** Kullanıcı talebi üzerine arayüze 4. bir seçenek olarak "Quick Scan" modülü eklendi. Bu mod seçildiğinde uygulama hiçbir TCP port taraması yapmaz; sadece hedefin ayakta olup olmadığını ve MAC/Üretici bilgilerini (ARP/Ping üzerinden) olağanüstü bir hızla tespit ederek süreci saniyeler içerisinde tamamlar.
 ## v2.6.7

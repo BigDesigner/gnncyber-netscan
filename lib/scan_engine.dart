@@ -161,7 +161,6 @@ class ScanEngine {
           final String ip = task['ip'];
           final int port = task['port'];
 
-          _log('INFO', 'Probing target: $ip:$port');
           await _scanPort(ip, port);
 
           completedPortTasks++;
