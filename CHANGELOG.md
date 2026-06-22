@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.6.5
+- **Arayüz (UI) Geliştirmesi:** Sol paneldeki GNN Ecosystem logosu 150px genişliğinde, yüksekliği otomatik ayarlanacak şekilde orantısal olarak büyütüldü. Logoya tıklandığında uygulamanın resmi web sitesi (`https://gnn.tr`) varsayılan web tarayıcısında açılacak şekilde harici bağlantı özelliği eklendi.
+- **Sürüm Güncellemesi:** Uygulama genelinde sürüm değerleri 2.6.5 olarak senkronize edildi.
 ## v2.6.4
 - **Arayüz (UI) Güncellemesi:** Sol menüdeki logo bölümü tamamen sadeleştirildi. İkon ve metin kaldırılarak yalnızca "GNN Ecosystem" logosu merkezde konumlandırıldı ve altına 2.6.4 sürüm numarası eklendi.
 - **macOS Uyumluluk Doğrulaması:** Evrensel (Universal) yapıların sorunsuz çalışması teyit edildi ve sürüm değerleri `2.6.4` olarak senkronize edildi.
