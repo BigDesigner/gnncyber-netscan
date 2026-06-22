@@ -1,5 +1,7 @@
 # Changelog
 
+## v2.6.11
+- **UI Düzeltmesi:** Sol menüdeki logoya tıklandığında (https://gnn.tr) sayfanın yeni bir tarayıcı penceresinde açılmak yerine programın içindeki WebView'de açılmasına sebep olan link yönlendirmesi tamamen kaldırıldı. Logo artık sadece görsel bir element olarak işlev görüyor.
 ## v2.6.10
 - **Quick Scan Kapsamı Genişletildi:** Kullanıcı talebi üzerine Quick Scan modülü güncellendi. Sadece Host Discovery (MAC/Ping) yapmak yerine artık sistemin durumunu hızlıca değerlendirebilmek için **en kritik ilk 20 TCP portunu** da ekstra olarak tarıyor.
 ## v2.6.9
