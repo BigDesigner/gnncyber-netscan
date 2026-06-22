@@ -3,6 +3,11 @@
 ## v2.6.3
 - **CI/CD İyileştirmesi:** GitHub Actions üzerindeki Node.js 20 kullanımından kaynaklanan deprecation (kullanımdan kaldırma) uyarıları, tüm ilgili aksiyon eklentilerinin (checkout, setup-node, upload-artifact vb.) en güncel ana sürümlerine yükseltilmesiyle giderildi. Artık tüm süreçler sorunsuz bir şekilde doğrudan Node.js 24 üzerinde çalışmaktadır.
 - **Sürüm Güncellemesi:** Tüm ortam, derleme ayarları ve kod referansları 2.6.3 sürümüne yükseltildi.
+
+## v2.6.2
+- **Hata Çözümü (Arayüz):** Javascript köprü değişkenindeki syntax (sözdizimi) hatası giderilerek arayüzdeki donma/tıklanamama sorunu çözüldü.
+- **Hata Çözümü (Kurulum Sihirbazı):** `README.md` lisans dosyasının UTF-8 BOM (Byte Order Mark) kodlaması onarıldı; böylece Windows Kurulum Sihirbazı'ndaki Türkçe karakter sorunu (örn. geliÅŸtirilmiÅŸ) giderildi.
+
 ## v2.6.1
 - **Yeniden Markalaşma:** Uygulama ismi "GNNcyber - NETscan" olarak güncellendi.
 - **Sürüm Güncellemesi:** Tüm sistem ve CI/CD ayarlarında sürüm 2.6.1 olarak ayarlandı.
