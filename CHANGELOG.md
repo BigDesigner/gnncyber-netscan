@@ -1,5 +1,7 @@
 # Changelog
 
+## v2.6.8
+- **Yeni Tarama Modu eklendi (Quick Scan):** Kullanıcı talebi üzerine arayüze 4. bir seçenek olarak "Quick Scan" modülü eklendi. Bu mod seçildiğinde uygulama hiçbir TCP port taraması yapmaz; sadece hedefin ayakta olup olmadığını ve MAC/Üretici bilgilerini (ARP/Ping üzerinden) olağanüstü bir hızla tespit ederek süreci saniyeler içerisinde tamamlar.
 ## v2.6.7
 - **Gelişmiş Tarama Kapsamı (Blue Team Modu):** Uygulamanın port tarama modları profesyonel bir siber güvenlik aracına (Nmap vb.) yakışacak seviyeye getirildi.
   - `Common Scan` (Standart Tarama) modu artık sadece 20 port yerine ilk **1024 ayrıcalıklı portun tamamını** ve popüler yüksek portları tarıyor.

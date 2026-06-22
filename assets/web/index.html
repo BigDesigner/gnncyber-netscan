@@ -170,7 +170,7 @@
                 <img src="gnnecosystem-logo.png" alt="GNNecosystem" style="width: 150px; height: auto;" class="object-contain opacity-90" />
             </div>
             <div class="flex flex-col items-center gap-1 mt-1">
-                <p class="font-data-mono text-[10px] text-outline">V.2.6.7-STABLE</p>
+                <p class="font-data-mono text-[10px] text-outline">V.2.6.8-STABLE</p>
             </div>
         </div>
         <nav class="flex-1 space-y-1">
@@ -285,7 +285,24 @@
         </section>
 
         <!-- Scan Modules Grid -->
-        <section class="flex-none grid grid-cols-3 gap-gutter h-40">
+        <section class="flex-none grid grid-cols-2 lg:grid-cols-4 gap-gutter h-auto lg:h-40">
+            <article id="mod-quick" onclick="selectModule('quick')" class="border border-outline-variant bg-surface-container-lowest p-4 flex flex-col justify-between group cursor-pointer hover:border-primary-container transition-all relative">
+                <div class="absolute top-0 right-2 font-data-mono text-[9px] text-primary-container font-bold hidden" id="mod-quick-check">[ ACTIVE ]</div>
+                <div class="flex justify-between items-start">
+                    <div class="p-2 border border-outline-variant group-hover:border-primary-container group-hover:text-primary-container transition-all">
+                        <span class="material-symbols-outlined text-2xl">bolt</span>
+                    </div>
+                    <span class="font-data-mono text-label-xs text-outline group-hover:text-primary-container">MOD_00</span>
+                </div>
+                <div>
+                    <h3 class="font-data-mono-bold text-on-surface uppercase tracking-wider text-sm mb-1">Quick Scan</h3>
+                    <p class="font-data-mono text-label-xs text-on-surface-variant leading-relaxed">Host discovery only (Ping & ARP). No ports.</p>
+                </div>
+                <div class="pt-1 border-t border-outline-variant/30 flex justify-between items-center">
+                    <span class="font-data-mono text-label-xs text-secondary-fixed-dim">EST: 10s</span>
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </div>
+            </article>
             <article id="mod-common" onclick="selectModule('common')" class="border border-primary-container bg-surface-container-lowest p-4 flex flex-col justify-between group cursor-pointer hover:border-primary-container transition-all relative">
                 <div class="absolute top-0 right-2 font-data-mono text-[9px] text-primary-container font-bold" id="mod-common-check">[ ACTIVE ]</div>
                 <div class="flex justify-between items-start">

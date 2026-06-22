@@ -134,6 +134,14 @@ class ScanEngine {
 
       // 2. Port Scanning
       List<int> portsToScan = _getPortsForModule();
+      
+      if (portsToScan.isEmpty) {
+        _log('INFO', 'Quick scan selected. Skipping port scan phase.');
+        onProgress(100.0);
+        onFinished();
+        return;
+      }
+
       _log('INFO', 'Starting TCP port scan on active hosts (${portsToScan.length} ports per host)...');
 
       int totalPortTasks = activeHosts.length * portsToScan.length;
@@ -396,7 +404,10 @@ class ScanEngine {
 
   // Get list of ports depending on selected module
   List<int> _getPortsForModule() {
-    if (module == 'common') {
+    if (module == 'quick') {
+      // Quick Scan: Host discovery only, no ports
+      return [];
+    } else if (module == 'common') {
       // Standard Sweep: 1 to 1024 + popular high ports
       List<int> ports = List.generate(1024, (i) => i + 1);
       List<int> highPorts = [1433, 1521, 1720, 1723, 2000, 2049, 2121, 3000, 3128, 3306, 3389, 3986, 4899, 5000, 5051, 5060, 5101, 5432, 5631, 5800, 5900, 6000, 6001, 6667, 7000, 7070, 8000, 8008, 8009, 8080, 8081, 8443, 8888, 9090, 9100, 9999, 10000, 32768, 49152, 49153, 49154, 49155, 49156, 49157];
