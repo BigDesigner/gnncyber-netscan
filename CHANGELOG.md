@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.0
+- **macOS Siyah Ekran Hata Çözümü:** macOS App Sandbox yetkilendirmelerine yerel istemci (network.client) ve sunucu (network.server) izinleri eklenerek, WebView'in yerel HTTP sunucusuna bağlanamaması sonucu oluşan siyah ekran problemi giderildi.
+- **Platform Temizliği (iOS & Android Kaldırıldı):** Mobil platform (iOS ve Android) kodları, derleme gereksinimleri ve GitHub Actions mobil derleme işleri (build-ios) projeden tamamen temizlendi. Uygulama artık sadece Windows ve macOS masaüstü platformlarına odaklanmaktadır.
+
 ## v2.5.0
 - **Sol Cihaz Listesinde Üretici (Vendor) Bilgisi:** Keşfedilen tüm IP adreslerinin hemen altına cihazların marka/üretici isimleri (örn. Apple, Synology, HP, Zyxel) eklenerek arayüzde gezinirken hızlıca görülmesi sağlandı.
 - **Otomatik CI/CD Sürüm Yönetimi:** Sürüm yayınlama ve etiketleme işlemleri tamamen `CHANGELOG.md` tabanlı otomatikleştirildi, böylece her push'ta çift aksiyon çalışması önlendi.

@@ -89,42 +89,6 @@ jobs:
           path: GNNscan_Setup.exe
           if-no-files-found: error
 
-  build-ios:
-    name: Build iOS Bundle
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter SDK
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.41.9'
-          channel: 'stable'
-          cache: true
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Run Tests
-        run: flutter test
-
-      - name: Build iOS App Bundle (Simulator)
-        run: flutter build ios --simulator
-
-      - name: Zip iOS Build Product
-        run: |
-          cd build/ios/iphonesimulator
-          zip -r ../../../GNNscan_iOS_Bundle.zip Runner.app
-
-      - name: Upload iOS Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: GNNscan-iOS-Bundle
-          path: GNNscan_iOS_Bundle.zip
-          if-no-files-found: error
-
   build-macos:
     name: Build macOS App
     runs-on: macos-latest
@@ -163,7 +127,7 @@ jobs:
 
   release:
     name: Create GitHub Release
-    needs: [check-version, build-windows, build-ios, build-macos]
+    needs: [check-version, build-windows, build-macos]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && needs.check-version.outputs.release_needed == 'true'
     
@@ -190,12 +154,6 @@ jobs:
           name: GNNscan-Windows-Installer
           path: ./
           
-      - name: Download iOS Bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: GNNscan-iOS-Bundle
-          path: ./
-          
       - name: Download macOS App
         uses: actions/download-artifact@v4
         with:
@@ -210,7 +168,6 @@ jobs:
           body_path: release_notes.txt
           files: |
             GNNscan_Setup.exe
-            GNNscan_iOS_Bundle.zip
             GNNscan_macOS.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

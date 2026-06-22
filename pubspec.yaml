@@ -1,5 +1,5 @@
 name: gnnscan
-description: "A high-performance network scanning application targeting Windows and iOS."
+description: "A high-performance network scanning application targeting Windows and macOS."
 publish_to: 'none'
 
 version: 1.0.0+1
