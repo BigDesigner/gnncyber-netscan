@@ -136,7 +136,7 @@ class ScanEngine {
       List<int> portsToScan = _getPortsForModule();
       
       if (portsToScan.isEmpty) {
-        _log('INFO', 'Quick scan selected. Skipping port scan phase.');
+        _log('INFO', 'Host discovery only. Skipping port scan phase.');
         onProgress(100.0);
         onFinished();
         return;
@@ -404,8 +404,8 @@ class ScanEngine {
   // Get list of ports depending on selected module
   List<int> _getPortsForModule() {
     if (module == 'quick') {
-      // Quick Scan: Host discovery only, no ports
-      return [];
+      // Quick Scan: Top 20 most critical ports
+      return [21, 22, 23, 25, 53, 80, 110, 111, 135, 139, 143, 443, 445, 993, 995, 1723, 3306, 3389, 5900, 8080];
     } else if (module == 'common') {
       // Standard Sweep: 1 to 1024 + popular high ports
       List<int> ports = List.generate(1024, (i) => i + 1);
