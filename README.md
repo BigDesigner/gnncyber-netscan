@@ -42,7 +42,7 @@ flutter run
 Uygulama derlemesini alÄ±p Inno Setup betiÄŸi ile paketlemek iÃ§in:
 ```bash
 flutter build windows
-# setup.iss dosyasÄ±nÄ± Inno Setup derleyicisi ile aÃ§Ä±p derleyerek GNNcyber - NETscan_Setup.exe dosyasÄ±nÄ± Ã¼retebilirsiniz.
+# setup.iss dosyasÄ±nÄ± Inno Setup derleyicisi ile aÃ§Ä±p derleyerek GNNcyber_NETscan_Setup.exe dosyasÄ±nÄ± Ã¼retebilirsiniz.
 ```
 
 ---
