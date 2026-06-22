@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.7
+- **Gelişmiş Tarama Kapsamı (Blue Team Modu):** Uygulamanın port tarama modları profesyonel bir siber güvenlik aracına (Nmap vb.) yakışacak seviyeye getirildi.
+  - `Common Scan` (Standart Tarama) modu artık sadece 20 port yerine ilk **1024 ayrıcalıklı portun tamamını** ve popüler yüksek portları tarıyor.
+  - `Full Port Scan` (Tam Tarama) modu artık 100 port yerine **tüm 65,535 TCP portunu** sıfırdan sona derinlemesine tarayarak gerçek bir Blue Team aracı gibi çalışıyor.
 ## v2.6.6
 - **Zorunlu Tarama Modu (Nmap -Pn Benzeri):** Tekil ve statik harici IP adresleri veya alan adları girildiğinde, hedefin standart TCP Ping (Host Discovery) testini geçememesi durumunda taramanın iptal olması sorunu giderildi. Artık tekil hedefler Ping testinden düşse dahi (Güvenlik duvarı engellemesi vb.) "Up" (Açık) kabul edilerek port taramasına zorunlu olarak sokuluyor.
 - **Ağ Zaman Aşımı İyileştirmesi:** TCP Ping discovery zaman aşımı toleransı dış ağ taramaları için 300ms'den 500ms'ye çıkarıldı.
