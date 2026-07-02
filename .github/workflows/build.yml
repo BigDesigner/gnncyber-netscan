@@ -1,4 +1,4 @@
-﻿name: GNNscan Build CI/CD
+name: GNNscan Build CI/CD
 
 on:
   push:
@@ -8,6 +8,10 @@ on:
     branches:
       - main
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
