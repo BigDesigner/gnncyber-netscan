@@ -1,10 +1,10 @@
-﻿; GNNscan - Inno Setup Installer Script
+; GNNscan - Inno Setup Installer Script
 ; Targets compiled Windows Flutter executable and bundles WebView2 runtime check.
 
 [Setup]
 AppId={{C82F6D18-7F1F-43DE-875C-B24DE7AA9D2B}
 AppName=GNNcyber - NETscan
-AppVersion=2.6.13
+AppVersion=2.7.0
 AppPublisher=BigDesigner
 AppPublisherURL=https://github.com/BigDesigner/GNNscan
 AppSupportURL=https://github.com/BigDesigner/GNNscan
@@ -13,7 +13,7 @@ DefaultDirName={autopf}\GNNscan
 DisableProgramGroupPage=yes
 LicenseFile=README.md
 OutputDir=.
-OutputBaseFilename=GNNcyber_NETscan_Setup
+OutputBaseFilename=GNNscan_v2.7.0_Setup
 SetupIconFile=assets\app.ico
 Compression=lzma
 SolidCompression=yes

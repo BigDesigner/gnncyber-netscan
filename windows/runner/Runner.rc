@@ -1,4 +1,4 @@
-﻿// Microsoft Visual C++ generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #pragma code_page(65001)
 #include "resource.h"
@@ -91,12 +91,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "com.gnnscan" "\0"
             VALUE "FileDescription", "GNNscan" "\0"
-            VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "GNNscan" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.gnnscan. All rights reserved." "\0"
+            VALUE "FileVersion", "2.7.0.0" "\0"
+            VALUE "InternalName", "gnnscan" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
             VALUE "OriginalFilename", "gnnscan.exe" "\0"
-            VALUE "ProductName", "GNNscan" "\0"
-            VALUE "ProductVersion", VERSION_AS_STRING "\0"
+            VALUE "ProductName", "GNNcyber - NETscan" "\0"
+            VALUE "ProductVersion", "2.7.0.0" "\0"
         END
     END
     BLOCK "VarFileInfo"

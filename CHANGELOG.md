@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.7.0
+- **Stealth / Rate Limiting (Evasion):** IDS/IPS ve Firewall atlatma amacıyla T1 (Sneaky) ile T5 (Insane) arası tarama hızı/gecikme seçenekleri eklendi. Bağlantı denemeleri port sırasında değil rastgele (shuffle) yapılarak güvenlik duvarlarının tespiti zorlaştırıldı.
+- **Offline CVE Veritabanı:** Dahili bir SQLite veritabanı (cve_db.sqlite) ile keşfedilen servislerin versiyon numaraları bilinen güvenlik açıkları (CVE) ile eşleştirilip arayüzde (CRITICAL, HIGH, vb.) raporlanmaktadır.
+- **OS Fingerprinting (İşletim Sistemi Tespiti):** Hedef sistemin işletim sistemi (Windows, Linux, Ağ Cihazı) ICMP Ping TTL (Time-To-Live) değerleri üzerinden analiz edilerek arayüzde cihaz türüne göre özel ikonlarla gösterilmesi sağlandı.
+- **Rapor Dışa Aktarma (PDF Export):** Tarama geçmişini CSV ve JSON formatlarının yanı sıra artık profesyonel bir PDF Raporu olarak dışa aktarma özelliği eklendi.
 ## v2.6.13
 - **CI/CD Optimizasyonu:** GitHub Actions iş akışı (workflow) güncellendi. Artık gereksiz yere her kod gönderiminde derleme yapılmaması için `build-windows` ve `build-macos` işleri yalnızca CHANGELOG'a yeni bir versiyon numarası eklendiğinde (`release_needed == 'true'`) çalışacak şekilde koşullandırıldı. Bu sayede kota ve zaman tasarrufu sağlanacak.
 ## v2.6.12

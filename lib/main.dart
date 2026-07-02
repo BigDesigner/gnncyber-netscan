@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'history_db.dart';
+import 'database_helper.dart';
 import 'scan_engine.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DatabaseHelper().init();
   runApp(const GnnscanApp());
 }
 
@@ -190,6 +193,7 @@ class _MainScreenState extends State<MainScreen> {
         final target = data['target'] as String;
         final module = data['module'] as String;
         final customPorts = data['customPorts'] as String?;
+        final stealthLevel = data['stealthLevel'] as String? ?? 'T5';
 
         final settings = await HistoryDb.loadSettings();
         final maxThreads = settings['maxThreads'] as int? ?? 64;
@@ -209,20 +213,22 @@ class _MainScreenState extends State<MainScreen> {
           maxThreads: maxThreads,
           timeout: Duration(milliseconds: timeoutMs),
           enableBannerGrabbing: enableBanner,
+          stealthLevel: stealthLevel,
           onLog: (timestamp, type, msg) {
             final escapedMsg = msg.replaceAll("'", "\\'").replaceAll('"', '\\"');
             _runJavaScript("window.gnnscan.onLogReceived('$timestamp', '$type', '$escapedMsg')");
           },
-          onHostDiscovered: (ip, label, isUp, mac, vendor) {
+          onHostDiscovered: (ip, label, isUp, mac, vendor, os) {
             discoveredHostsData[ip] = {
               'ip': ip,
               'label': label,
               'isUp': isUp,
               'mac': mac,
               'vendor': vendor,
+              'os': os,
               'ports': []
             };
-            _runJavaScript("window.gnnscan.onHostDiscovered('$ip', '$label', $isUp, '$mac', '$vendor')");
+            _runJavaScript("window.gnnscan.onHostDiscovered('$ip', '$label', $isUp, '$mac', '$vendor', '$os')");
           },
           onPortDiscovered: (ip, port, protocol, state, service, version, vulnScore, vulnLevel) {
             findingsCount++;
@@ -261,6 +267,14 @@ class _MainScreenState extends State<MainScreen> {
             };
 
             await HistoryDb.saveHistoryItem(historyItem);
+            
+            // Also save to SQLite for the new feature
+            await DatabaseHelper().saveScanHistory(
+              historyItem['timestamp'].toString(),
+              target,
+              discoveredHostsData.length,
+              findingsCount
+            );
 
             _runJavaScript("window.gnnscan.onScanFinished()");
             _activeScanEngine = null;
@@ -346,6 +360,30 @@ class _MainScreenState extends State<MainScreen> {
           if (format == 'json') {
             final file = File('${directory.path}/gnnscan_export_${DateTime.now().millisecondsSinceEpoch}.json');
             await file.writeAsString(jsonEncode(history), flush: true);
+            return file.path;
+          } else if (format == 'pdf') {
+            final pdfDoc = pw.Document();
+            pdfDoc.addPage(
+              pw.Page(
+                build: (pw.Context context) {
+                  return pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text('GNNscan Security Report', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                      pw.SizedBox(height: 20),
+                      ...history.map((item) {
+                        return pw.Container(
+                          margin: const pw.EdgeInsets.only(bottom: 10),
+                          child: pw.Text('${item['timestamp']} - Target: ${item['target']} - Module: ${item['module']} - Found: ${item['findingsCount']} ports', style: const pw.TextStyle(fontSize: 12)),
+                        );
+                      }),
+                    ],
+                  );
+                },
+              ),
+            );
+            final file = File('${directory.path}/gnnscan_export_${DateTime.now().millisecondsSinceEpoch}.pdf');
+            await file.writeAsBytes(await pdfDoc.save(), flush: true);
             return file.path;
           } else {
             // CSV

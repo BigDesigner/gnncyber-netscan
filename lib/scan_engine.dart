@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'database_helper.dart';
 
 class ScanEngine {
   final String targetInput;
@@ -9,10 +10,11 @@ class ScanEngine {
   final int maxThreads;
   final Duration timeout;
   final bool enableBannerGrabbing;
+  final String stealthLevel;
 
   // Callbacks to communicate status back to UI
   final Function(String timestamp, String type, String msg) onLog;
-  final Function(String ip, String label, bool isUp, String mac, String vendor) onHostDiscovered;
+  final Function(String ip, String label, bool isUp, String mac, String vendor, String os) onHostDiscovered;
   final Function(String ip, int port, String protocol, String state, String service, String version, String vulnScore, String vulnLevel) onPortDiscovered;
   final Function(double progress) onProgress;
   final Function() onFinished;
@@ -26,6 +28,7 @@ class ScanEngine {
     this.customPorts,
     required this.maxThreads,
     required this.timeout,
+    required this.stealthLevel,
     required this.enableBannerGrabbing,
     required this.onLog,
     required this.onHostDiscovered,
@@ -94,12 +97,13 @@ class ScanEngine {
             
             final mac = arpTable[ip] ?? 'N/A';
             final vendor = mac != 'N/A' ? await _getMacVendor(mac) : 'UNKNOWN';
+            final os = await _getOsFingerprint(ip);
             
-            onHostDiscovered(ip, 'ACTIVE_NODE', true, mac, vendor);
+            onHostDiscovered(ip, 'ACTIVE_NODE', true, mac, vendor, os);
           } else {
             // For single target, still show it as unreachable
             if (ipList.length == 1) {
-              onHostDiscovered(ip, 'UNREACHABLE', false, 'N/A', 'UNKNOWN');
+              onHostDiscovered(ip, 'UNREACHABLE', false, 'N/A', 'UNKNOWN', 'UNKNOWN');
             }
           }
         },
@@ -122,7 +126,8 @@ class ScanEngine {
           
           final mac = arpTable[ip]!;
           final vendor = await _getMacVendor(mac);
-          onHostDiscovered(ip, 'ACTIVE_NODE', true, mac, vendor);
+          final os = await _getOsFingerprint(ip);
+          onHostDiscovered(ip, 'ACTIVE_NODE', true, mac, vendor, os);
         }
       }
 
@@ -155,6 +160,7 @@ class ScanEngine {
           scanTasks.add({'ip': ip, 'port': port});
         }
       }
+      scanTasks.shuffle();
 
       await _runInPool(
         tasks: scanTasks,
@@ -202,6 +208,15 @@ class ScanEngine {
 
         try {
           await worker(tasks[currentTaskIndex]);
+          
+          int delayMs = 0;
+          if (stealthLevel == 'T1') delayMs = 500;
+          else if (stealthLevel == 'T2') delayMs = 100;
+          else if (stealthLevel == 'T3') delayMs = 10;
+          
+          if (delayMs > 0) {
+            await Future.delayed(Duration(milliseconds: delayMs));
+          }
         } catch (e) {
           // Ignore task execution errors to prevent pool crash
         }
@@ -300,13 +315,31 @@ class ScanEngine {
         final grab = await _grabBanner(socket, port);
         if (grab.isNotEmpty) {
           version = grab;
-          // Simple mock CVE mapping for aesthetics
-          if (grab.toLowerCase().contains('openssh 8.') || grab.toLowerCase().contains('nginx/1.18')) {
-            vulnScore = '7.5';
-            vulnLevel = 'HIGH';
-          } else if (grab.toLowerCase().contains('apache/2.4')) {
-            vulnScore = '5.3';
-            vulnLevel = 'MEDIUM';
+          
+          // Parse service and version from banner for CVE check
+          final words = grab.split(' ');
+          String parsedService = service;
+          String parsedVersion = '';
+          
+          if (words.length > 1 && RegExp(r'\d+\.\d+').hasMatch(words[1])) {
+            parsedService = words[0].toLowerCase();
+            parsedVersion = RegExp(r'\d+\.\d+(\.\d+[a-z]?)?').stringMatch(words[1]) ?? '';
+          } else if (words.length == 1 && grab.contains('/')) {
+            final parts = grab.split('/');
+            parsedService = parts[0].toLowerCase();
+            parsedVersion = RegExp(r'\d+\.\d+(\.\d+[a-z]?)?').stringMatch(parts[1]) ?? '';
+          }
+          
+          if (parsedService == 'apache' && version.toLowerCase().contains('httpd')) parsedService = 'apache httpd';
+          if (parsedService == 'ssh') parsedService = 'openssh';
+          if (parsedService.toLowerCase() == 'openssh') parsedService = 'OpenSSH';
+          
+          if (parsedVersion.isNotEmpty) {
+             final cveData = await DatabaseHelper().findCveForService(parsedService, parsedVersion);
+             if (cveData != null) {
+               vulnScore = cveData['cvss_score'].toString();
+               vulnLevel = cveData['severity'].toString();
+             }
           }
         }
       } else {
@@ -491,6 +524,28 @@ class ScanEngine {
   }
 
   // Query MAC vendor asynchronously
+  Future<String> _getOsFingerprint(String ip) async {
+    try {
+      final args = Platform.isWindows ? ['-n', '1', '-w', '1000', ip] : ['-c', '1', '-W', '1', ip];
+      final result = await Process.run('ping', args);
+      final output = result.stdout.toString().toLowerCase();
+      
+      int ttl = -1;
+      final RegExp ttlRegex = RegExp(r'ttl=(\d+)');
+      final match = ttlRegex.firstMatch(output);
+      if (match != null) {
+        ttl = int.parse(match.group(1)!);
+      }
+
+      if (ttl > 0) {
+        if (ttl <= 64) return 'Linux/macOS';
+        if (ttl <= 128) return 'Windows';
+        if (ttl <= 255) return 'Network/Cisco';
+      }
+    } catch (_) {}
+    return 'UNKNOWN';
+  }
+
   Future<String> _getMacVendor(String mac) async {
     try {
       final cleanMac = mac.replaceAll(':', '').replaceAll('-', '').toLowerCase();
