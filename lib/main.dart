@@ -189,6 +189,7 @@ class _MainScreenState extends State<MainScreen> {
         final data = args[0] as Map<String, dynamic>;
         final target = data['target'] as String;
         final module = data['module'] as String;
+        final customPorts = data['customPorts'] as String?;
 
         final settings = await HistoryDb.loadSettings();
         final maxThreads = settings['maxThreads'] as int? ?? 64;
@@ -204,6 +205,7 @@ class _MainScreenState extends State<MainScreen> {
         _activeScanEngine = ScanEngine(
           targetInput: target,
           module: module,
+          customPorts: customPorts,
           maxThreads: maxThreads,
           timeout: Duration(milliseconds: timeoutMs),
           enableBannerGrabbing: enableBanner,

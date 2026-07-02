@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.12
+- **Custom Scan Modülü:** Arayüze "Custom Scan" adlı yeni bir tarama modülü eklendi. Bu modül seçildiğinde ortaya çıkan metin kutusuna `80` veya `80,3389,5000` gibi özel portlar girilerek sadece bu hedeflerin taranması sağlanabiliyor.
+- **Port Sayısı Gösterimi:** "Discovered Targets" listesinde artık her bir IP adresinde kaç adet aktif port bulunduğu anlık olarak sağ tarafta görüntülenmektedir.
+- **Logo Kaldırıldı:** Sol menüdeki logo, daha sade bir görünüm için tamamen kaldırıldı.
 ## v2.6.11
 - **UI Düzeltmesi:** Sol menüdeki logoya tıklandığında (https://gnn.tr) sayfanın yeni bir tarayıcı penceresinde açılmak yerine programın içindeki WebView'de açılmasına sebep olan link yönlendirmesi tamamen kaldırıldı. Logo artık sadece görsel bir element olarak işlev görüyor.
 ## v2.6.10

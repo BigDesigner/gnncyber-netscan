@@ -5,6 +5,7 @@ import 'dart:io';
 class ScanEngine {
   final String targetInput;
   final String module;
+  final String? customPorts;
   final int maxThreads;
   final Duration timeout;
   final bool enableBannerGrabbing;
@@ -22,6 +23,7 @@ class ScanEngine {
   ScanEngine({
     required this.targetInput,
     required this.module,
+    this.customPorts,
     required this.maxThreads,
     required this.timeout,
     required this.enableBannerGrabbing,
@@ -406,6 +408,19 @@ class ScanEngine {
     if (module == 'quick') {
       // Quick Scan: Top 20 most critical ports
       return [21, 22, 23, 25, 53, 80, 110, 111, 135, 139, 143, 443, 445, 993, 995, 1723, 3306, 3389, 5900, 8080];
+    } else if (module == 'custom') {
+      if (customPorts == null || customPorts!.trim().isEmpty) {
+        return [];
+      }
+      List<int> ports = [];
+      List<String> parts = customPorts!.split(',');
+      for (String p in parts) {
+        int? port = int.tryParse(p.trim());
+        if (port != null && port > 0 && port <= 65535) {
+          ports.add(port);
+        }
+      }
+      return ports;
     } else if (module == 'common') {
       // Standard Sweep: 1 to 1024 + popular high ports
       List<int> ports = List.generate(1024, (i) => i + 1);

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="dark" lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -166,11 +166,9 @@
     <!-- Global Aside Sidebar -->
     <aside class="h-screen w-64 fixed left-0 top-0 border-r border-outline-variant bg-background flex flex-col py-4 z-50">
         <div class="px-6 mb-8 flex flex-col items-center text-center gap-2">
-            <div class="flex flex-col items-center gap-1.5">
-                <img src="gnnecosystem-logo.png" alt="GNNecosystem" style="width: 150px; height: auto;" class="object-contain opacity-90" />
-            </div>
+
             <div class="flex flex-col items-center gap-1 mt-1">
-                <p class="font-data-mono text-[10px] text-outline">V.2.6.11-STABLE</p>
+                <p class="font-data-mono text-[10px] text-outline">V.2.6.12-STABLE</p>
             </div>
         </div>
         <nav class="flex-1 space-y-1">
@@ -285,7 +283,24 @@
         </section>
 
         <!-- Scan Modules Grid -->
-        <section class="flex-none grid grid-cols-2 lg:grid-cols-4 gap-gutter h-auto lg:h-40">
+        <section class="flex-none grid grid-cols-2 lg:grid-cols-5 gap-gutter h-auto lg:h-40">
+            <article id="mod-custom" onclick="selectModule('custom')" class="border border-outline-variant bg-surface-container-lowest p-4 flex flex-col justify-between group cursor-pointer hover:border-primary-container transition-all relative">
+                <div class="absolute top-0 right-2 font-data-mono text-[9px] text-primary-container font-bold hidden" id="mod-custom-check">[ ACTIVE ]</div>
+                <div class="flex justify-between items-start">
+                    <div class="p-2 border border-outline-variant group-hover:border-primary-container group-hover:text-primary-container transition-all">
+                        <span class="material-symbols-outlined text-2xl">tune</span>
+                    </div>
+                    <span class="font-data-mono text-label-xs text-outline group-hover:text-primary-container">MOD_04</span>
+                </div>
+                <div>
+                    <h3 class="font-data-mono-bold text-on-surface uppercase tracking-wider text-sm mb-1">Custom Scan</h3>
+                    <p class="font-data-mono text-label-xs text-on-surface-variant leading-relaxed">Target specific TCP ports manually.</p>
+                </div>
+                <div class="pt-1 border-t border-outline-variant/30 flex justify-between items-center">
+                    <span class="font-data-mono text-label-xs text-secondary-fixed-dim">EST: VARIES</span>
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </div>
+            </article>
             <article id="mod-quick" onclick="selectModule('quick')" class="border border-outline-variant bg-surface-container-lowest p-4 flex flex-col justify-between group cursor-pointer hover:border-primary-container transition-all relative">
                 <div class="absolute top-0 right-2 font-data-mono text-[9px] text-primary-container font-bold hidden" id="mod-quick-check">[ ACTIVE ]</div>
                 <div class="flex justify-between items-start">
@@ -355,6 +370,12 @@
                 </div>
             </article>
         </section>
+
+        <!-- Custom Ports Input Container -->
+        <div id="custom-ports-container" class="hidden mb-4 p-4 border border-outline-variant bg-surface-container-low flex flex-col gap-2 transition-all">
+            <label for="custom-ports-input" class="font-data-mono-bold text-sm text-primary-fixed-dim">CUSTOM PORT DEFINITION</label>
+            <input id="custom-ports-input" class="w-full bg-surface-container-lowest border border-outline-variant px-4 py-2 font-data-mono text-on-surface focus:outline-none focus:border-primary-container focus:ring-1 focus:ring-primary-container/20 transition-all placeholder:text-outline-variant" placeholder="e.g. 80 or 80,443,3389" type="text" onkeydown="if(event.key==='Enter') triggerStartScan()" />
+        </div>
 
         <!-- Terminal Section -->
         <section class="flex-1 flex flex-col border border-outline-variant bg-surface-container-lowest min-h-0 overflow-hidden">
@@ -783,6 +804,12 @@
 
             document.getElementById('mod-' + modName).className = "border border-primary-container bg-surface-container-lowest p-4 flex flex-col justify-between group cursor-pointer hover:border-primary-container transition-all relative";
             document.getElementById('mod-' + modName + '-check').classList.remove('hidden');
+
+            if (modName === 'custom') {
+                document.getElementById('custom-ports-container').classList.remove('hidden');
+            } else {
+                document.getElementById('custom-ports-container').classList.add('hidden');
+            }
         }
 
         // Trigger scan action
@@ -817,9 +844,11 @@
                 addLog('SYSTEM', 'INFO', 'Target acquired: ' + targetInput);
 
                 if (window.flutter_inappwebview) {
+                    let customPorts = document.getElementById('custom-ports-input').value.trim();
                     window.flutter_inappwebview.callHandler('startScan', {
                         target: targetInput,
-                        module: activeModule
+                        module: activeModule,
+                        customPorts: customPorts
                     });
                 } else {
                     // Simulation mode for browser testing
@@ -957,16 +986,19 @@
 
                 html += `
                 <li>
-                    <div onclick="selectHost('${ip}')" class="flex items-center justify-between py-1.5 px-3 ${activeClasses}">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-1.5 h-1.5 ${statusDot} rounded-full shrink-0"></div>
-                            <div class="flex flex-col">
-                                <span class="leading-tight">${host.ip}</span>
-                                ${host.vendor && host.vendor !== 'UNKNOWN' ? `<span class="text-[9px] text-outline leading-none mt-0.5">${host.vendor}</span>` : ''}
+                        <div onclick="selectHost('${ip}')" class="flex items-center justify-between py-1.5 px-3 ${activeClasses}">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-1.5 h-1.5 ${statusDot} rounded-full shrink-0"></div>
+                                <div class="flex flex-col">
+                                    <span class="leading-tight">${host.ip}</span>
+                                    ${host.vendor && host.vendor !== 'UNKNOWN' ? `<span class="text-[9px] text-outline leading-none mt-0.5">${host.vendor}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                ${host.ports && host.ports.length > 0 ? `<span class="font-data-mono text-[10px] text-primary-container">${host.ports.length} port(s)</span>` : ''}
+                                <span class="text-[10px] ${tagColor}">${tag}</span>
                             </div>
                         </div>
-                        <span class="text-[10px] ${tagColor}">${tag}</span>
-                    </div>
                 </li>`;
             }
 
