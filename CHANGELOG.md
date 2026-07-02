@@ -1,5 +1,7 @@
 # Changelog
 
+## v2.6.13
+- **CI/CD Optimizasyonu:** GitHub Actions iş akışı (workflow) güncellendi. Artık gereksiz yere her kod gönderiminde derleme yapılmaması için `build-windows` ve `build-macos` işleri yalnızca CHANGELOG'a yeni bir versiyon numarası eklendiğinde (`release_needed == 'true'`) çalışacak şekilde koşullandırıldı. Bu sayede kota ve zaman tasarrufu sağlanacak.
 ## v2.6.12
 - **Custom Scan Modülü:** Arayüze "Custom Scan" adlı yeni bir tarama modülü eklendi. Bu modül seçildiğinde ortaya çıkan metin kutusuna `80` veya `80,3389,5000` gibi özel portlar girilerek sadece bu hedeflerin taranması sağlanabiliyor.
 - **Port Sayısı Gösterimi:** "Discovered Targets" listesinde artık her bir IP adresinde kaç adet aktif port bulunduğu anlık olarak sağ tarafta görüntülenmektedir.

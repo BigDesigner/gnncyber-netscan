@@ -57,6 +57,8 @@ jobs:
 
   build-windows:
     name: Build Windows App & Installer
+    needs: check-version
+    if: needs.check-version.outputs.release_needed == 'true'
     runs-on: windows-latest
 
     steps:
@@ -104,6 +106,8 @@ jobs:
 
   build-macos:
     name: Build macOS App
+    needs: check-version
+    if: needs.check-version.outputs.release_needed == 'true'
     runs-on: macos-latest
 
     steps:
