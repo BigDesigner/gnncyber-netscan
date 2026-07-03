@@ -39,6 +39,8 @@ Name: "{autodesktop}\GNNcyber - NETscan"; Filename: "{app}\gnnscan.exe"; Tasks: 
 
 [Run]
 Filename: "{app}\gnnscan.exe"; Description: "{cm:LaunchProgram,GNNcyber - NETscan}"; Flags: nowait postinstall skipifsilent
+; Download and install WebView2 silently after install if missing
+Filename: "powershell.exe"; Parameters: "-NoProfile -Command ""Invoke-WebRequest -Uri 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile '$env:TEMP\MicrosoftEdgeWebview2Setup.exe'; Start-Process -FilePath '$env:TEMP\MicrosoftEdgeWebview2Setup.exe' -ArgumentList '/silent /install' -Wait"""; StatusMsg: "Installing Microsoft Edge WebView2 Runtime (if missing)..."; Check: not IsWebView2Installed; Flags: runhidden
 
 [Code]
 // Helper function to check if Edge WebView2 Runtime is installed
@@ -52,23 +54,7 @@ begin
             RegQueryStringValue(HKCU, RegPath, 'pv', InstalledVersion);
 end;
 
-function PrepareToInstall(var NeedsRestart: Boolean): String;
-var
-  ResultCode: Integer;
+function InitializeSetup(): Boolean;
 begin
-  Result := '';
-  if not IsWebView2Installed then
-  begin
-    WizardForm.StatusLabel.Caption := 'Downloading Microsoft Edge WebView2 Runtime...';
-    try
-      DownloadTemporaryFile('https://go.microsoft.com/fwlink/p/?LinkId=2124703', 'MicrosoftEdgeWebview2Setup.exe', '', nil);
-      WizardForm.StatusLabel.Caption := 'Installing Microsoft Edge WebView2 Runtime (silent)...';
-      if not Exec(ExpandConstant('{tmp}\MicrosoftEdgeWebview2Setup.exe'), '/silent /install', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-      begin
-        MsgBox('Microsoft Edge WebView2 Runtime installation failed. You can install it manually from Microsoft website.', mbInformation, MB_OK);
-      end;
-    except
-      MsgBox('Failed to download WebView2 Runtime automatically. You can install it manually.', mbInformation, MB_OK);
-    end;
-  end;
+  Result := True;
 end;
