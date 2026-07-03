@@ -1,5 +1,31 @@
 # Changelog
 
+## v2.8.0
+**Full Codebase Security & Bug Audit — 18 Kritik/Yüksek Bug Düzeltildi**
+
+### Güvenlik Düzeltmeleri (XSS / Injection)
+- **JS Bridge Injection:** Dart'tan JS'e gönderilen tüm string değerler (onLog, onHostDiscovered, onPortDiscovered) ham string interpolasyonu yerine `jsonEncode()` ile güvence altına alındı. Banner grab gibi harici kaynaklı veriler artık JS kodunu bozamaz.
+- **XSS — addLog():** Log terminalinde `innerHTML` ile yapılan enjeksiyona karşı DOM API (`createElement` + `textContent`) kullanımına geçildi.
+- **XSS — updateHostsTreeView():** Host tree view'daki IP, vendor, label değerleri `htmlEscape()` yardımcısı ile temizleniyor.
+- **XSS — updatePortsTable():** Port tablosundaki servis, versiyon, state değerleri `htmlEscape()` ile korunuyor.
+- Projeye global `htmlEscape()` yardımcı fonksiyonu eklendi.
+
+### Bug Düzeltmeleri
+- **Abort Durumu (M-03):** İptal edilen taramalar ABORTED yerine hep COMPLETED olarak kaydediliyordu. `_scanWasAborted` flag mekaniğmasıyla düzeltildi.
+- **Dispose (M-06):** Uygulama penceresi kapatılırken aktif tarama motor durduruluyor ve HTTP sunucusu zorla (`force: true`) kapatılıyor.
+- **Ping Timeout (SE-01):** `_pingHost()` hardcoded 500ms yerine artık kullanıcının ayarladığı `timeout` değerini kullanıyor.
+- **CIDR < /24 Hatası (SE-03):** `/24` den küçük CIDR girişleri artık sessizce başarısız olmuyor; kullanıcıya anlaşılır hata mesajı gösteriliyor.
+- **IP Range Aşımı (SE-04):** 256'dan fazla host içeren aralıklar artık uyarı mesajıyla bildiriliyor.
+- **HttpClient Sızıntısı (SE-09):** `_getMacVendor()` fonksiyonunda `HttpClient` her çağrıda yaratılıp kapatılmıyordu. `finally` bloğunda `client.close()` çağrısı eklendi.
+
+### Mimari Temizlik
+- **Ölü Kod (D-03/D-04):** Geçmiş kaydı SQLite'a yazdıktan sonra hiç okumayan duplicate SQLite write kaldırıldı. Tek kaynak JSON-tabanlı `HistoryDb`.
+- **Kullanılmayan Bağımlılık (P-01):** `csv: ^8.0.0` bağımlılığı hiç kullanılmıyordu, kaldırıldı.
+
+### Versiyon / Telif Hakkı
+- **Runner.rc Fallback (R-01/R-02):** `#define VERSION_AS_NUMBER` ve `VERSION_AS_STRING` macros `2.6.13`'te kalmıştı, `2.8.0`'a güncellendi.
+- **LegalCopyright (R-03):** `com.example` placeholderı gerçek firma adıyla değiştirildi: `BigDesigner`.
+
 ## v2.7.5
 - **PDF Optimizasyonu:** PDF dışa aktarma (export) aracındaki tabloların tasarımı (sütun genişlikleri, font boyutları ve dolgular) iyileştirildi. Detaylı tarama raporları artık daha geniş alan sağlaması için A4 Yatay (Landscape) formatında çıkarılıyor; böylece yazılarda satır kaymaları veya daralmalar yaşanmıyor.
 

@@ -46,6 +46,7 @@ class _MainScreenState extends State<MainScreen> {
   DateTime? _scanStartTime;
   WebViewEnvironment? _webViewEnvironment;
   bool _envInitDone = false;
+  bool _scanWasAborted = false;
 
   @override
   void initState() {
@@ -84,7 +85,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void dispose() {
-    _server?.close();
+    _activeScanEngine?.abort();
+    _server?.close(force: true);
     super.dispose();
   }
 
@@ -216,8 +218,7 @@ class _MainScreenState extends State<MainScreen> {
           enableBannerGrabbing: enableBanner,
           stealthLevel: stealthLevel,
           onLog: (timestamp, type, msg) {
-            final escapedMsg = msg.replaceAll("'", "\\'").replaceAll('"', '\\"');
-            _runJavaScript("window.gnnscan.onLogReceived('$timestamp', '$type', '$escapedMsg')");
+            _runJavaScript("window.gnnscan.onLogReceived(${jsonEncode(timestamp)}, ${jsonEncode(type)}, ${jsonEncode(msg)})");
           },
           onHostDiscovered: (ip, label, isUp, mac, vendor, os) {
             discoveredHostsData[ip] = {
@@ -229,7 +230,7 @@ class _MainScreenState extends State<MainScreen> {
               'os': os,
               'ports': []
             };
-            _runJavaScript("window.gnnscan.onHostDiscovered('$ip', '$label', $isUp, '$mac', '$vendor', '$os')");
+            _runJavaScript("window.gnnscan.onHostDiscovered(${jsonEncode(ip)}, ${jsonEncode(label)}, $isUp, ${jsonEncode(mac)}, ${jsonEncode(vendor)}, ${jsonEncode(os)})");
           },
           onPortDiscovered: (ip, port, protocol, state, service, version, vulnScore, vulnLevel) {
             findingsCount++;
@@ -246,7 +247,7 @@ class _MainScreenState extends State<MainScreen> {
               });
             }
             _runJavaScript(
-              "window.gnnscan.onPortDiscovered('$ip', $port, '$protocol', '$state', '$service', '$version', '$vulnScore', '$vulnLevel')"
+              "window.gnnscan.onPortDiscovered(${jsonEncode(ip)}, $port, ${jsonEncode(protocol)}, ${jsonEncode(state)}, ${jsonEncode(service)}, ${jsonEncode(version)}, ${jsonEncode(vulnScore)}, ${jsonEncode(vulnLevel)})"
             );
           },
           onProgress: (progress) {
@@ -262,23 +263,16 @@ class _MainScreenState extends State<MainScreen> {
               'timestamp': DateTime.now().toLocal().toString().substring(0, 19),
               'durationMs': durationMs,
               'findingsCount': findingsCount,
-              'status': _activeScanEngine != null && !_activeScanEngine!.isAborted ? 'COMPLETED' : 'ABORTED',
+              'status': _scanWasAborted ? 'ABORTED' : 'COMPLETED',
               'resultData': discoveredHostsData,
               'scanHost': Platform.localHostname
             };
 
             await HistoryDb.saveHistoryItem(historyItem);
-            
-            // Also save to SQLite for the new feature
-            await DatabaseHelper().saveScanHistory(
-              historyItem['timestamp'].toString(),
-              target,
-              discoveredHostsData.length,
-              findingsCount
-            );
 
             _runJavaScript("window.gnnscan.onScanFinished()");
             _activeScanEngine = null;
+            _scanWasAborted = false;
           },
         );
 
@@ -292,6 +286,7 @@ class _MainScreenState extends State<MainScreen> {
     controller.addJavaScriptHandler(
       handlerName: 'stopScan',
       callback: (args) {
+        _scanWasAborted = true;
         _activeScanEngine?.abort();
         return true;
       },

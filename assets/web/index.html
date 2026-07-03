@@ -168,7 +168,7 @@
         <div class="px-6 mb-8 flex flex-col items-center text-center gap-2">
 
             <div class="flex flex-col items-center gap-1 mt-1">
-                <p class="font-data-mono text-[10px] text-outline">V.2.7.5-STABLE</p>
+                <p class="font-data-mono text-[10px] text-outline">V.2.8.0-STABLE</p>
             </div>
         </div>
         <nav class="flex-1 space-y-1">
@@ -896,6 +896,17 @@
             }
         }
 
+        // Security: Escape HTML special characters to prevent XSS from network data
+        function htmlEscape(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         // Bridge: Add log to terminal
         function addLog(timestamp, type, msg) {
             const content = document.getElementById('terminal-content');
@@ -911,11 +922,21 @@
                 displayTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false});
             }
 
-            div.innerHTML = `
-                <span class="text-outline shrink-0">[ ${displayTime} ]</span>
-                <span class="${typeColor} shrink-0">[ ${type} ]</span>
-                <span class="text-on-surface-variant">${msg}</span>
-            `;
+            const spanTime = document.createElement('span');
+            spanTime.className = 'text-outline shrink-0';
+            spanTime.textContent = '[ ' + displayTime + ' ]';
+
+            const spanType = document.createElement('span');
+            spanType.className = typeColor + ' shrink-0';
+            spanType.textContent = '[ ' + type + ' ]';
+
+            const spanMsg = document.createElement('span');
+            spanMsg.className = 'text-on-surface-variant';
+            spanMsg.textContent = msg;
+
+            div.appendChild(spanTime);
+            div.appendChild(spanType);
+            div.appendChild(spanMsg);
             content.appendChild(div);
             content.scrollTop = content.scrollHeight;
 
@@ -1001,20 +1022,20 @@
 
                 html += `
                 <li>
-                        <div onclick="selectHost('${ip}')" class="flex items-center justify-between py-1.5 px-3 ${activeClasses}">
+                        <div onclick="selectHost('${htmlEscape(ip)}')" class="flex items-center justify-between py-1.5 px-3 ${activeClasses}">
                             <div class="flex items-center space-x-3">
                                 <div class="w-1.5 h-1.5 ${statusDot} rounded-full shrink-0"></div>
                                 <div class="flex flex-col">
                                     <div class="flex items-center space-x-1">
-                                        <span class="leading-tight">${host.ip}</span>
+                                        <span class="leading-tight">${htmlEscape(host.ip)}</span>
                                         ${host.os === 'Windows' ? '<span class="material-symbols-outlined text-[10px] text-primary-fixed-dim" title="Windows">desktop_windows</span>' : (host.os === 'Linux/macOS' ? '<span class="material-symbols-outlined text-[10px] text-primary-fixed-dim" title="Linux/macOS">terminal</span>' : (host.os === 'Network/Cisco' ? '<span class="material-symbols-outlined text-[10px] text-primary-fixed-dim" title="Network/Cisco">router</span>' : ''))}
                                     </div>
-                                    ${host.vendor && host.vendor !== 'UNKNOWN' ? `<span class="text-[9px] text-outline leading-none mt-0.5">${host.vendor}</span>` : ''}
+                                    ${host.vendor && host.vendor !== 'UNKNOWN' ? `<span class="text-[9px] text-outline leading-none mt-0.5">${htmlEscape(host.vendor)}</span>` : ''}
                                 </div>
                             </div>
                             <div class="flex items-center space-x-3">
                                 ${host.ports && host.ports.length > 0 ? `<span class="font-data-mono text-[10px] text-primary-container">${host.ports.length} port(s)</span>` : ''}
-                                <span class="text-[10px] ${tagColor}">${tag}</span>
+                                <span class="text-[10px] ${tagColor}">${htmlEscape(tag)}</span>
                             </div>
                         </div>
                 </li>`;
@@ -1098,12 +1119,12 @@
                 html += `
                 <tr class="hover:bg-surface-container-high transition-colors">
                     <td class="px-4 py-2 text-primary-fixed-dim">${portDisplay}</td>
-                    <td class="px-4 py-2">${p.protocol}</td>
+                    <td class="px-4 py-2">${htmlEscape(p.protocol)}</td>
                     <td class="px-4 py-2">
-                        <span class="status-badge ${badgeClass}">[ ${p.state.toUpperCase()} ]</span>
+                        <span class="status-badge ${badgeClass}">[ ${htmlEscape(p.state.toUpperCase())} ]</span>
                     </td>
-                    <td class="px-4 py-2">${p.service}</td>
-                    <td class="px-4 py-2 text-on-surface-variant max-w-[200px] xl:max-w-[400px] truncate" title="${p.version || 'UNKNOWN'}">${p.version || 'UNKNOWN'}</td>
+                    <td class="px-4 py-2">${htmlEscape(p.service)}</td>
+                    <td class="px-4 py-2 text-on-surface-variant max-w-[200px] xl:max-w-[400px] truncate" title="${htmlEscape(p.version || 'UNKNOWN')}">${htmlEscape(p.version || 'UNKNOWN')}</td>
                     <td class="px-4 py-2 text-right ${vulnClass}">${displayVuln}</td>
                 </tr>`;
             });

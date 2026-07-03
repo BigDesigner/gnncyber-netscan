@@ -248,6 +248,8 @@ class ScanEngine {
             final ip = '${(val >> 24) & 255}.${(val >> 16) & 255}.${(val >> 8) & 255}.${val & 255}';
             list.add(ip);
           }
+        } else {
+          _log('ERROR', 'CIDR prefix /$prefix is out of supported range. Please use /24 to /32 (max 256 hosts).');
         }
       } else if (target.contains('-')) {
         // Range (e.g. 192.168.1.10-192.168.1.20)
@@ -266,6 +268,10 @@ class ScanEngine {
             final ip = '${(val >> 24) & 255}.${(val >> 16) & 255}.${(val >> 8) & 255}.${val & 255}';
             list.add(ip);
           }
+        } else if (endVal < startVal) {
+          _log('ERROR', 'Invalid IP range: end IP is smaller than start IP.');
+        } else {
+          _log('WARN', 'IP range exceeds 256 hosts limit. Please narrow the range.');
         }
       } else {
         // Single IP or Domain
@@ -289,7 +295,7 @@ class ScanEngine {
     for (final port in commonPorts) {
       if (_isAborted) return false;
       try {
-        final socket = await Socket.connect(ip, port, timeout: const Duration(milliseconds: 500));
+        final socket = await Socket.connect(ip, port, timeout: timeout);
         socket.destroy();
         return true;
       } on SocketException catch (e) {
@@ -547,11 +553,11 @@ class ScanEngine {
   }
 
   Future<String> _getMacVendor(String mac) async {
+    final client = HttpClient();
     try {
       final cleanMac = mac.replaceAll(':', '').replaceAll('-', '').toLowerCase();
       if (cleanMac.length >= 6) {
         final prefix = cleanMac.substring(0, 6);
-        final client = HttpClient();
         client.connectionTimeout = const Duration(seconds: 2);
         
         final uri = Uri.parse('https://macvendors.com/query/$prefix');
@@ -564,6 +570,9 @@ class ScanEngine {
         }
       }
     } catch (_) {}
+    finally {
+      client.close();
+    }
     return 'UNKNOWN';
   }
 }
