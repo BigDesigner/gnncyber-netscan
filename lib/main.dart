@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
 import 'history_db.dart';
 import 'database_helper.dart';
 import 'scan_engine.dart';
@@ -364,25 +365,43 @@ class _MainScreenState extends State<MainScreen> {
           } else if (format == 'pdf') {
             final pdfDoc = pw.Document();
             pdfDoc.addPage(
-              pw.Page(
+              pw.MultiPage(
+                pageFormat: PdfPageFormat.a4,
                 build: (pw.Context context) {
-                  return pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text('GNNscan Security Report', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
-                      pw.SizedBox(height: 20),
-                      ...history.map((item) {
-                        return pw.Container(
-                          margin: const pw.EdgeInsets.only(bottom: 10),
-                          child: pw.Text('${item['timestamp']} - Target: ${item['target']} - Module: ${item['module']} - Found: ${item['findingsCount']} ports', style: const pw.TextStyle(fontSize: 12)),
-                        );
-                      }),
-                    ],
-                  );
+                  return [
+                    pw.Header(
+                      level: 0,
+                      child: pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        children: [
+                          pw.Text('GNNcyber - NETscan', style: pw.TextStyle(color: PdfColors.blue900, fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                          pw.Text('Global History Report', style: pw.TextStyle(color: PdfColors.grey600, fontSize: 14)),
+                        ]
+                      )
+                    ),
+                    pw.SizedBox(height: 20),
+                    pw.TableHelper.fromTextArray(
+                      context: context,
+                      headerStyle: pw.TextStyle(color: PdfColors.white, fontWeight: pw.FontWeight.bold),
+                      headerDecoration: const pw.BoxDecoration(color: PdfColors.blueGrey800),
+                      rowDecoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5))),
+                      cellAlignment: pw.Alignment.centerLeft,
+                      headers: ['Date', 'Target', 'Module', 'Active Hosts / Ports', 'Status'],
+                      data: history.map((item) {
+                        return [
+                          item['timestamp'] ?? '',
+                          item['target'] ?? '',
+                          item['module'] ?? '',
+                          '${item['findingsCount'] ?? 0} found',
+                          item['status'] ?? ''
+                        ];
+                      }).toList(),
+                    ),
+                  ];
                 },
               ),
             );
-            final file = File('${directory.path}/gnnscan_export_${DateTime.now().millisecondsSinceEpoch}.pdf');
+            final file = File('${directory.path}/GNNcyber_History_${DateTime.now().millisecondsSinceEpoch}.pdf');
             await file.writeAsBytes(await pdfDoc.save(), flush: true);
             return file.path;
           } else {
@@ -433,6 +452,91 @@ class _MainScreenState extends State<MainScreen> {
           final directory = await getApplicationDocumentsDirectory();
           final file = File('${directory.path}/$fileName');
           await file.writeAsString(content, flush: true);
+          return file.path;
+        } catch (_) {
+          return null;
+        }
+      },
+    );
+
+    // 11. exportSingleScanPdf (Generates professional PDF for a single scan)
+    controller.addJavaScriptHandler(
+      handlerName: 'exportSingleScanPdf',
+      callback: (args) async {
+        try {
+          final scanData = jsonDecode(args[0] as String);
+          final String target = scanData['target'] ?? 'Unknown';
+          final String timestamp = scanData['timestamp'] ?? 'Unknown';
+          final resultData = scanData['resultData'] ?? {};
+          
+          final pdfDoc = pw.Document();
+          pdfDoc.addPage(
+            pw.MultiPage(
+              pageFormat: PdfPageFormat.a4,
+              build: (pw.Context context) {
+                
+                List<List<String>> tableData = [];
+                for (var ip in resultData.keys) {
+                  final host = resultData[ip];
+                  final ports = host['ports'] as List? ?? [];
+                  if (ports.isEmpty) {
+                    tableData.add([host['ip'], host['label'] ?? '', host['os'] ?? '', host['mac'] ?? '', 'No Open Ports', '', '', '']);
+                  } else {
+                    for (var p in ports) {
+                      tableData.add([
+                        host['ip'], 
+                        host['label'] ?? '', 
+                        host['os'] ?? '', 
+                        host['mac'] ?? '', 
+                        '${p['port']}/${p['protocol']}', 
+                        p['service'] ?? '', 
+                        p['version'] ?? '', 
+                        p['vulnLevel'] ?? ''
+                      ]);
+                    }
+                  }
+                }
+
+                return [
+                  pw.Header(
+                    level: 0,
+                    child: pw.Row(
+                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pw.Text('GNNcyber - NETscan', style: pw.TextStyle(color: PdfColors.red900, fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                        pw.Text('Detailed Scan Report', style: pw.TextStyle(color: PdfColors.grey600, fontSize: 14)),
+                      ]
+                    )
+                  ),
+                  pw.SizedBox(height: 10),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text('Target: $target', style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
+                      pw.Text('Date: $timestamp', style: pw.TextStyle(fontSize: 12)),
+                    ]
+                  ),
+                  pw.SizedBox(height: 20),
+                  pw.TableHelper.fromTextArray(
+                    context: context,
+                    headerStyle: pw.TextStyle(color: PdfColors.white, fontWeight: pw.FontWeight.bold, fontSize: 10),
+                    headerDecoration: const pw.BoxDecoration(color: PdfColors.black),
+                    cellStyle: const pw.TextStyle(fontSize: 9),
+                    rowDecoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5))),
+                    cellAlignment: pw.Alignment.centerLeft,
+                    headers: ['IP Address', 'Hostname', 'OS', 'MAC', 'Port', 'Service', 'Version', 'Vuln Level'],
+                    data: tableData,
+                  ),
+                ];
+              },
+            ),
+          );
+          
+          final directory = await getApplicationDocumentsDirectory();
+          final cleanTarget = target.replaceAll(RegExp(r'[^a-zA-Z0-9.-]'), '_');
+          final cleanTime = timestamp.replaceAll(RegExp(r'[^0-9]'), '_');
+          final file = File('${directory.path}/GNNcyber_NETscan_details_${cleanTarget}_$cleanTime.pdf');
+          await file.writeAsBytes(await pdfDoc.save(), flush: true);
           return file.path;
         } catch (_) {
           return null;

@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.7.2
+- **Profesyonel PDF Raporlama:** PDF oluşturma motoru tamamen yenilendi. Global tarama geçmişi ve tekil tarama detayları, artık profesyonel kurumsal formatta (tablolar, renkli başlıklar ve detaylı cihaz analiziyle) PDF'e aktarılabiliyor.
+- **Zafiyet Eşleştirme (CVE) İyileştirmesi:** Çevrimdışı veritabanı aramalarında kısmi eşleşme (LIKE) desteği eklenerek servis/versiyon tespit yeteneği artırıldı.
+- **OS Fingerprint (Arayüz Fix):** Arka planda tespit edilen işletim sistemi bilgilerinin (Windows, Linux, Router vb.) UI üzerindeki ikonlara yansımamasına sebep olan Bridge (Köprü) kütüphanesi hatası giderildi.
+
 ## v2.7.1
 - **Kurulum Ekranı İyileştirmesi:** Yükleyici (installer) ekranındaki uzun bilgilendirme metni, daha hızlı ve kolay okunabilmesi için 5 maddelik sade bir özete dönüştürüldü.
 

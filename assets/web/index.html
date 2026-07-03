@@ -737,7 +737,7 @@
         // Bridge object for Flutter calls
         window.gnnscan = {
             onLogReceived: (timestamp, type, msg) => addLog(timestamp, type, msg),
-            onHostDiscovered: (ip, label, isUp, mac, vendor) => addHostDiscovered(ip, label, isUp, mac, vendor),
+            onHostDiscovered: (ip, label, isUp, mac, vendor, os) => addHostDiscovered(ip, label, isUp, mac, vendor, os),
             onPortDiscovered: (ip, port, protocol, state, service, version, vulnScore, vulnLevel) => addPortDiscovered(ip, port, protocol, state, service, version, vulnScore, vulnLevel),
             onProgressUpdate: (progress) => onProgressUpdate(progress),
             onScanFinished: () => onScanFinished()
@@ -1281,6 +1281,7 @@
                         <div class="flex items-center gap-1.5" onclick="event.stopPropagation();">
                             <button onclick="exportSingleScan('${item.target}', '${item.timestamp}', 'json')" class="border border-outline-variant/50 hover:bg-surface-container-highest hover:border-primary-container text-on-surface text-[9px] px-1.5 py-0.5 rounded-sm uppercase transition-colors" title="Export this scan details as JSON">JSON</button>
                             <button onclick="exportSingleScan('${item.target}', '${item.timestamp}', 'csv')" class="border border-outline-variant/50 hover:bg-surface-container-highest hover:border-primary-container text-on-surface text-[9px] px-1.5 py-0.5 rounded-sm uppercase transition-colors" title="Export this scan details as CSV">CSV</button>
+                            <button onclick="exportSingleScan('${item.target}', '${item.timestamp}', 'pdf')" class="border border-primary-container/50 bg-primary-container/10 hover:bg-primary-container/20 text-primary-container text-[9px] font-bold px-1.5 py-0.5 rounded-sm uppercase transition-colors" title="Export this scan details as PDF">PDF</button>
                         </div>
                     </td>
                 </tr>`;
@@ -1381,6 +1382,12 @@
                     });
                 } else {
                     alert('MOCK MODE: Exported to ' + fileName + '\n\n' + csv.substring(0, 300) + '...');
+                }
+            } else if (format === 'pdf') {
+                if (window.flutter_inappwebview) {
+                    window.flutter_inappwebview.callHandler('exportSingleScanPdf', JSON.stringify(item)).then(filePath => {
+                        if (filePath) alert('EXPORTED SUCCESS:\n' + filePath);
+                    });
                 }
             }
         }

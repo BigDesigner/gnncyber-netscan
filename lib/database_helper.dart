@@ -67,12 +67,11 @@ class DatabaseHelper {
   Future<Map<String, dynamic>?> findCveForService(String serviceName, String version) async {
     if (_cveDb == null) return null;
     
-    // Very simple exact match for this PoC. 
-    // In a real scenario, we might use LIKE or partial matches.
+    // Use LIKE to make offline CVE matching more forgiving
     final List<Map<String, dynamic>> maps = await _cveDb!.query(
       'cve_data',
-      where: 'service = ? AND version = ?',
-      whereArgs: [serviceName, version],
+      where: 'service LIKE ? AND version LIKE ?',
+      whereArgs: ['%$serviceName%', '%$version%'],
       limit: 1,
     );
 
