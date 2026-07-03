@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.7.5
+- **PDF Optimizasyonu:** PDF dışa aktarma (export) aracındaki tabloların tasarımı (sütun genişlikleri, font boyutları ve dolgular) iyileştirildi. Detaylı tarama raporları artık daha geniş alan sağlaması için A4 Yatay (Landscape) formatında çıkarılıyor; böylece yazılarda satır kaymaları veya daralmalar yaşanmıyor.
+
+## v2.7.4
+- **Arayüz Versiyon Senkronizasyonu:** Arayüzde (UI) unutulmuş olan sabit (hardcoded) versiyon numarası temizlenip güncel sürümle senkronize edildi. Versiyon yönetiminin eksiksiz otonom devam etmesi güvence altına alındı.
+
 ## v2.7.3
 - **Arayüz Düzenlemesi:** Ana ekrandaki tarama modüllerinin sıralaması mantıksal (MOD_00 - MOD_04) olarak düzeltildi.
 - **Kurulum (Installer) İyileştirmesi:** Yükleme işlemi sırasında arka planda indirilen WebView2 bileşeninden dolayı kurulum sihirbazının donmuş gibi bekleme yapması sorunu giderildi; işlem tamamen şeffaf hale getirildi.

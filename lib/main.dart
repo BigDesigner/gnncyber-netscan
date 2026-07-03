@@ -382,10 +382,19 @@ class _MainScreenState extends State<MainScreen> {
                     pw.SizedBox(height: 20),
                     pw.TableHelper.fromTextArray(
                       context: context,
-                      headerStyle: pw.TextStyle(color: PdfColors.white, fontWeight: pw.FontWeight.bold),
+                      headerStyle: pw.TextStyle(color: PdfColors.white, fontWeight: pw.FontWeight.bold, fontSize: 10),
                       headerDecoration: const pw.BoxDecoration(color: PdfColors.blueGrey800),
+                      cellStyle: const pw.TextStyle(fontSize: 8),
+                      cellPadding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                       rowDecoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5))),
                       cellAlignment: pw.Alignment.centerLeft,
+                      columnWidths: const {
+                        0: pw.FlexColumnWidth(1.2),
+                        1: pw.FlexColumnWidth(2.0),
+                        2: pw.FlexColumnWidth(1.2),
+                        3: pw.FlexColumnWidth(1.5),
+                        4: pw.FlexColumnWidth(1.0),
+                      },
                       headers: ['Date', 'Target', 'Module', 'Active Hosts / Ports', 'Status'],
                       data: history.map((item) {
                         return [
@@ -472,7 +481,7 @@ class _MainScreenState extends State<MainScreen> {
           final pdfDoc = pw.Document();
           pdfDoc.addPage(
             pw.MultiPage(
-              pageFormat: PdfPageFormat.a4,
+              pageFormat: PdfPageFormat.a4.landscape,
               build: (pw.Context context) {
                 
                 List<List<String>> tableData = [];
@@ -519,11 +528,22 @@ class _MainScreenState extends State<MainScreen> {
                   pw.SizedBox(height: 20),
                   pw.TableHelper.fromTextArray(
                     context: context,
-                    headerStyle: pw.TextStyle(color: PdfColors.white, fontWeight: pw.FontWeight.bold, fontSize: 10),
+                    headerStyle: pw.TextStyle(color: PdfColors.white, fontWeight: pw.FontWeight.bold, fontSize: 9),
                     headerDecoration: const pw.BoxDecoration(color: PdfColors.black),
-                    cellStyle: const pw.TextStyle(fontSize: 9),
+                    cellStyle: const pw.TextStyle(fontSize: 8),
+                    cellPadding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                     rowDecoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5))),
                     cellAlignment: pw.Alignment.centerLeft,
+                    columnWidths: const {
+                      0: pw.FlexColumnWidth(1.2),
+                      1: pw.FlexColumnWidth(1.2),
+                      2: pw.FlexColumnWidth(1.0),
+                      3: pw.FlexColumnWidth(1.3),
+                      4: pw.FlexColumnWidth(0.8),
+                      5: pw.FlexColumnWidth(1.0),
+                      6: pw.FlexColumnWidth(2.5),
+                      7: pw.FlexColumnWidth(0.8),
+                    },
                     headers: ['IP Address', 'Hostname', 'OS', 'MAC', 'Port', 'Service', 'Version', 'Vuln Level'],
                     data: tableData,
                   ),
