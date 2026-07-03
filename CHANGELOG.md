@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.7.3
+- **Arayüz Düzenlemesi:** Ana ekrandaki tarama modüllerinin sıralaması mantıksal (MOD_00 - MOD_04) olarak düzeltildi.
+- **Kurulum (Installer) İyileştirmesi:** Yükleme işlemi sırasında arka planda indirilen WebView2 bileşeninden dolayı kurulum sihirbazının donmuş gibi bekleme yapması sorunu giderildi; işlem tamamen şeffaf hale getirildi.
+
 ## v2.7.2
 - **Profesyonel PDF Raporlama:** PDF oluşturma motoru tamamen yenilendi. Global tarama geçmişi ve tekil tarama detayları, artık profesyonel kurumsal formatta (tablolar, renkli başlıklar ve detaylı cihaz analiziyle) PDF'e aktarılabiliyor.
 - **Zafiyet Eşleştirme (CVE) İyileştirmesi:** Çevrimdışı veritabanı aramalarında kısmi eşleşme (LIKE) desteği eklenerek servis/versiyon tespit yeteneği artırıldı.
