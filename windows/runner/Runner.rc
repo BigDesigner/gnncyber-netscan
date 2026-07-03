@@ -91,12 +91,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "com.gnnscan" "\0"
             VALUE "FileDescription", "GNNscan" "\0"
-            VALUE "FileVersion", "2.7.0.0" "\0"
+            VALUE "FileVersion", "2.7.1.0" "\0"
             VALUE "InternalName", "gnnscan" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
             VALUE "OriginalFilename", "gnnscan.exe" "\0"
             VALUE "ProductName", "GNNcyber - NETscan" "\0"
-            VALUE "ProductVersion", "2.7.0.0" "\0"
+            VALUE "ProductVersion", "2.7.1.0" "\0"
         END
     END
     BLOCK "VarFileInfo"

@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.7.1
+- **Kurulum Ekranı İyileştirmesi:** Yükleyici (installer) ekranındaki uzun bilgilendirme metni, daha hızlı ve kolay okunabilmesi için 5 maddelik sade bir özete dönüştürüldü.
+
 ## v2.7.0
 - **Stealth / Rate Limiting (Evasion):** IDS/IPS ve Firewall atlatma amacıyla T1 (Sneaky) ile T5 (Insane) arası tarama hızı/gecikme seçenekleri eklendi. Bağlantı denemeleri port sırasında değil rastgele (shuffle) yapılarak güvenlik duvarlarının tespiti zorlaştırıldı.
 - **Offline CVE Veritabanı:** Dahili bir SQLite veritabanı (cve_db.sqlite) ile keşfedilen servislerin versiyon numaraları bilinen güvenlik açıkları (CVE) ile eşleştirilip arayüzde (CRITICAL, HIGH, vb.) raporlanmaktadır.
