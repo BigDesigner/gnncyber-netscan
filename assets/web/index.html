@@ -4,10 +4,28 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>GNNcyber - NETscan - Brutalist Threat Reconnaissance</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="/tailwind.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Geist:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <style>
+        @font-face {
+            font-family: 'Material Symbols Outlined';
+            font-style: normal;
+            font-weight: 100 700;
+            src: url('/material-symbols-outlined.ttf') format('truetype');
+        }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+        }
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -168,7 +186,7 @@
         <div class="px-6 mb-8 flex flex-col items-center text-center gap-2">
 
             <div class="flex flex-col items-center gap-1 mt-1">
-                <p class="font-data-mono text-[10px] text-outline">V.2.8.0-STABLE</p>
+                <p class="font-data-mono text-[10px] text-outline">V.2.9.0-STABLE</p>
             </div>
         </div>
         <nav class="flex-1 space-y-1">
@@ -203,25 +221,10 @@
         </footer>
     </aside>
 
-    <!-- Global Header -->
     <header class="flex justify-between items-center h-12 px-margin w-[calc(100%-16rem)] ml-64 bg-surface-container-lowest border-b border-outline-variant fixed top-0 z-40">
         <div class="flex items-center gap-4">
             <span id="header-title" class="font-data-mono-bold text-on-surface text-sm tracking-widest">BLUE_TEAM_TERMINAL</span>
             <div class="h-4 w-px bg-outline-variant"></div>
-            <div class="flex gap-4">
-                <div class="flex items-center gap-2">
-                    <span class="font-data-mono text-label-xs text-outline">CPU</span>
-                    <div class="w-16 h-2 bg-surface-container-high border border-outline-variant overflow-hidden">
-                        <div class="h-full bg-primary-container transition-all duration-500" id="cpu-bar" style="width: 12%;"></div>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="font-data-mono text-label-xs text-outline">MEM</span>
-                    <div class="w-16 h-2 bg-surface-container-high border border-outline-variant overflow-hidden">
-                        <div class="h-full bg-secondary-fixed-dim transition-all duration-500" id="mem-bar" style="width: 38%;"></div>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="flex items-center gap-6 h-full">
             <div id="header-scan-progress-container" class="hidden flex items-center bg-surface-container-high px-3 h-8 border-x border-outline-variant shrink-0 gap-3">
@@ -234,7 +237,7 @@
             <div class="flex items-center gap-4 text-outline font-data-mono text-label-xs">
                 <div class="flex items-center gap-1">
                     <span class="material-symbols-outlined text-[14px]">memory</span>
-                    <span>1.2 THz</span>
+                    <span>LOCAL ENGINE</span>
                 </div>
                 <div class="flex items-center gap-1">
                     <span class="material-symbols-outlined text-[14px]">sensors</span>
@@ -610,9 +613,6 @@
                 <button class="config-tab-btn text-left px-3 py-2.5 bg-surface-container-low border border-outline-variant border-l-2 border-l-transparent font-data-mono text-data-mono text-on-surface-variant hover:bg-surface-container-high rounded-sm transition-all" onclick="switchConfigTab('proxy-vpn')">
                     02. PROXY_VPN
                 </button>
-                <button class="config-tab-btn text-left px-3 py-2.5 bg-surface-container-low border border-outline-variant border-l-2 border-l-transparent font-data-mono text-data-mono text-on-surface-variant hover:bg-surface-container-high rounded-sm transition-all" onclick="switchConfigTab('script-editor')">
-                    03. SCRIPT_EDITOR
-                </button>
             </div>
             <!-- Tab Content Pane -->
             <div class="flex-1 bg-surface-container-lowest border border-outline-variant overflow-hidden relative rounded-sm flex flex-col">
@@ -691,32 +691,7 @@
                     </section>
                 </div>
                 
-                <!-- Tab: Script Editor -->
-                <div class="config-tab-content hidden h-full flex flex-col overflow-hidden" id="config-script-editor">
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant bg-surface-container-low flex-none">
-                        <div class="flex items-center gap-4">
-                            <span class="font-data-mono-bold text-data-mono text-primary-fixed-dim uppercase tracking-widest">custom_scan_script.json</span>
-                            <span class="text-[10px] font-data-mono text-secondary-fixed bg-secondary-fixed/5 px-2 py-0.5 border border-secondary-fixed/20 rounded-sm">LINT_PASSED</span>
-                        </div>
-                    </div>
-                    <div class="flex-1 relative font-data-mono text-[12px] leading-relaxed overflow-hidden">
-                        <textarea id="cfg-custom-script" class="w-full h-full bg-surface-container-lowest font-data-mono text-xs text-on-surface-variant p-6 resize-none border-none focus:ring-0 outline-none" spellcheck="false">{
-  "engine_hook": "pre_scan",
-  "meta": {
-    "author": "ANALYST_01",
-    "version": "1.0.4",
-    "target": "TCP_STACK_VAL"
-  },
-  "rules": [
-    {
-      "match": "SYN_ACK_MISMATCH",
-      "action": "DROP_AND_LOG",
-      "threshold": 0.85
-    }
-  ]
-}</textarea>
-                    </div>
-                </div>
+
             </div>
         </div>
     </main>
@@ -828,7 +803,7 @@
         function triggerStartScan() {
             const targetInput = document.getElementById('scan-target').value.trim();
             if (!targetInput) {
-                alert('Please enter a target!');
+                showToast('Please enter a target!', 'error');
                 return;
             }
 
@@ -979,7 +954,7 @@
         // Bridge: Port discovered on host
         function addPortDiscovered(ip, port, protocol, state, service, version, vulnScore, vulnLevel) {
             if (!hostsData[ip]) {
-                addHostDiscovered(ip, null, true, 'N/A', 'UNKNOWN');
+                addHostDiscovered(ip, null, true, 'N/A', 'UNKNOWN', 'UNKNOWN');
             }
             // Avoid duplicate ports
             const ports = hostsData[ip].ports;
@@ -1169,10 +1144,12 @@
             document.getElementById('val-timeout').textContent = settings.timeoutMs || 500;
             document.getElementById('cfg-aggressive').checked = settings.aggressive || false;
             document.getElementById('cfg-banner-grab').checked = settings.bannerGrabbing || false;
-            document.getElementById('cfg-custom-script').value = settings.customScript || '';
             
             if (settings.hostname) {
                 document.getElementById('sidebar-hostname').textContent = settings.hostname.toUpperCase();
+            }
+            if (settings.localIp) {
+                document.getElementById('header-local-ip').textContent = settings.localIp;
             }
         }
 
@@ -1182,24 +1159,22 @@
             const timeoutMs = parseInt(document.getElementById('cfg-timeout').value);
             const aggressive = document.getElementById('cfg-aggressive').checked;
             const bannerGrabbing = document.getElementById('cfg-banner-grab').checked;
-            const customScript = document.getElementById('cfg-custom-script').value;
 
             const settings = {
                 maxThreads,
                 timeoutMs,
                 aggressive,
-                bannerGrabbing,
-                customScript
+                bannerGrabbing
             };
 
             if (window.flutter_inappwebview) {
                 window.flutter_inappwebview.callHandler('saveSettings', settings).then(success => {
                     if (success) {
-                        alert('ENGINE PARAMETERS COMMITTED.');
+                        showToast('ENGINE PARAMETERS COMMITTED.');
                     }
                 });
             } else {
-                alert('MOCK MODE: Settings saved.');
+                showToast('MOCK MODE: Settings saved.');
             }
         }
 
@@ -1209,22 +1184,7 @@
                 maxThreads: 64,
                 timeoutMs: 500,
                 aggressive: true,
-                bannerGrabbing: true,
-                customScript: JSON.stringify({
-                  "engine_hook": "pre_scan",
-                  "meta": {
-                    "author": "ANALYST_01",
-                    "version": "1.0.4",
-                    "target": "TCP_STACK_VAL"
-                  },
-                  "rules": [
-                    {
-                      "match": "SYN_ACK_MISMATCH",
-                      "action": "DROP_AND_LOG",
-                      "threshold": 0.85
-                    }
-                  ]
-                }, null, 2)
+                bannerGrabbing: true
             };
             applySettingsToUI(defaults);
         }
@@ -1243,6 +1203,7 @@
 
         function populateHistoryTable(history) {
             const body = document.getElementById('history-table-body');
+            body.innerHTML = '';
             
             // Calculate Stats
             const totalScans = history.length;
@@ -1267,7 +1228,6 @@
                 return;
             }
 
-            let html = '';
             history.forEach(item => {
                 const dateStr = item.timestamp || 'N/A';
                 const durationSec = Math.floor((item.durationMs || 0) / 1000);
@@ -1286,35 +1246,55 @@
                     </div>`;
                 }
 
-                html += `
-                <tr class="hover:bg-surface-container-high transition-colors cursor-pointer" onclick="loadHistoryItemToActive('${item.target}', '${item.timestamp}')">
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-surface-container-high transition-colors cursor-pointer';
+                row.innerHTML = `
                     <td class="p-2 border-r border-outline-variant/20">
                         <div class="flex flex-col">
-                            <span class="text-primary-container font-bold">${item.target}</span>
-                            <span class="text-[9px] text-on-surface-variant">MODULE: ${item.module.toUpperCase()} ${item.scanHost ? `| HOST: ${item.scanHost.toUpperCase()}` : ''}</span>
+                            <span class="text-primary-container font-bold">${htmlEscape(item.target)}</span>
+                            <span class="text-[9px] text-on-surface-variant">MODULE: ${htmlEscape(item.module.toUpperCase())} ${item.scanHost ? `| HOST: ${htmlEscape(item.scanHost.toUpperCase())}` : ''}</span>
                         </div>
                     </td>
-                    <td class="p-2 border-r border-outline-variant/20 uppercase">${dateStr}</td>
-                    <td class="p-2 border-r border-outline-variant/20">${durationStr}</td>
+                    <td class="p-2 border-r border-outline-variant/20 uppercase">${htmlEscape(dateStr)}</td>
+                    <td class="p-2 border-r border-outline-variant/20">${htmlEscape(durationStr)}</td>
                     <td class="p-2 border-r border-outline-variant/20 text-primary-fixed-dim font-bold">${item.findingsCount} OPEN</td>
                     <td class="p-2 border-r border-outline-variant/20">${statusBadge}</td>
                     <td class="p-2">
-                        <div class="flex items-center gap-1.5" onclick="event.stopPropagation();">
-                            <button onclick="exportSingleScan('${item.target}', '${item.timestamp}', 'json')" class="border border-outline-variant/50 hover:bg-surface-container-highest hover:border-primary-container text-on-surface text-[9px] px-1.5 py-0.5 rounded-sm uppercase transition-colors" title="Export this scan details as JSON">JSON</button>
-                            <button onclick="exportSingleScan('${item.target}', '${item.timestamp}', 'csv')" class="border border-outline-variant/50 hover:bg-surface-container-highest hover:border-primary-container text-on-surface text-[9px] px-1.5 py-0.5 rounded-sm uppercase transition-colors" title="Export this scan details as CSV">CSV</button>
-                            <button onclick="exportSingleScan('${item.target}', '${item.timestamp}', 'pdf')" class="border border-primary-container/50 bg-primary-container/10 hover:bg-primary-container/20 text-primary-container text-[9px] font-bold px-1.5 py-0.5 rounded-sm uppercase transition-colors" title="Export this scan details as PDF">PDF</button>
+                        <div class="flex items-center gap-1.5 export-btn-container">
+                            <button class="export-json border border-outline-variant/50 hover:bg-surface-container-highest hover:border-primary-container text-on-surface text-[9px] px-1.5 py-0.5 rounded-sm uppercase transition-colors" title="Export this scan details as JSON">JSON</button>
+                            <button class="export-csv border border-outline-variant/50 hover:bg-surface-container-highest hover:border-primary-container text-on-surface text-[9px] px-1.5 py-0.5 rounded-sm uppercase transition-colors" title="Export this scan details as CSV">CSV</button>
+                            <button class="export-pdf border border-primary-container/50 bg-primary-container/10 hover:bg-primary-container/20 text-primary-container text-[9px] font-bold px-1.5 py-0.5 rounded-sm uppercase transition-colors" title="Export this scan details as PDF">PDF</button>
                         </div>
                     </td>
-                </tr>`;
-            });
+                `;
 
-            body.innerHTML = html;
+                // Add row listener
+                row.addEventListener('click', () => {
+                    loadHistoryItem(item);
+                });
+
+                // Button container logic
+                const btnContainer = row.querySelector('.export-btn-container');
+                btnContainer.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+
+                row.querySelector('.export-json').addEventListener('click', () => {
+                    exportSingleScan(item, 'json');
+                });
+                row.querySelector('.export-csv').addEventListener('click', () => {
+                    exportSingleScan(item, 'csv');
+                });
+                row.querySelector('.export-pdf').addEventListener('click', () => {
+                    exportSingleScan(item, 'pdf');
+                });
+
+                body.appendChild(row);
+            });
         }
 
         // Click history item: load it back to scan-results for inspection!
-        function loadHistoryItemToActive(target, timestamp) {
-            // Find history item
-            const item = historyData.find(h => h.target === target && h.timestamp === timestamp);
+        function loadHistoryItem(item) {
             if (!item || !item.resultData) return;
 
             // Load host details into Active view
@@ -1349,20 +1329,21 @@
             if (window.flutter_inappwebview) {
                 window.flutter_inappwebview.callHandler('exportHistory', format).then(filePath => {
                     if (filePath) {
-                        alert('EXPORTED SUCCESS: ' + filePath);
+                        showToast('EXPORTED SUCCESS: ' + filePath);
                     }
                 });
             } else {
-                alert('MOCK MODE: Exported to ' + format.toUpperCase());
+                showToast('MOCK MODE: Exported to ' + format.toUpperCase());
             }
         }
 
-        function exportSingleScan(target, timestamp, format) {
-            const item = historyData.find(h => h.target === target && h.timestamp === timestamp);
+        function exportSingleScan(item, format) {
             if (!item || !item.resultData) {
-                alert('No scan details found to export.');
+                showToast('No scan details found to export.', 'error');
                 return;
             }
+            const target = item.target || 'unknown';
+            const timestamp = item.timestamp || 'unknown';
 
             const cleanTarget = target.replace(/[^a-zA-Z0-9.-]/g, '_');
             const cleanTime = timestamp.replace(/[^0-9]/g, '_');
@@ -1373,10 +1354,10 @@
                 
                 if (window.flutter_inappwebview) {
                     window.flutter_inappwebview.callHandler('saveExportFile', fileName, content).then(filePath => {
-                        if (filePath) alert('EXPORTED SUCCESS:\n' + filePath);
+                        if (filePath) showToast('EXPORTED SUCCESS:\n' + filePath);
                     });
                 } else {
-                    alert('MOCK MODE: Exported to ' + fileName + '\n\n' + content.substring(0, 300) + '...');
+                    showToast('MOCK MODE: Exported to ' + fileName);
                 }
             } else if (format === 'csv') {
                 const fileName = `GNNcyber_NETscan_details_${cleanTarget}_${cleanTime}.csv`;
@@ -1399,15 +1380,15 @@
 
                 if (window.flutter_inappwebview) {
                     window.flutter_inappwebview.callHandler('saveExportFile', fileName, csv).then(filePath => {
-                        if (filePath) alert('EXPORTED SUCCESS:\n' + filePath);
+                        if (filePath) showToast('EXPORTED SUCCESS:\n' + filePath);
                     });
                 } else {
-                    alert('MOCK MODE: Exported to ' + fileName + '\n\n' + csv.substring(0, 300) + '...');
+                    showToast('MOCK MODE: Exported to ' + fileName);
                 }
             } else if (format === 'pdf') {
                 if (window.flutter_inappwebview) {
                     window.flutter_inappwebview.callHandler('exportSingleScanPdf', JSON.stringify(item)).then(filePath => {
-                        if (filePath) alert('EXPORTED SUCCESS:\n' + filePath);
+                        if (filePath) showToast('EXPORTED SUCCESS:\n' + filePath);
                     });
                 }
             }
@@ -1431,10 +1412,10 @@
             const logsText = document.getElementById('terminal-content').innerText;
             if (window.flutter_inappwebview) {
                 window.flutter_inappwebview.callHandler('saveLogs', logsText).then(filePath => {
-                    if (filePath) alert('LOGS SAVED: ' + filePath);
+                    if (filePath) showToast('LOGS SAVED: ' + filePath);
                 });
             } else {
-                alert('MOCK MODE: Logs copied.');
+                showToast('MOCK MODE: Logs copied.');
             }
         }
 
@@ -1452,18 +1433,18 @@
 
                 if (progress === 15) {
                     addLog('SYSTEM', 'COMM', 'Host 192.168.1.1 responds [GATEWAY].');
-                    addHostDiscovered('192.168.1.1', 'Cisco Gateway Core', true);
+                    addHostDiscovered('192.168.1.1', 'Cisco Gateway Core', true, '00:11:22:33:44:55', 'Cisco Systems', 'Network/Cisco');
                     addPortDiscovered('192.168.1.1', 80, 'TCP', 'open', 'http', 'nginx/1.22.0', '1.2', 'LOW');
                     addPortDiscovered('192.168.1.1', 443, 'TCP', 'open', 'https', 'nginx/1.22.0', '1.2', 'LOW');
                 } else if (progress === 45) {
                     addLog('SYSTEM', 'COMM', 'Host 192.168.1.42 responds [SELECTED_TARGET].');
-                    addHostDiscovered('192.168.1.42', 'Ubuntu Linux Host', true);
+                    addHostDiscovered('192.168.1.42', 'Ubuntu Linux Host', true, '00:11:22:AA:BB:CC', 'Intel Corporation', 'Linux/macOS');
                     addPortDiscovered('192.168.1.42', 22, 'TCP', 'open', 'ssh', 'OpenSSH 8.9p1', '2.4', 'LOW');
                     addPortDiscovered('192.168.1.42', 80, 'TCP', 'open', 'http', 'Apache httpd 2.4.52', '7.5', 'HIGH');
                     addPortDiscovered('192.168.1.42', 3306, 'TCP', 'filtered', 'mysql', 'MySQL 8.0.33', 'N/A', 'LOW');
                 } else if (progress === 75) {
                     addLog('SYSTEM', 'COMM', 'Host 192.168.1.55 responds [DB_SERVER].');
-                    addHostDiscovered('192.168.1.55', 'PostgreSQL DB Host', true);
+                    addHostDiscovered('192.168.1.55', 'PostgreSQL DB Host', true, '00:11:22:DD:EE:FF', 'Dell Inc.', 'Linux/macOS');
                     addPortDiscovered('192.168.1.55', 5432, 'TCP', 'open', 'postgresql', 'PostgreSQL 14.2', '0.0', 'LOW');
                 }
 
@@ -1474,15 +1455,25 @@
             }, 300);
         }
 
-        // Background simulation for telemetry
+        // Background simulation for telemetry (stubbed out to prevent errors since bars are removed)
         function initTelemetryStats() {
-            setInterval(() => {
-                const cpuVal = Math.floor(Math.random() * 20) + (scanIsRunning ? 40 : 5);
-                const memVal = Math.floor(Math.random() * 5) + (scanIsRunning ? 55 : 35);
-                
-                document.getElementById('cpu-bar').style.width = cpuVal + '%';
-                document.getElementById('mem-bar').style.width = memVal + '%';
-            }, 3000);
+            // CPU and MEM bars removed as they were using fake telemetry.
+        }
+
+        // Security: styled Toast UI notification helper
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = type === 'error' 
+                ? 'bg-error text-on-error border border-error/50 shadow-[0_0_10px_rgba(255,180,171,0.3)]' 
+                : 'bg-surface-container-highest text-on-surface border border-primary-container shadow-[0_0_10px_rgba(0,240,255,0.2)]';
+            toast.className = `${colors} px-4 py-2.5 font-data-mono text-xs pointer-events-auto rounded-sm tracking-wide animate-in slide-in-from-right-4 fade-in duration-300`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('animate-out', 'fade-out', 'slide-out-to-right-4', 'duration-300');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
         }
 
         window.onload = () => {
@@ -1492,5 +1483,6 @@
             setTimeout(requestHistoryFromDart, 1000);
         };
     </script>
+    <div id="toast-container" class="fixed bottom-6 right-6 flex flex-col gap-2 z-[200] pointer-events-none"></div>
 </body>
 </html>

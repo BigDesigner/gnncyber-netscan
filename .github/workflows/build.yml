@@ -25,18 +25,24 @@ jobs:
       release_needed: ${{ steps.check-tag.outputs.release_needed }}
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v6
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          node-version: '24'
+          python-version: '3.x'
 
       - name: Parse CHANGELOG.md
         id: parse
         run: python scripts/parse_changelog.py
+
+      - name: Upload Release Notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release_notes.txt
 
       - name: Check if tag exists
         id: check-tag
@@ -63,10 +69,10 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 24
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
 
@@ -98,7 +104,7 @@ jobs:
         run: iscc setup.iss
 
       - name: Upload Installer Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: GNNcyber-NETscan-Windows-Installer
           path: GNNcyber_NETscan_Setup.exe
@@ -112,10 +118,10 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 24
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
 
@@ -140,7 +146,7 @@ jobs:
           zip -r ../../../../../GNNcyber_NETscan_macOS.zip *.app
 
       - name: Upload macOS Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: GNNcyber-NETscan-macOS-App
           path: GNNcyber_NETscan_macOS.zip
@@ -154,17 +160,15 @@ jobs:
     
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v6
+      - name: Download Release Notes
+        uses: actions/download-artifact@v4
         with:
-          node-version: '24'
-          
-      - name: Parse CHANGELOG.md for release notes
-        run: python scripts/parse_changelog.py
+          name: release-notes
+          path: ./
         
       - name: Create and Push Git Tag
         run: |
@@ -175,22 +179,22 @@ jobs:
           git push origin "$TAG_NAME"
         
       - name: Download Windows Installer
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: GNNcyber-NETscan-Windows-Installer
           path: ./
           
       - name: Download macOS App
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: GNNcyber-NETscan-macOS-App
           path: ./
           
       - name: Create Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.check-version.outputs.version }}
-          name: GNNcyber - NETscan ${{  needs.check-version.outputs.version }}
+          name: GNNcyber - NETscan ${{ needs.check-version.outputs.version }}
           body_path: release_notes.txt
           files: |
             GNNcyber_NETscan_Setup.exe

@@ -210,9 +210,13 @@ class ScanEngine {
           await worker(tasks[currentTaskIndex]);
           
           int delayMs = 0;
-          if (stealthLevel == 'T1') delayMs = 500;
-          else if (stealthLevel == 'T2') delayMs = 100;
-          else if (stealthLevel == 'T3') delayMs = 10;
+          if (stealthLevel == 'T1') {
+            delayMs = 500;
+          } else if (stealthLevel == 'T2') {
+            delayMs = 100;
+          } else if (stealthLevel == 'T3') {
+            delayMs = 10;
+          }
           
           if (delayMs > 0) {
             await Future.delayed(Duration(milliseconds: delayMs));
@@ -252,10 +256,17 @@ class ScanEngine {
           _log('ERROR', 'CIDR prefix /$prefix is out of supported range. Please use /24 to /32 (max 256 hosts).');
         }
       } else if (target.contains('-')) {
-        // Range (e.g. 192.168.1.10-192.168.1.20)
+        // Range (e.g. 192.168.1.10-192.168.1.20 or 192.168.1.10-20)
         final parts = target.split('-');
         final startIp = parts[0].trim();
-        final endIp = parts[1].trim();
+        var endIp = parts[1].trim();
+
+        if (!endIp.contains('.')) {
+          final lastDot = startIp.lastIndexOf('.');
+          if (lastDot != -1) {
+            endIp = startIp.substring(0, lastDot + 1) + endIp;
+          }
+        }
 
         final startParts = startIp.split('.').map(int.parse).toList();
         final endParts = endIp.split('.').map(int.parse).toList();
@@ -337,8 +348,7 @@ class ScanEngine {
           }
           
           if (parsedService == 'apache' && version.toLowerCase().contains('httpd')) parsedService = 'apache httpd';
-          if (parsedService == 'ssh') parsedService = 'openssh';
-          if (parsedService.toLowerCase() == 'openssh') parsedService = 'OpenSSH';
+          if (parsedService == 'ssh' || parsedService.toLowerCase() == 'openssh') parsedService = 'OpenSSH';
           
           if (parsedVersion.isNotEmpty) {
              final cveData = await DatabaseHelper().findCveForService(parsedService, parsedVersion);
@@ -373,7 +383,7 @@ class ScanEngine {
       }
 
       final completer = Completer<String>();
-      final timer = Timer(const Duration(milliseconds: 800), () {
+      final timer = Timer(Duration(milliseconds: (timeout.inMilliseconds * 1.5).round()), () {
         if (!completer.isCompleted) {
           socket.destroy();
           completer.complete('');
@@ -463,8 +473,9 @@ class ScanEngine {
     } else if (module == 'common') {
       // Standard Sweep: 1 to 1024 + popular high ports
       List<int> ports = List.generate(1024, (i) => i + 1);
+      final Set<int> portsSet = ports.toSet();
       List<int> highPorts = [1433, 1521, 1720, 1723, 2000, 2049, 2121, 3000, 3128, 3306, 3389, 3986, 4899, 5000, 5051, 5060, 5101, 5432, 5631, 5800, 5900, 6000, 6001, 6667, 7000, 7070, 8000, 8008, 8009, 8080, 8081, 8443, 8888, 9090, 9100, 9999, 10000, 32768, 49152, 49153, 49154, 49155, 49156, 49157];
-      for(var p in highPorts) { if (!ports.contains(p)) ports.add(p); }
+      for(var p in highPorts) { if (!portsSet.contains(p)) ports.add(p); }
       return ports;
     } else if (module == 'service') {
       // Ports that usually have banners
@@ -505,7 +516,8 @@ class ScanEngine {
   Future<Map<String, String>> _getArpTable() async {
     final Map<String, String> table = {};
     try {
-      final result = await Process.run('arp', ['-a']);
+      final args = Platform.isMacOS ? ['-an'] : ['-a'];
+      final result = await Process.run('arp', args);
       if (result.exitCode == 0) {
         final ipRegex = RegExp(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b');
         final macRegex = RegExp(r'\b([0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}\b');

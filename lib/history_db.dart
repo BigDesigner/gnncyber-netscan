@@ -4,12 +4,12 @@ import 'package:path_provider/path_provider.dart';
 
 class HistoryDb {
   static Future<File> _getHistoryFile() async {
-    final directory = await getApplicationDocumentsDirectory();
+    final directory = await getApplicationSupportDirectory();
     return File('${directory.path}/gnnscan_history.json');
   }
 
   static Future<File> _getConfigFile() async {
-    final directory = await getApplicationDocumentsDirectory();
+    final directory = await getApplicationSupportDirectory();
     return File('${directory.path}/gnnscan_config.json');
   }
 
@@ -36,9 +36,9 @@ class HistoryDb {
       // Add new item at the beginning
       history.insert(0, item);
       
-      // Limit history to 50 items to keep file small
-      if (history.length > 50) {
-        history.removeRange(50, history.length);
+      // Limit history to 200 items to keep file small
+      if (history.length > 200) {
+        history.removeRange(200, history.length);
       }
       
       await file.writeAsString(jsonEncode(history), flush: true);
@@ -89,8 +89,7 @@ class HistoryDb {
       "maxThreads": 64,
       "timeoutMs": 500,
       "aggressive": true,
-      "bannerGrabbing": true,
-      "customScript": "{\n  \"engine_hook\": \"pre_scan\",\n  \"meta\": {\n    \"author\": \"ANALYST_01\",\n    \"version\": \"1.0.4\",\n    \"target\": \"TCP_STACK_VAL\"\n  },\n  \"rules\": [\n    {\n      \"match\": \"SYN_ACK_MISMATCH\",\n      \"action\": \"DROP_AND_LOG\",\n      \"threshold\": 0.85\n    }\n  ]\n}"
+      "bannerGrabbing": true
     };
   }
 }

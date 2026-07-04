@@ -106,11 +106,14 @@ class _MainScreenState extends State<MainScreen> {
           assetPath = 'assets/web/index.html';
         } else {
           final cleanPath = path.startsWith('/') ? path.substring(1) : path;
-          if (cleanPath == 'app.png' || cleanPath == 'gnnecosystem-logo.png') {
-            assetPath = 'assets/$cleanPath';
-          } else {
-            assetPath = 'assets/web/$cleanPath';
+          bool hasWebAsset = false;
+          try {
+            await rootBundle.load('assets/web/$cleanPath');
+            hasWebAsset = true;
+          } catch (_) {
+            hasWebAsset = false;
           }
+          assetPath = hasWebAsset ? 'assets/web/$cleanPath' : 'assets/$cleanPath';
         }
 
         try {
@@ -129,6 +132,8 @@ class _MainScreenState extends State<MainScreen> {
             request.response.headers.contentType = ContentType.parse('text/css');
           } else if (assetPath.endsWith('.js')) {
             request.response.headers.contentType = ContentType.parse('application/javascript');
+          } else if (assetPath.endsWith('.ttf')) {
+            request.response.headers.contentType = ContentType.parse('font/ttf');
           }
 
           request.response.add(buffer);
@@ -258,6 +263,7 @@ class _MainScreenState extends State<MainScreen> {
             
             // Build history item
             final historyItem = {
+              'id': DateTime.now().microsecondsSinceEpoch.toString(),
               'target': target,
               'module': module,
               'timestamp': DateTime.now().toLocal().toString().substring(0, 19),
@@ -298,6 +304,12 @@ class _MainScreenState extends State<MainScreen> {
       callback: (args) async {
         final settings = await HistoryDb.loadSettings();
         settings['hostname'] = Platform.localHostname;
+        try {
+          final interfaces = await NetworkInterface.list(includeLoopback: false, type: InternetAddressType.IPv4);
+          if (interfaces.isNotEmpty && interfaces.first.addresses.isNotEmpty) {
+            settings['localIp'] = interfaces.first.addresses.first.address;
+          }
+        } catch (_) {}
         return settings;
       },
     );
@@ -369,7 +381,7 @@ class _MainScreenState extends State<MainScreen> {
                       child: pw.Row(
                         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                         children: [
-                          pw.Text('GNNcyber - NETscan', style: pw.TextStyle(color: PdfColors.blue900, fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                          pw.Text('GNNcyber - NETscan', style: pw.TextStyle(color: PdfColors.blueGrey800, fontSize: 24, fontWeight: pw.FontWeight.bold)),
                           pw.Text('Global History Report', style: pw.TextStyle(color: PdfColors.grey600, fontSize: 14)),
                         ]
                       )
@@ -507,7 +519,7 @@ class _MainScreenState extends State<MainScreen> {
                     child: pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
-                        pw.Text('GNNcyber - NETscan', style: pw.TextStyle(color: PdfColors.red900, fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                        pw.Text('GNNcyber - NETscan', style: pw.TextStyle(color: PdfColors.blueGrey800, fontSize: 24, fontWeight: pw.FontWeight.bold)),
                         pw.Text('Detailed Scan Report', style: pw.TextStyle(color: PdfColors.grey600, fontSize: 14)),
                       ]
                     )
@@ -524,7 +536,7 @@ class _MainScreenState extends State<MainScreen> {
                   pw.TableHelper.fromTextArray(
                     context: context,
                     headerStyle: pw.TextStyle(color: PdfColors.white, fontWeight: pw.FontWeight.bold, fontSize: 9),
-                    headerDecoration: const pw.BoxDecoration(color: PdfColors.black),
+                    headerDecoration: const pw.BoxDecoration(color: PdfColors.blueGrey800),
                     cellStyle: const pw.TextStyle(fontSize: 8),
                     cellPadding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                     rowDecoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5))),

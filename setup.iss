@@ -4,14 +4,14 @@
 [Setup]
 AppId={{C82F6D18-7F1F-43DE-875C-B24DE7AA9D2B}
 AppName=GNNcyber - NETscan
-AppVersion=2.8.0
+AppVersion=2.9.0
 AppPublisher=BigDesigner
 AppPublisherURL=https://github.com/BigDesigner/GNNscan
 AppSupportURL=https://github.com/BigDesigner/GNNscan
 AppUpdatesURL=https://github.com/BigDesigner/GNNscan
 DefaultDirName={autopf}\GNNscan
 DisableProgramGroupPage=yes
-LicenseFile=README.md
+LicenseFile=LICENSE
 OutputDir=.
 OutputBaseFilename=GNNcyber_NETscan_Setup
 SetupIconFile=assets\app.ico

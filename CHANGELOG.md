@@ -1,5 +1,27 @@
 # Changelog
 
+## v2.9.0
+**Offline support, structural security updates, and styled telemetry fixes**
+
+### Çevrimdışı (Offline / Air-gap) Desteği
+- **Local Tailwind CSS & Icons:** Tailwind CSS CDN ve Material Symbols Outlined font dosyaları projeye lokal olarak bundle edildi. İnternet olmayan ortamlarda da arayüzün bozulmadan tam fonksiyonel çalışması sağlandı.
+- **Yerel Web Sunucusu:** Local HTTP sunucusunun MIME tiplerine `.ttf` font desteği eklendi.
+
+### Güvenlik & Arayüz Düzeltmeleri
+- **XSS & ID Düzeltmesi (C2/C7):** Geçmiş kayıtlar listesindeki inline `onclick` handler'ları tamamen kaldırılıp DOM API ve event delegation yapısına geçilerek XSS riski sıfırlandı. Çakışmaları önlemek için history kaydına mikro-saniye bazlı benzersiz `id` eklendi.
+- **Alert yerine Toast (C1):** Eski ve çirkin tarayıcı `alert()` pencereleri yerine Blue Team temasına uygun, modern ve şık animasyonlu bildirim (Toast) arayüzü eklendi.
+- **Sahte Telemetri Temizliği (C5):** Arayüzdeki rastgele değer üreten sahte CPU/MEM barları kaldırıldı. Sabit `1.2 THz` yazısı `LOCAL ENGINE` olarak güncellendi. Sahte IP adresi (`127.0.0.1`) yerine işletim sisteminden çekilen gerçek yerel IP adresinin dinamik gösterimi sağlandı.
+- **Platform Uyumlu ARP (A4):** macOS üzerinde ARP tablosunun çok daha hızlı sorgulanması amacıyla `arp -an` flag yapılandırması uygulandı.
+- **Shorthand IP Range Desteği (A5):** `192.168.1.10-20` gibi son oktet kısaltmalı tarama aralıkları için çözümleme desteği getirildi.
+- **Mükerrer Normalizasyon Temizliği (D1):** `scan_engine.dart` üzerindeki gereksiz OpenSSH normalizasyon tekrarları temizlendi.
+- **M-04 ve M-05 Düzeltmeleri:** Asset sunumundaki hardcoded kontrol mekanizmaları dinamik dosya kontrolüyle esnetildi. PDF raporlarındaki renk tutarsızlıkları `blueGrey800` kurumsal renk teması altında eşitlendi.
+
+### Altyapı & CI/CD
+- **Gereksiz SQLite Temizliği (A2):** Geçmiş kaydı için kullanılmayan mükerrer SQLite geçmiş tablosu ve ilgili tüm fonksiyonlar silindi. Tek kaynak JSON-tabanlı `HistoryDb` olarak birleştirildi.
+- **Gereksiz SQLite Kopyalaması (A1):** CVE veritabanının sürüm kontrolü için sürüm dosyası entegre edildi. Güncellemelerde veritabanının otomatik yenilenmesi sağlandı.
+- **CI/CD Action Sürümleri (B1):** `build.yml` iş akışındaki geçersiz/eski major action sürümleri `@v4`/`@v2` gibi kararlı sürümlerle değiştirildi. Python kurulum adımı eklendi. Sürüm notları üretimi optimize edildi.
+- Projeye MIT lisans belgesi eklenerek kurulum aracı buna göre yapılandırıldı.
+
 ## v2.8.0
 **Full Codebase Security & Bug Audit — 18 Kritik/Yüksek Bug Düzeltildi**
 

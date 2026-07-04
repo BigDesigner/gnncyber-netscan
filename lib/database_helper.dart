@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -10,7 +11,6 @@ class DatabaseHelper {
   DatabaseHelper._internal();
 
   Database? _cveDb;
-  Database? _historyDb;
 
   Future<void> init() async {
     if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
@@ -18,50 +18,51 @@ class DatabaseHelper {
       databaseFactory = databaseFactoryFfi;
     }
 
-    _cveDb = await _initCveDb();
-    _historyDb = await _initHistoryDb();
+    try {
+      _cveDb = await _initCveDb();
+    } catch (e) {
+      debugPrint('CVE DB init failed: $e');
+    }
   }
 
   Future<Database> _initCveDb() async {
     final docsDir = await getApplicationSupportDirectory();
     final dbPath = join(docsDir.path, 'cve_db.sqlite');
+    final versionPath = join(docsDir.path, 'cve_db_version.txt');
 
-    // Always check if we need to copy the latest DB from assets
-    // For now, we will just copy it if it doesn't exist
+    bool needCopy = false;
+
     if (!await File(dbPath).exists()) {
+      needCopy = true;
+    } else {
+      try {
+        final assetVer = await rootBundle.loadString('assets/cve_db_version.txt');
+        String diskVer = '';
+        if (await File(versionPath).exists()) {
+          diskVer = await File(versionPath).readAsString();
+        }
+        if (assetVer.trim() != diskVer.trim()) {
+          needCopy = true;
+        }
+      } catch (_) {
+        // Fallback: If version check fails for some reason, don't overwrite if db exists
+      }
+    }
+
+    if (needCopy) {
       try {
         final data = await rootBundle.load('assets/cve_db.sqlite');
         final bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
         await File(dbPath).writeAsBytes(bytes, flush: true);
+
+        final assetVer = await rootBundle.loadString('assets/cve_db_version.txt');
+        await File(versionPath).writeAsString(assetVer.trim(), flush: true);
       } catch (e) {
-        print('Error copying CVE DB from assets: $e');
+        debugPrint('Error copying CVE DB from assets: $e');
       }
     }
 
     return await databaseFactory.openDatabase(dbPath);
-  }
-
-  Future<Database> _initHistoryDb() async {
-    final docsDir = await getApplicationSupportDirectory();
-    final dbPath = join(docsDir.path, 'history.sqlite');
-
-    return await databaseFactory.openDatabase(
-      dbPath,
-      options: OpenDatabaseOptions(
-        version: 1,
-        onCreate: (db, version) async {
-          await db.execute('''
-            CREATE TABLE scans (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              timestamp TEXT,
-              target TEXT,
-              active_hosts INTEGER,
-              open_ports INTEGER
-            )
-          ''');
-        },
-      ),
-    );
   }
 
   Future<Map<String, dynamic>?> findCveForService(String serviceName, String version) async {
@@ -79,24 +80,5 @@ class DatabaseHelper {
       return maps.first;
     }
     return null;
-  }
-
-  Future<void> saveScanHistory(String timestamp, String target, int activeHosts, int openPorts) async {
-    if (_historyDb == null) return;
-    await _historyDb!.insert(
-      'scans',
-      {
-        'timestamp': timestamp,
-        'target': target,
-        'active_hosts': activeHosts,
-        'open_ports': openPorts,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  Future<List<Map<String, dynamic>>> getHistory() async {
-    if (_historyDb == null) return [];
-    return await _historyDb!.query('scans', orderBy: 'id DESC');
   }
 }

@@ -63,13 +63,13 @@ IDI_APP_ICON            ICON                    "resources\\app_icon.ico"
 #if defined(FLUTTER_VERSION_MAJOR) && defined(FLUTTER_VERSION_MINOR) && defined(FLUTTER_VERSION_PATCH) && defined(FLUTTER_VERSION_BUILD)
 #define VERSION_AS_NUMBER FLUTTER_VERSION_MAJOR,FLUTTER_VERSION_MINOR,FLUTTER_VERSION_PATCH,FLUTTER_VERSION_BUILD
 #else
-#define VERSION_AS_NUMBER 2,8,0,0
+#define VERSION_AS_NUMBER 2,9,0,0
 #endif
 
 #if defined(FLUTTER_VERSION)
 #define VERSION_AS_STRING FLUTTER_VERSION
 #else
-#define VERSION_AS_STRING "2.8.0"
+#define VERSION_AS_STRING "2.9.0"
 #endif
 
 VS_VERSION_INFO VERSIONINFO
@@ -91,12 +91,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "com.gnnscan" "\0"
             VALUE "FileDescription", "GNNscan" "\0"
-            VALUE "FileVersion", "2.8.0.0" "\0"
+            VALUE "FileVersion", "2.9.0.0" "\0"
             VALUE "InternalName", "gnnscan" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024-2026 BigDesigner. All rights reserved." "\0"
             VALUE "OriginalFilename", "gnnscan.exe" "\0"
             VALUE "ProductName", "GNNcyber - NETscan" "\0"
-            VALUE "ProductVersion", "2.8.0.0" "\0"
+            VALUE "ProductVersion", "2.9.0.0" "\0"
         END
     END
     BLOCK "VarFileInfo"
