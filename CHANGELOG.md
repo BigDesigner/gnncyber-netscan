@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.9.1
+**UI tweaks and stealth order fix**
+- **Stealth Options Reordered:** Tarama gizlilik (Stealth) modları T1-T5 (Sneaky -> Insane) sırasıyla, mantıksal sıralamaya uygun olarak listelenecek şekilde düzenlendi.
+
 ## v2.9.0
 **Offline support, structural security updates, and styled telemetry fixes**
 
