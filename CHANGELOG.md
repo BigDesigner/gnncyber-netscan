@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.10.3
+**Dependency Maintenance Update**
+- Upgraded all direct dependencies (pdf, sqflite_common_ffi, path_provider, flutter_inappwebview) to their latest stable versions.
+- Resolved and updated transitive dependencies (xml 7.x, qr 4.x, image 4.9.x, sqflite_common 2.5.11 etc.) via pub upgrade.
+
 ## v2.10.2
 **Setup Installer UI and Dependency Checks Update**
 - **VCRedist Installation:** Windows yükleyici (setup) programı artık kullanıcı makinesinde Visual C++ Redistributable (x64) kurulu olup olmadığını denetler. Eksikse otomatik kurar.
