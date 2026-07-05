@@ -1,23 +1,26 @@
 <div align="center">
-  <h1>GNNscan <br> <sub>Advanced Network Discovery & Vulnerability Scanner</sub></h1>
-  <br>
-  <video src="https://github.com/user-attachments/assets/e97ea786-b083-464e-a9f4-50b305adca22" width="100%" controls autoplay muted loop></video>
-  <br><br>
-  <a href="https://github.com/BigDesigner/GNNscan/releases/latest">
-    <img src="https://img.shields.io/github/v/release/BigDesigner/GNNscan?style=for-the-badge&color=00F0FF&label=Latest%20Version" alt="Latest Version"/>
-  </a>
-  &nbsp;
-  <a href="https://github.com/BigDesigner/GNNscan/releases">
-    <img src="https://img.shields.io/github/downloads/BigDesigner/GNNscan/total?style=for-the-badge&color=72FF70&label=Total%20Downloads" alt="Total Downloads"/>
-  </a>
-  <br><br>
   <a href="https://github.com/BigDesigner/GNNscan/releases/latest/download/GNNcyber_NETscan_Setup.exe">
-    <img src="https://img.shields.io/badge/Windows-Download%20Setup.exe-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Download Windows Setup"/>
+    <img src="https://img.shields.io/badge/Windows-Download%20Setup.exe-0078D4?style=flat-square&logo=windows&logoColor=white" alt="Download Windows Setup"/>
   </a>
   &nbsp;&nbsp;
   <a href="https://github.com/BigDesigner/GNNscan/releases/latest/download/GNNcyber_NETscan_macOS.zip">
-    <img src="https://img.shields.io/badge/macOS-Download%20macOS.zip-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Download macOS ZIP"/>
+    <img src="https://img.shields.io/badge/macOS-Download%20macOS.zip-1f1f1f?style=flat-square&logo=apple&logoColor=white" alt="Download macOS ZIP"/>
   </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/BigDesigner/GNNscan/releases/latest">
+    <img src="https://img.shields.io/github/v/release/BigDesigner/GNNscan?style=flat-square&color=00F0FF&label=version" alt="Latest Version"/>
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/BigDesigner/GNNscan/releases">
+    <img src="https://img.shields.io/github/downloads/BigDesigner/GNNscan/total?style=flat-square&color=72FF70&label=downloads" alt="Total Downloads"/>
+  </a>
+
+  <br><br>
+  <hr>
+
+  <h1>GNNscan <br> <sub>Advanced Network Discovery & Vulnerability Scanner</sub></h1>
+  <br>
+  <video src="https://github.com/user-attachments/assets/e97ea786-b083-464e-a9f4-50b305adca22" width="100%" controls autoplay muted loop></video>
 </div>
 
 <br>
