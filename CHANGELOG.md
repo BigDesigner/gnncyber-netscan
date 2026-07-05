@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.10.0
+**Discovery Enhancement: Hostname Resolution & Local MAC**
+- **Hostname Resolution:** Tarama sırasında bulunan her aktif IP için DNS/mDNS reverse lookup yapılarak cihazların gerçek isimleri (ör. `iPad.local`, `MSI-4060.home`) çözümlenir ve hem host listesinde hem detay panelinde gösterilir.
+- **Local MAC Discovery:** Taramayı yapan makinenin kendi MAC adresi artık `N/A` gösterilmez; `ipconfig /all` (Windows) / `ifconfig` (macOS) üzerinden fiziksel adres tespit edilir.
 ## v2.9.1
 **UI tweaks and stealth order fix**
 - **Stealth Options Reordered:** Tarama gizlilik (Stealth) modları T1-T5 (Sneaky -> Insane) sırasıyla, mantıksal sıralamaya uygun olarak listelenecek şekilde düzenlendi.

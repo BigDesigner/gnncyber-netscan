@@ -186,7 +186,7 @@
         <div class="px-6 mb-8 flex flex-col items-center text-center gap-2">
 
             <div class="flex flex-col items-center gap-1 mt-1">
-                <p class="font-data-mono text-[10px] text-outline">V.2.9.1-STABLE</p>
+                <p class="font-data-mono text-[10px] text-outline">V.2.10.0-STABLE</p>
             </div>
         </div>
         <nav class="flex-1 space-y-1">
@@ -471,6 +471,9 @@
                 <div>
                     <h2 class="text-headline-sm font-data-mono-bold text-on-surface" id="selected-host-title">Target: Select a host</h2>
                     <p class="text-label-xs font-data-mono text-on-surface-variant mt-1">Host Identity: <span class="text-primary-fixed-dim" id="selected-host-os">N/A</span></p>
+                    <p class="font-data-mono text-on-surface-variant text-[11px] mt-1">
+                        Hostname: <span id="selected-host-hostname" class="text-primary-fixed-dim font-bold">—</span>
+                    </p>
                     <p class="text-[10px] font-data-mono text-outline mt-1 animate-in fade-in duration-300" id="selected-host-mac">MAC Address: <span class="text-primary-fixed-dim">N/A</span></p>
                 </div>
                 <div class="flex space-x-4">
@@ -712,7 +715,7 @@
         // Bridge object for Flutter calls
         window.gnnscan = {
             onLogReceived: (timestamp, type, msg) => addLog(timestamp, type, msg),
-            onHostDiscovered: (ip, label, isUp, mac, vendor, os) => addHostDiscovered(ip, label, isUp, mac, vendor, os),
+            onHostDiscovered: (ip, label, isUp, mac, vendor, os, hostname) => addHostDiscovered(ip, label, isUp, mac, vendor, os, hostname),
             onPortDiscovered: (ip, port, protocol, state, service, version, vulnScore, vulnLevel) => addPortDiscovered(ip, port, protocol, state, service, version, vulnScore, vulnLevel),
             onProgressUpdate: (progress) => onProgressUpdate(progress),
             onScanFinished: () => onScanFinished()
@@ -921,7 +924,7 @@
         }
 
         // Bridge: Host discovered
-        function addHostDiscovered(ip, label, isUp, mac, vendor, os) {
+        function addHostDiscovered(ip, label, isUp, mac, vendor, os, hostname) {
             if (!hostsData[ip]) {
                 hostsData[ip] = { 
                     ip: ip, 
@@ -930,6 +933,7 @@
                     mac: mac || 'N/A', 
                     vendor: vendor || 'UNKNOWN', 
                     os: os || 'UNKNOWN',
+                    hostname: hostname || 'UNKNOWN',
                     ports: [] 
                 };
             } else {
@@ -938,6 +942,7 @@
                 if (mac) hostsData[ip].mac = mac;
                 if (vendor) hostsData[ip].vendor = vendor;
                 if (os) hostsData[ip].os = os;
+                if (hostname && hostname !== 'UNKNOWN') hostsData[ip].hostname = hostname;
             }
 
             // Update total active hosts count
@@ -954,7 +959,7 @@
         // Bridge: Port discovered on host
         function addPortDiscovered(ip, port, protocol, state, service, version, vulnScore, vulnLevel) {
             if (!hostsData[ip]) {
-                addHostDiscovered(ip, null, true, 'N/A', 'UNKNOWN', 'UNKNOWN');
+                addHostDiscovered(ip, null, true, 'N/A', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN');
             }
             // Avoid duplicate ports
             const ports = hostsData[ip].ports;
@@ -1005,6 +1010,7 @@
                                         <span class="leading-tight">${htmlEscape(host.ip)}</span>
                                         ${host.os === 'Windows' ? '<span class="material-symbols-outlined text-[10px] text-primary-fixed-dim" title="Windows">desktop_windows</span>' : (host.os === 'Linux/macOS' ? '<span class="material-symbols-outlined text-[10px] text-primary-fixed-dim" title="Linux/macOS">terminal</span>' : (host.os === 'Network/Cisco' ? '<span class="material-symbols-outlined text-[10px] text-primary-fixed-dim" title="Network/Cisco">router</span>' : ''))}
                                     </div>
+                                    ${host.hostname && host.hostname !== 'UNKNOWN' ? `<span class="text-[9px] text-primary-container leading-none mt-0.5 font-data-mono">${htmlEscape(host.hostname)}</span>` : ''}
                                     ${host.vendor && host.vendor !== 'UNKNOWN' ? `<span class="text-[9px] text-outline leading-none mt-0.5">${htmlEscape(host.vendor)}</span>` : ''}
                                 </div>
                             </div>
@@ -1029,6 +1035,10 @@
             document.getElementById('selected-host-title').textContent = 'Target: ' + host.ip;
             document.getElementById('selected-host-os').textContent = host.label;
             
+            const hostnameEl = document.getElementById('selected-host-hostname');
+            if (hostnameEl) {
+                hostnameEl.textContent = (host.hostname && host.hostname !== 'UNKNOWN') ? host.hostname : '—';
+            }
             const macSpan = document.getElementById('selected-host-mac');
             if (host.mac && host.mac !== 'N/A') {
                 macSpan.innerHTML = `MAC Address: <span class="text-primary-fixed-dim font-bold">${host.mac}</span>` + 

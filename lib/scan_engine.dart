@@ -14,7 +14,7 @@ class ScanEngine {
 
   // Callbacks to communicate status back to UI
   final Function(String timestamp, String type, String msg) onLog;
-  final Function(String ip, String label, bool isUp, String mac, String vendor, String os) onHostDiscovered;
+  final Function(String ip, String label, bool isUp, String mac, String vendor, String os, String hostname) onHostDiscovered;
   final Function(String ip, int port, String protocol, String state, String service, String version, String vulnScore, String vulnLevel) onPortDiscovered;
   final Function(double progress) onProgress;
   final Function() onFinished;
@@ -95,15 +95,21 @@ class ScanEngine {
             _log('COMM', 'Host responds active: $ip');
             activeHosts.add(ip);
             
-            final mac = arpTable[ip] ?? 'N/A';
+            String mac = arpTable[ip] ?? 'N/A';
+            // If this is the local machine, ARP won't have its own entry.
+            // Detect local machine by checking all local network interfaces.
+            if (mac == 'N/A') {
+              mac = await _getLocalMacAddress(ip);
+            }
             final vendor = mac != 'N/A' ? await _getMacVendor(mac) : 'UNKNOWN';
             final os = await _getOsFingerprint(ip);
+            final hostname = await _resolveHostname(ip);
             
-            onHostDiscovered(ip, 'ACTIVE_NODE', true, mac, vendor, os);
+            onHostDiscovered(ip, 'ACTIVE_NODE', true, mac, vendor, os, hostname);
           } else {
             // For single target, still show it as unreachable
             if (ipList.length == 1) {
-              onHostDiscovered(ip, 'UNREACHABLE', false, 'N/A', 'UNKNOWN', 'UNKNOWN');
+              onHostDiscovered(ip, 'UNREACHABLE', false, 'N/A', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN');
             }
           }
         },
@@ -127,7 +133,8 @@ class ScanEngine {
           final mac = arpTable[ip]!;
           final vendor = await _getMacVendor(mac);
           final os = await _getOsFingerprint(ip);
-          onHostDiscovered(ip, 'ACTIVE_NODE', true, mac, vendor, os);
+          final hostname = await _resolveHostname(ip);
+          onHostDiscovered(ip, 'ACTIVE_NODE', true, mac, vendor, os, hostname);
         }
       }
 
@@ -560,6 +567,65 @@ class ScanEngine {
         if (ttl <= 128) return 'Windows';
         if (ttl <= 255) return 'Network/Cisco';
       }
+    } catch (_) {}
+    return 'UNKNOWN';
+  }
+
+  /// Scans the local system's network interfaces to find the MAC address
+  /// associated with the given [localIp]. Works on Windows (ipconfig /all)
+  /// and macOS/Linux (ifconfig).
+  Future<String> _getLocalMacAddress(String localIp) async {
+    try {
+      if (Platform.isWindows) {
+        final result = await Process.run('ipconfig', ['/all']);
+        if (result.exitCode != 0) return 'N/A';
+        final output = result.stdout as String;
+        // Split by blank lines to get per-adapter blocks
+        final blocks = output.split('\r\n\r\n');
+        for (final block in blocks) {
+          if (block.contains(localIp)) {
+            for (final line in block.split('\r\n')) {
+              // Supports both English ("Physical Address") and Turkish ("Fiziksel Adres") locales
+              if (line.toLowerCase().contains('physical address') ||
+                  line.toLowerCase().contains('fiziksel adres')) {
+                final colonIdx = line.indexOf(':');
+                if (colonIdx != -1) {
+                  return line.substring(colonIdx + 1).trim().replaceAll('-', ':');
+                }
+              }
+            }
+          }
+        }
+      } else if (Platform.isMacOS || Platform.isLinux) {
+        final result = await Process.run('ifconfig', []);
+        if (result.exitCode != 0) return 'N/A';
+        final output = result.stdout as String;
+        // Split by adapter blocks (lines that start without whitespace)
+        final blocks = output.split(RegExp(r'\n(?=[a-z])'));
+        for (final block in blocks) {
+          if (block.contains(localIp)) {
+            for (final line in block.split('\n')) {
+              final trimmed = line.trim();
+              if (trimmed.startsWith('ether ')) {
+                return trimmed.split(' ')[1].trim().toUpperCase().replaceAll('-', ':');
+              }
+            }
+          }
+        }
+      }
+    } catch (_) {}
+    return 'N/A';
+  }
+
+  /// Performs a reverse DNS lookup for [ip].
+  /// Returns the resolved hostname or 'UNKNOWN' on failure/timeout.
+  Future<String> _resolveHostname(String ip) async {
+    try {
+      final addr = InternetAddress(ip);
+      final reversed = await addr.reverse().timeout(const Duration(seconds: 2));
+      final host = reversed.host;
+      // Skip bare IP addresses returned as host (some systems do this)
+      if (host.isNotEmpty && host != ip) return host;
     } catch (_) {}
     return 'UNKNOWN';
   }

@@ -225,7 +225,7 @@ class _MainScreenState extends State<MainScreen> {
           onLog: (timestamp, type, msg) {
             _runJavaScript("window.gnnscan.onLogReceived(${jsonEncode(timestamp)}, ${jsonEncode(type)}, ${jsonEncode(msg)})");
           },
-          onHostDiscovered: (ip, label, isUp, mac, vendor, os) {
+          onHostDiscovered: (ip, label, isUp, mac, vendor, os, hostname) {
             discoveredHostsData[ip] = {
               'ip': ip,
               'label': label,
@@ -233,9 +233,10 @@ class _MainScreenState extends State<MainScreen> {
               'mac': mac,
               'vendor': vendor,
               'os': os,
+              'hostname': hostname,
               'ports': []
             };
-            _runJavaScript("window.gnnscan.onHostDiscovered(${jsonEncode(ip)}, ${jsonEncode(label)}, $isUp, ${jsonEncode(mac)}, ${jsonEncode(vendor)}, ${jsonEncode(os)})");
+            _runJavaScript("window.gnnscan.onHostDiscovered(${jsonEncode(ip)}, ${jsonEncode(label)}, $isUp, ${jsonEncode(mac)}, ${jsonEncode(vendor)}, ${jsonEncode(os)}, ${jsonEncode(hostname)})");
           },
           onPortDiscovered: (ip, port, protocol, state, service, version, vulnScore, vulnLevel) {
             findingsCount++;
