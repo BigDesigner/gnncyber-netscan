@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.10.2
+**Setup Installer UI and Dependency Checks Update**
+- **VCRedist Installation:** Windows yükleyici (setup) programı artık kullanıcı makinesinde Visual C++ Redistributable (x64) kurulu olup olmadığını denetler. Eksikse otomatik kurar.
+- **Installer UX/UI Update:** `setup.iss` üzerinden sessiz (silent) indirilen ve kurulan (WebView2, VCRedist) yardımcı araçların, internet hızına bağlı olarak indirme sürecinde ekranı dondurmuş gibi göstermesi sorunu giderildi. Kurulum sırasında ilerleme çubukları ve açıklayıcı mesaj pencereleri görünür kılındı.
 ## v2.10.1
 **PDF/CSV Export Hostname Fix**
 - **Export Fix:** PDF ve CSV rapor çıktılarında yeni eklenen `hostname` değerlerinin doğru şekilde yansıtılmama sorunu (yerine işletim sistemi etiketinin yazılması) düzeltildi. `hostname` mevcutsa o, yoksa fallback etiketi kullanılacak şekilde ihracat logiği güncellendi.
