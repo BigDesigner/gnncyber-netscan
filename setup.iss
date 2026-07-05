@@ -39,10 +39,10 @@ Name: "{autodesktop}\GNNcyber - NETscan"; Filename: "{app}\gnnscan.exe"; Tasks: 
 
 [Run]
 Filename: "{app}\gnnscan.exe"; Description: "{cm:LaunchProgram,GNNcyber - NETscan}"; Flags: nowait postinstall skipifsilent
-; Download and install WebView2 silently after install if missing
-Filename: "powershell.exe"; Parameters: "-NoProfile -Command ""Invoke-WebRequest -Uri 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile '$env:TEMP\MicrosoftEdgeWebview2Setup.exe'; Start-Process -FilePath '$env:TEMP\MicrosoftEdgeWebview2Setup.exe' -ArgumentList '/silent /install' -Wait"""; StatusMsg: "Installing Microsoft Edge WebView2 Runtime (if missing)..."; Check: not IsWebView2Installed; Flags: runhidden
-; Download and install Visual C++ Redistributable (x64) silently if missing
-Filename: "powershell.exe"; Parameters: "-NoProfile -Command ""Invoke-WebRequest -Uri 'https://aka.ms/vs/17/release/vc_redist.x64.exe' -OutFile '$env:TEMP\vc_redist.x64.exe'; Start-Process -FilePath '$env:TEMP\vc_redist.x64.exe' -ArgumentList '/install /quiet /norestart' -Wait"""; StatusMsg: "Installing Visual C++ Redistributable (if missing)..."; Check: not IsVCRedistInstalled; Flags: runhidden
+; Download and install WebView2 with native Microsoft UI so user sees progress
+Filename: "powershell.exe"; Parameters: "-NoProfile -Command ""Invoke-WebRequest -Uri 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile '$env:TEMP\MicrosoftEdgeWebview2Setup.exe'; Start-Process -FilePath '$env:TEMP\MicrosoftEdgeWebview2Setup.exe' -Wait"""; StatusMsg: "Downloading WebView2 Runtime... (Please wait, an installer window will appear)"; Check: not IsWebView2Installed; Flags: runhidden
+; Download and install Visual C++ Redistributable with passive progress UI
+Filename: "powershell.exe"; Parameters: "-NoProfile -Command ""Invoke-WebRequest -Uri 'https://aka.ms/vs/17/release/vc_redist.x64.exe' -OutFile '$env:TEMP\vc_redist.x64.exe'; Start-Process -FilePath '$env:TEMP\vc_redist.x64.exe' -ArgumentList '/passive /norestart' -Wait"""; StatusMsg: "Downloading Visual C++ Redistributable... (Please wait, an installer window will appear)"; Check: not IsVCRedistInstalled; Flags: runhidden
 
 [Code]
 // Helper function to check if Edge WebView2 Runtime is installed
