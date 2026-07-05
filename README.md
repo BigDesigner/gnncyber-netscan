@@ -19,7 +19,7 @@
   </tr>
   <tr>
     <td width="50%"><p align="center"><strong>Engine Parameters / Motor Konfigürasyonu</strong></p><img src="media/screenshot-5.png" alt="Engine Parameters" width="100%"/></td>
-    <td width="50%"><p align="center"><strong>PDF & CSV Export / Rapor Çıktıları</strong></p><img src="media/screenshot-6.png" alt="PDF & CSV Export" width="100%"/></td>
+    <td width="50%"><p align="center"><strong>Proxy & VPN Settings / Proxy & VPN Ayarları</strong></p><img src="media/screenshot-6.png" alt="Proxy & VPN Settings" width="100%"/></td>
   </tr>
 </table>
 
