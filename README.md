@@ -1,8 +1,27 @@
 <div align="center">
   <h1>GNNscan <br> <sub>Advanced Network Discovery & Vulnerability Scanner</sub></h1>
   <br>
-  <video src="media/screenrecord-1.mp4" width="100%" controls muted autoplay loop></video>
+  <video src="https://github.com/BigDesigner/GNNscan/raw/main/media/screenrecord-1.mp4" width="100%" controls autoplay muted loop></video>
 </div>
+
+<br>
+
+## 📸 Screenshots / Ekran Görüntüleri
+
+<table>
+  <tr>
+    <td width="50%"><p align="center"><strong>Network Discovery / Cihaz Keşfi</strong></p><img src="media/screenshot-1.png" alt="Network Discovery" width="100%"/></td>
+    <td width="50%"><p align="center"><strong>Real-time Terminal Logs / Gerçek Zamanlı Loglar</strong></p><img src="media/screenshot-2.png" alt="Real-time Terminal Logs" width="100%"/></td>
+  </tr>
+  <tr>
+    <td width="50%"><p align="center"><strong>Host Details & Services / Detay Paneli</strong></p><img src="media/screenshot-3.png" alt="Host Details" width="100%"/></td>
+    <td width="50%"><p align="center"><strong>Target History / Tarama Geçmişi</strong></p><img src="media/screenshot-4.png" alt="Target History" width="100%"/></td>
+  </tr>
+  <tr>
+    <td width="50%"><p align="center"><strong>Engine Parameters / Motor Konfigürasyonu</strong></p><img src="media/screenshot-5.png" alt="Engine Parameters" width="100%"/></td>
+    <td width="50%"><p align="center"><strong>PDF & CSV Export / Rapor Çıktıları</strong></p><img src="media/screenshot-6.png" alt="PDF & CSV Export" width="100%"/></td>
+  </tr>
+</table>
 
 <br>
 
@@ -98,25 +117,6 @@ Standart ping ve ARP tabanlı ağ tarayıcıları genellikle yüzeysel sonuçlar
 Bu araç, sızma testleri (penetrasyon), ağ denetimleri ve savunma (Blue Team) operasyonları sırasında yetkili personelin kullanması için geliştirilmiştir. Sadece izniniz olan ağlarda kullanınız.
 
 </details>
-
-<br>
-
-## 📸 Screenshots / Ekran Görüntüleri
-
-<table>
-  <tr>
-    <td width="50%"><p align="center"><strong>Network Discovery / Cihaz Keşfi</strong></p><img src="media/screenshot-1.png" alt="Network Discovery" width="100%"/></td>
-    <td width="50%"><p align="center"><strong>Active Scans / Aktif Taramalar</strong></p><img src="media/screenshot-2.png" alt="Active Scans" width="100%"/></td>
-  </tr>
-  <tr>
-    <td width="50%"><p align="center"><strong>Host Details / Detay Paneli</strong></p><img src="media/screenshot-3.png" alt="Host Details" width="100%"/></td>
-    <td width="50%"><p align="center"><strong>Target History / Tarama Geçmişi</strong></p><img src="media/screenshot-4.png" alt="Target History" width="100%"/></td>
-  </tr>
-  <tr>
-    <td width="50%"><p align="center"><strong>Export Options / Dışa Aktarma</strong></p><img src="media/screenshot-5.png" alt="Export Options" width="100%"/></td>
-    <td width="50%"><p align="center"><strong>Configuration / Gelişmiş Ayarlar</strong></p><img src="media/screenshot-6.png" alt="Configuration" width="100%"/></td>
-  </tr>
-</table>
 
 <br>
 
