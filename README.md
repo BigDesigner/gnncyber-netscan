@@ -1,15 +1,15 @@
 <div align="center">
   <h1>GNNscan <br> <sub>Advanced Network Discovery & Vulnerability Scanner</sub></h1>
-  <p>Siber güvenlik uzmanları, Blue/Red Team operasyonları ve sistem yöneticileri için tasarlanmış, piyasadaki klasik tarayıcılardan (örn. Advanced IP Scanner) fersah fersah ileride, <strong>tamamen yerel, gizli ve derinlemesine</strong> ağ analizi yapan yeni nesil bir araçtır.</p>
+  <p>Siber güvenlik uzmanları, Blue/Red Team operasyonları ve sistem yöneticileri için tasarlanmış, geleneksel ağ tarayıcılarının ötesine geçerek <strong>tamamen yerel, gizli ve derinlemesine</strong> ağ analizi yapan yeni nesil bir araçtır.</p>
 </div>
 
 ---
 
 ## 🎯 Neden GNNscan?
 
-Dünyanın her yerinde standart olarak kullanılan *Advanced IP Scanner* gibi basit ping/ARP araçları yüzeysel sonuçlar üretir. GNNscan ise ağınızdaki cihazların sadece IP'sini ve MAC adresini bulmakla kalmaz; o cihazın **işletim sistemini, üzerindeki servislerin tam versiyonunu, zafiyet seviyesini ve gerçek makine ismini (Hostname)** de tespit eder. Tüm bu işlemleri yaparken güvenlik duvarlarına yakalanmamak için **Stealth (Gizlilik)** algoritmaları kullanır.
+Standart ping ve ARP tabanlı ağ tarayıcıları genellikle yüzeysel sonuçlar üretir. GNNscan ise ağınızdaki cihazların sadece IP'sini ve MAC adresini bulmakla kalmaz; o cihazın **işletim sistemini, üzerindeki servislerin tam versiyonunu, zafiyet seviyesini ve gerçek makine ismini (Hostname)** de tespit eder. Tüm bu işlemleri yaparken güvenlik duvarlarına yakalanmamak için **Stealth (Gizlilik)** algoritmaları kullanır.
 
-## 🚀 Öne Çıkan Özellikler (Advanced IP Scanner'da Olmayanlar)
+## 🚀 Öne Çıkan Özellikler (Geleneksel Araçlardan Farkımız)
 
 ### 1. Derinlemesine Ağ ve Kimlik Keşfi
 - **DNS & mDNS Hostname Çözümleme:** Sadece IP adreslerini değil, cihazların ağdaki gerçek isimlerini (ör. `iPhone.local`, `MSI-4060.home`) anında tespit eder.
