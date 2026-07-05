@@ -1,7 +1,7 @@
 <div align="center">
   <h1>GNNscan <br> <sub>Advanced Network Discovery & Vulnerability Scanner</sub></h1>
   <br>
-  <video src="https://github.com/BigDesigner/GNNscan/raw/main/media/screenrecord-1.mp4" width="100%" controls autoplay muted loop></video>
+  <h3><a href="https://github.com/BigDesigner/GNNscan/blob/main/media/screenrecord-1.mp4">▶️ Watch Demo Video / Demo Videosunu İzleyin</a></h3>
 </div>
 
 <br>
