@@ -41,6 +41,8 @@ Name: "{autodesktop}\GNNcyber - NETscan"; Filename: "{app}\gnnscan.exe"; Tasks: 
 Filename: "{app}\gnnscan.exe"; Description: "{cm:LaunchProgram,GNNcyber - NETscan}"; Flags: nowait postinstall skipifsilent
 ; Download and install WebView2 silently after install if missing
 Filename: "powershell.exe"; Parameters: "-NoProfile -Command ""Invoke-WebRequest -Uri 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile '$env:TEMP\MicrosoftEdgeWebview2Setup.exe'; Start-Process -FilePath '$env:TEMP\MicrosoftEdgeWebview2Setup.exe' -ArgumentList '/silent /install' -Wait"""; StatusMsg: "Installing Microsoft Edge WebView2 Runtime (if missing)..."; Check: not IsWebView2Installed; Flags: runhidden
+; Download and install Visual C++ Redistributable (x64) silently if missing
+Filename: "powershell.exe"; Parameters: "-NoProfile -Command ""Invoke-WebRequest -Uri 'https://aka.ms/vs/17/release/vc_redist.x64.exe' -OutFile '$env:TEMP\vc_redist.x64.exe'; Start-Process -FilePath '$env:TEMP\vc_redist.x64.exe' -ArgumentList '/install /quiet /norestart' -Wait"""; StatusMsg: "Installing Visual C++ Redistributable (if missing)..."; Check: not IsVCRedistInstalled; Flags: runhidden
 
 [Code]
 // Helper function to check if Edge WebView2 Runtime is installed
@@ -52,6 +54,16 @@ begin
   RegPath := 'SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}';
   Result := RegQueryStringValue(HKLM, RegPath, 'pv', InstalledVersion) or
             RegQueryStringValue(HKCU, RegPath, 'pv', InstalledVersion);
+end;
+
+// Helper function to check if Visual C++ Redistributable (x64) is installed
+function IsVCRedistInstalled: Boolean;
+var
+  RegPath: String;
+  InstalledVersion: Cardinal;
+begin
+  RegPath := 'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64';
+  Result := RegQueryDWordValue(HKLM, RegPath, 'Installed', InstalledVersion) and (InstalledVersion = 1);
 end;
 
 function InitializeSetup(): Boolean;
