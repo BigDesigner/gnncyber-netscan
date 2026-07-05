@@ -1,8 +1,6 @@
 <div align="center">
   <h1>GNNscan <br> <sub>Advanced Network Discovery & Vulnerability Scanner</sub></h1>
-  <br>
-  <h3>▶️ Watch Demo Video / Demo Videosunu İzleyin</h3>
-  https://github.com/user-attachments/assets/e97ea786-b083-464e-a9f4-50b305adca22
+  <video src="https://github.com/user-attachments/assets/e97ea786-b083-464e-a9f4-5b305adca22" width="100%" controls autoplay muted loop></video>
 </div>
 
 <br>
