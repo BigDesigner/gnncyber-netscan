@@ -2,7 +2,7 @@
 ; Targets compiled Windows Flutter executable and bundles WebView2 runtime check.
 
 #define MyAppName "GNNcyber - NETscan"
-#define MyAppVersion "2.10.4"
+#define MyAppVersion "2.10.5"
 #define MyAppPublisher "BigDesigner"
 #define MyAppURL "https://github.com/BigDesigner"
 #define MyAppExeName "gnnscan.exe"

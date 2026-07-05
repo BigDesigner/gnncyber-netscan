@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.10.5
+**Header Layout Refinement / Üst Bar Tasarım İyileştirmesi**
+- Relocated the vertical separator (`|`) to sit correctly between the `BLUE_TEAM_TERMINAL` title and the version label.
+  - *Dikey ayraç (`|`), `BLUE_TEAM_TERMINAL` başlığı ile versiyon etiketi arasına düzgün şekilde konumlandırıldı.*
+
 ## v2.10.4
 **UI Refactoring & Version Repositioning / Arayüz Düzenlemesi & Versiyon Konumlandırması**
 - Moved the version indicator from the sidebar to the header next to the terminal title.
