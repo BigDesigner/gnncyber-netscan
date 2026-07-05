@@ -497,12 +497,18 @@ class _MainScreenState extends State<MainScreen> {
                   final host = resultData[ip];
                   final ports = host['ports'] as List? ?? [];
                   if (ports.isEmpty) {
-                    tableData.add([host['ip'], host['label'] ?? '', host['os'] ?? '', host['mac'] ?? '', 'No Open Ports', '', '', '']);
+                    tableData.add([
+                      host['ip'], 
+                      (host['hostname'] != null && host['hostname'] != 'UNKNOWN' && host['hostname'] != '') ? host['hostname'] : (host['label'] ?? ''), 
+                      host['os'] ?? '', 
+                      host['mac'] ?? '', 
+                      'No Open Ports', '', '', ''
+                    ]);
                   } else {
                     for (var p in ports) {
                       tableData.add([
                         host['ip'], 
-                        host['label'] ?? '', 
+                        (host['hostname'] != null && host['hostname'] != 'UNKNOWN' && host['hostname'] != '') ? host['hostname'] : (host['label'] ?? ''), 
                         host['os'] ?? '', 
                         host['mac'] ?? '', 
                         '${p['port']}/${p['protocol']}', 

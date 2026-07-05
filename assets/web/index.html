@@ -186,7 +186,7 @@
         <div class="px-6 mb-8 flex flex-col items-center text-center gap-2">
 
             <div class="flex flex-col items-center gap-1 mt-1">
-                <p class="font-data-mono text-[10px] text-outline">V.2.10.0-STABLE</p>
+                <p class="font-data-mono text-[10px] text-outline">V.2.10.1-STABLE</p>
             </div>
         </div>
         <nav class="flex-1 space-y-1">
@@ -1373,17 +1373,18 @@
                 const fileName = `GNNcyber_NETscan_details_${cleanTarget}_${cleanTime}.csv`;
                 
                 // Build CSV content
-                let csv = 'Host IP,Status,Identity,MAC Address,Vendor,Port,Protocol,State,Service,Version,Vuln Score,Vuln Level,Operator Host\n';
+                let csv = 'Host IP,Hostname,Status,Identity,MAC Address,Vendor,Port,Protocol,State,Service,Version,Vuln Score,Vuln Level,Operator Host\n';
                 const hosts = item.resultData;
                 const scanHost = item.scanHost || 'UNKNOWN';
                 for (let ip in hosts) {
                     const host = hosts[ip];
                     const ports = host.ports || [];
+                    const hostNameVal = (host.hostname && host.hostname !== 'UNKNOWN' && host.hostname !== '') ? host.hostname : (host.label || 'UNKNOWN');
                     if (ports.length === 0) {
-                        csv += `"${host.ip}","${host.isUp ? 'UP' : 'DOWN'}","${host.label}","${host.mac || 'N/A'}","${host.vendor || 'UNKNOWN'}","","","","","","","","${scanHost}"\n`;
+                        csv += `"${host.ip}","${hostNameVal}","${host.isUp ? 'UP' : 'DOWN'}","${host.label}","${host.mac || 'N/A'}","${host.vendor || 'UNKNOWN'}","","","","","","","${scanHost}"\n`;
                     } else {
                         ports.forEach(p => {
-                            csv += `"${host.ip}","${host.isUp ? 'UP' : 'DOWN'}","${host.label}","${host.mac || 'N/A'}","${host.vendor || 'UNKNOWN'}","${p.port}","${p.protocol}","${p.state}","${p.service}","${p.version || 'UNKNOWN'}","${p.vulnScore}","${p.vulnLevel}","${scanHost}"\n`;
+                            csv += `"${host.ip}","${hostNameVal}","${host.isUp ? 'UP' : 'DOWN'}","${host.label}","${host.mac || 'N/A'}","${host.vendor || 'UNKNOWN'}","${p.port}","${p.protocol}","${p.state}","${p.service}","${p.version || 'UNKNOWN'}","${p.vulnScore}","${p.vulnLevel}","${scanHost}"\n`;
                         });
                     }
                 }

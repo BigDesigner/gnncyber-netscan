@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.10.1
+**PDF/CSV Export Hostname Fix**
+- **Export Fix:** PDF ve CSV rapor çıktılarında yeni eklenen `hostname` değerlerinin doğru şekilde yansıtılmama sorunu (yerine işletim sistemi etiketinin yazılması) düzeltildi. `hostname` mevcutsa o, yoksa fallback etiketi kullanılacak şekilde ihracat logiği güncellendi.
 ## v2.10.0
 **Discovery Enhancement: Hostname Resolution & Local MAC**
 - **Hostname Resolution:** Tarama sırasında bulunan her aktif IP için DNS/mDNS reverse lookup yapılarak cihazların gerçek isimleri (ör. `iPad.local`, `MSI-4060.home`) çözümlenir ve hem host listesinde hem detay panelinde gösterilir.
