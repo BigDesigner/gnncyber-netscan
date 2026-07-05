@@ -1,7 +1,8 @@
 <div align="center">
   <h1>GNNscan <br> <sub>Advanced Network Discovery & Vulnerability Scanner</sub></h1>
   <br>
-  <h3><a href="https://github.com/BigDesigner/GNNscan/blob/main/media/screenrecord-1.mp4">▶️ Watch Demo Video / Demo Videosunu İzleyin</a></h3>
+  <h3>▶️ Watch Demo Video / Demo Videosunu İzleyin</h3>
+  https://github.com/user-attachments/assets/e97ea786-b083-464e-a9f4-50b305adca22
 </div>
 
 <br>
