@@ -1,0 +1,3 @@
+**Setup Installer UI and Dependency Checks Update**
+- **VCRedist Installation:** Windows yükleyici (setup) programı artık kullanıcı makinesinde Visual C++ Redistributable (x64) kurulu olup olmadığını denetler. Eksikse otomatik kurar.
+- **Installer UX/UI Update:** `setup.iss` üzerinden sessiz (silent) indirilen ve kurulan (WebView2, VCRedist) yardımcı araçların, internet hızına bağlı olarak indirme sürecinde ekranı dondurmuş gibi göstermesi sorunu giderildi. Kurulum sırasında ilerleme çubukları ve açıklayıcı mesaj pencereleri görünür kılındı.

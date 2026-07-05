@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.10.4
+**UI Refactoring & Version Repositioning**
+- Moved the version indicator from the sidebar to the header next to the terminal title.
+- Removed dual version labels from the sidebar to create a cleaner navigation layout.
+
 ## v2.10.3
 **Dependency Maintenance Update**
 - Upgraded all direct dependencies (pdf, sqflite_common_ffi, path_provider, flutter_inappwebview) to their latest stable versions.
