@@ -26,7 +26,9 @@ graph TD
     subgraph Engine [Tarama Motoru - Dart Core]
         Parser["Hedef Giriş Çözümleyici (Tekil/CIDR/Aralık)"]
         Ping["Cihaz Keşif Modülü (Socket Ping)"]
-        OUICache["MAC OUI Üretici Çözümleyici (Yerel Önbellek)"]
+        OUICache["MAC OUI Çözümleyici"]
+        LocalCache{"Lokal Önbellekte (localOuis) Var mı?"}
+        MacVendors["macvendors.com API (Fallback Dış İstek)"]
         PortScan["Port Tarayıcı (TCP Sockets)"]
         Banner["Banner Yakalayıcı (Servis Sürüm Tespiti)"]
     end
@@ -37,7 +39,10 @@ graph TD
     Bridge -->|"Hedef Ayrıştırma"| Parser
     Parser -->|"IP Listesi"| Ping
     Ping -->|"Aktif Cihazlar (mac/ip)"| OUICache
-    OUICache -->|"MAC Öneki Eşleştirme (Intel/Cisco/VMware)"| DBHelper
+    OUICache -->|"1. Önek Çıkar (İlk 6 Karakter)"| LocalCache
+    LocalCache -->|"Evet (Lokal Çözümleme)"| Bridge
+    LocalCache -->|"Hayır"| MacVendors
+    MacVendors -->|"2. HTTP Sorgusu"| Bridge
     DBHelper -->|"Zafiyet CVE Sorgusu"| SQLite
     Ping -->|"Aktif Port Taraması"| PortScan
     PortScan -->|"Açık Portlar"| Banner
