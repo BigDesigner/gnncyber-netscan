@@ -631,11 +631,38 @@ class ScanEngine {
   }
 
   Future<String> _getMacVendor(String mac) async {
-    final client = HttpClient();
-    try {
-      final cleanMac = mac.replaceAll(':', '').replaceAll('-', '').toLowerCase();
-      if (cleanMac.length >= 6) {
-        final prefix = cleanMac.substring(0, 6);
+    final cleanMac = mac.replaceAll(':', '').replaceAll('-', '').toLowerCase();
+    if (cleanMac.length >= 6) {
+      final prefix = cleanMac.substring(0, 6);
+      
+      // Local OUI Prefix Cache to prevent privacy leakage and work offline for common nodes
+      const localOuis = {
+        '000c29': 'VMware, Inc.',
+        '005056': 'VMware, Inc.',
+        '080027': 'Oracle VirtualBox',
+        '00155d': 'Microsoft Hyper-V',
+        '0003ff': 'Microsoft Corporation',
+        '00000c': 'Cisco Systems, Inc.',
+        '000142': 'Cisco Systems, Inc.',
+        '0005b9': 'Cisco Systems, Inc.',
+        '70b3d5': 'Axis Communications',
+        '3c15c2': 'Apple, Inc.',
+        'd89ef3': 'Apple, Inc.',
+        'f40f24': 'Apple, Inc.',
+        'acfdce': 'Intel Corporation',
+        '482c6a': 'Intel Corporation',
+        '74867a': 'Intel Corporation',
+        'f8db82': 'Intel Corporation',
+        '3cd92b': 'Hewlett Packard',
+        'f01faf': 'Dell Inc.',
+      };
+
+      if (localOuis.containsKey(prefix)) {
+        return localOuis[prefix]!;
+      }
+
+      final client = HttpClient();
+      try {
         client.connectionTimeout = const Duration(seconds: 2);
         
         final uri = Uri.parse('https://macvendors.com/query/$prefix');
@@ -646,10 +673,10 @@ class ScanEngine {
           final body = await response.transform(utf8.decoder).join();
           return body.trim();
         }
+      } catch (_) {}
+      finally {
+        client.close();
       }
-    } catch (_) {}
-    finally {
-      client.close();
     }
     return 'UNKNOWN';
   }
