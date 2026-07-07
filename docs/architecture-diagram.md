@@ -10,7 +10,6 @@ Bu belgede GNNscan uygulamasının **Ön Yüz (Webview)**, **Dart Köprüsü (Br
 graph TD
     subgraph Frontend [Ön Yüz Katmanı - InAppWebView - HTML/CSS/JS]
         UI["Arayüz (Geist & JetBrains Mono)"]
-        DemoSim["Demo (Smoke Test) Simülatörü"]
         ExportMod["Rapor Dışa Aktarma (JSON, CSV, PDF)"]
         XSS["XSS Filtresi (htmlEscape)"]
         Console["Konsol Log Ekranı"]
@@ -35,7 +34,6 @@ graph TD
 
     %% Akışlar ve Tetikleyiciler
     UI -->|"Taramayı Başlat (Girdi Parametreleri)"| Bridge
-    DemoSim -.->|"Yerel Simüle Veriler (Çevrimdışı)"| UI
     Bridge -->|"Hedef Ayrıştırma"| Parser
     Parser -->|"IP Listesi"| Ping
     Ping -->|"Aktif Cihazlar (mac/ip)"| OUICache
