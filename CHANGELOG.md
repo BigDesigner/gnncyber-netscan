@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.11.0
+**Opt-in Update Checker & Official IEEE Vendor Database / Onaylı Güncelleme Kontrolü & Resmi IEEE Üretici Veritabanı**
+- Added a manual "Check for Updates" control in Settings that queries GitHub Releases only on request, shows the available version, and downloads + launches the installer directly with no browser redirect.
+  - *Settings ekranına, yalnızca kullanıcı talebiyle GitHub Releases'i sorgulayan, mevcut sürümü gösteren ve installer'ı doğrudan indirip başlatan (tarayıcıya yönlendirme olmadan) manuel bir "Check for Updates" kontrolü eklendi.*
+- Replaced the bundled offline MAC vendor (OUI) database with a direct export of the official IEEE registry (~39,700 prefixes), fixing several vendor misattributions inherited from the previous crowd-sourced dataset.
+  - *Gömülü offline MAC üretici (OUI) veritabanı, resmi IEEE kayıt sisteminden alınan doğrudan bir dışa aktarımla (~39.700 prefix) değiştirildi; önceki topluluk kaynaklı veri setinden kalan birkaç üretici yanlış eşleştirmesi düzeltildi.*
+- Made the `macvendors.com` online vendor lookup fallback opt-in (default off) with an explicit in-app privacy warning, since it previously ran silently despite the app's offline/air-gapped positioning.
+  - *`macvendors.com` çevrimiçi üretici sorgu yedeği, uygulamanın çevrimdışı/air-gapped konumlandırmasına rağmen daha önce sessizce çalıştığı için varsayılan olarak kapalı ve açık bir gizlilik uyarısıyla isteğe bağlı hale getirildi.*
+- Renamed the "Advanced Configuration" navigation item to "Settings" to match the sibling navigation items and better reflect its now-broader scope.
+  - *"Advanced Configuration" navigasyon öğesi, diğer menü öğeleriyle tutarlı olması ve artık genişleyen kapsamını daha iyi yansıtması için "Settings" olarak yeniden adlandırıldı.*
+
 ## v2.10.5
 **Header Layout Refinement / Üst Bar Tasarım İyileştirmesi**
 - Relocated the vertical separator (`|`) to sit correctly between the `BLUE_TEAM_TERMINAL` title and the version label.
