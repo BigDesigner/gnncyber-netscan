@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.11.1
+**About Screen / Hakkında Ekranı**
+- Added a new "About" navigation item and view with developer info (BigDesigner, gnn.tr, github.com/BigDesigner), technical stack summary, MIT license text, and a legal disclaimer for authorized use only.
+  - *Yeni bir "About" navigasyon öğesi ve görünümü eklendi: geliştirici bilgileri (BigDesigner, gnn.tr, github.com/BigDesigner), teknik yığın özeti, MIT lisans metni ve yalnızca yetkili kullanım için yasal sorumluluk reddi beyanı.*
+
 ## v2.11.0
 **Opt-in Update Checker & Official IEEE Vendor Database / Onaylı Güncelleme Kontrolü & Resmi IEEE Üretici Veritabanı**
 - Added a manual "Check for Updates" control in Settings that queries GitHub Releases only on request, shows the available version, and downloads + launches the installer directly with no browser redirect.

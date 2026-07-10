@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 // Manually bumped alongside pubspec.yaml / setup.iss / CHANGELOG.md on each release.
-const String kAppVersion = '2.11.0';
+const String kAppVersion = '2.11.1';
 
 const String _kRepoOwner = 'BigDesigner';
 const String _kRepoName = 'GNNscan';
