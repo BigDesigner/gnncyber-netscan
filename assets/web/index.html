@@ -202,6 +202,10 @@
                 <span class="material-symbols-outlined text-[18px]">settings_suggest</span>
                 <span class="font-data-mono text-data-mono">Settings</span>
             </div>
+            <div id="nav-about" onclick="switchView('about')" class="nav-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors px-6 py-3 flex items-center gap-3 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">info</span>
+                <span class="font-data-mono text-data-mono">About</span>
+            </div>
         </nav>
 
         <footer class="mt-auto px-6 pt-4 border-t border-outline-variant">
@@ -734,6 +738,141 @@
 
 
 
+    <!-- VIEW 5: About -->
+    <main id="view-about" class="view-stage hidden ml-64 mt-12 h-[calc(100vh-3rem)] overflow-y-auto bg-background p-margin flex flex-col gap-4">
+        <!-- Header -->
+        <div class="flex-none flex items-center justify-between border-b border-outline-variant pb-4">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="font-data-mono text-label-xs text-primary-fixed-dim bg-on-primary-fixed/30 px-1.5 py-0.5 border border-primary-fixed-dim/20">SYSTEM_INFO</span>
+                    <span class="font-data-mono text-label-xs text-on-surface-variant">/ META / APPLICATION_MANIFEST</span>
+                </div>
+                <h2 class="font-display-tech text-display-tech text-on-surface uppercase tracking-tight">About</h2>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-6 max-w-3xl">
+
+            <!-- App Identity Block -->
+            <div class="bg-surface-container-lowest border border-outline-variant p-8 flex gap-8 items-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-0.5 bg-primary-container/40"></div>
+                <div class="w-20 h-20 bg-surface-container border border-primary-container/30 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-primary-container" style="font-size:40px">radar</span>
+                </div>
+                <div class="space-y-1">
+                    <p class="font-data-mono-bold text-[22px] text-on-surface tracking-tight leading-none">GNNcyber — NETscan</p>
+                    <p class="font-data-mono text-sm text-on-surface-variant">Brutalist Threat Reconnaissance &amp; Network Discovery Tool</p>
+                    <div class="flex items-center gap-3 pt-2">
+                        <span id="about-version" class="font-data-mono text-label-xs text-primary-container border border-primary-container/40 bg-primary-container/5 px-2 py-0.5">v2.11.0</span>
+                        <span class="font-data-mono text-label-xs text-on-surface-variant border border-outline-variant px-2 py-0.5">Windows / macOS</span>
+                        <span class="font-data-mono text-label-xs text-secondary-fixed border border-secondary-fixed/30 px-2 py-0.5">STABLE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Developer Info -->
+            <div class="bg-surface-container-lowest border border-outline-variant">
+                <div class="px-6 py-3 border-b border-outline-variant flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-primary-fixed-dim">person</span>
+                    <span class="font-data-mono-bold text-data-mono text-primary-fixed-dim">DEVELOPER</span>
+                </div>
+                <div class="p-6 grid grid-cols-2 gap-6">
+                    <div class="space-y-1">
+                        <p class="font-data-mono text-label-xs text-on-surface-variant uppercase tracking-wider">Name</p>
+                        <p class="font-data-mono-bold text-on-surface">BigDesigner</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="font-data-mono text-label-xs text-on-surface-variant uppercase tracking-wider">Website</p>
+                        <button onclick="openExternalLink('https://gnn.tr')" class="font-data-mono text-primary-container hover:text-primary-fixed-dim flex items-center gap-1 transition-colors group">
+                            gnn.tr
+                            <span class="material-symbols-outlined text-[14px] opacity-50 group-hover:opacity-100">open_in_new</span>
+                        </button>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="font-data-mono text-label-xs text-on-surface-variant uppercase tracking-wider">GitHub</p>
+                        <button onclick="openExternalLink('https://github.com/BigDesigner')" class="font-data-mono text-primary-container hover:text-primary-fixed-dim flex items-center gap-1 transition-colors group">
+                            github.com/BigDesigner
+                            <span class="material-symbols-outlined text-[14px] opacity-50 group-hover:opacity-100">open_in_new</span>
+                        </button>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="font-data-mono text-label-xs text-on-surface-variant uppercase tracking-wider">Repository</p>
+                        <button onclick="openExternalLink('https://github.com/BigDesigner/GNNscan')" class="font-data-mono text-primary-container hover:text-primary-fixed-dim flex items-center gap-1 transition-colors group">
+                            github.com/BigDesigner/GNNscan
+                            <span class="material-symbols-outlined text-[14px] opacity-50 group-hover:opacity-100">open_in_new</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Stack -->
+            <div class="bg-surface-container-lowest border border-outline-variant">
+                <div class="px-6 py-3 border-b border-outline-variant flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-primary-fixed-dim">code</span>
+                    <span class="font-data-mono-bold text-data-mono text-primary-fixed-dim">TECHNICAL_STACK</span>
+                </div>
+                <div class="p-6 grid grid-cols-2 gap-4">
+                    <div class="flex items-center gap-3 p-3 bg-surface-container border border-outline-variant">
+                        <span class="material-symbols-outlined text-[16px] text-on-surface-variant">layers</span>
+                        <div>
+                            <p class="font-data-mono-bold text-data-mono text-on-surface text-[11px]">FRAMEWORK</p>
+                            <p class="font-data-mono text-label-xs text-on-surface-variant">Flutter (Desktop)</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-surface-container border border-outline-variant">
+                        <span class="material-symbols-outlined text-[16px] text-on-surface-variant">storage</span>
+                        <div>
+                            <p class="font-data-mono-bold text-data-mono text-on-surface text-[11px]">DATABASE</p>
+                            <p class="font-data-mono text-label-xs text-on-surface-variant">SQLite + IEEE OUI Registry</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-surface-container border border-outline-variant">
+                        <span class="material-symbols-outlined text-[16px] text-on-surface-variant">web</span>
+                        <div>
+                            <p class="font-data-mono-bold text-data-mono text-on-surface text-[11px]">UI LAYER</p>
+                            <p class="font-data-mono text-label-xs text-on-surface-variant">InAppWebView · Tailwind CSS</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-surface-container border border-outline-variant">
+                        <span class="material-symbols-outlined text-[16px] text-on-surface-variant">wifi_find</span>
+                        <div>
+                            <p class="font-data-mono-bold text-data-mono text-on-surface text-[11px]">SCAN ENGINE</p>
+                            <p class="font-data-mono text-label-xs text-on-surface-variant">Dart TCP Socket · CVE Matching</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- License -->
+            <div class="bg-surface-container-lowest border border-outline-variant">
+                <div class="px-6 py-3 border-b border-outline-variant flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-primary-fixed-dim">gavel</span>
+                    <span class="font-data-mono-bold text-data-mono text-primary-fixed-dim">LICENSE</span>
+                </div>
+                <div class="p-6 space-y-3">
+                    <p class="font-data-mono-bold text-on-surface">MIT License</p>
+                    <p class="font-data-mono text-label-xs text-on-surface-variant leading-relaxed">Copyright &copy; 2024&ndash;2026 BigDesigner. Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the software.</p>
+                    <p class="font-data-mono text-label-xs text-on-surface-variant/60 leading-relaxed">THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY.</p>
+                    <button onclick="openExternalLink('https://github.com/BigDesigner/GNNscan/blob/main/LICENSE')" class="font-data-mono text-label-xs text-primary-container hover:text-primary-fixed-dim flex items-center gap-1 transition-colors group mt-1">
+                        View full license on GitHub
+                        <span class="material-symbols-outlined text-[13px] opacity-50 group-hover:opacity-100">open_in_new</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="border border-error/30 bg-error/5 p-4 flex gap-3">
+                <span class="material-symbols-outlined text-error text-[18px] shrink-0 mt-0.5">warning</span>
+                <div class="space-y-1">
+                    <p class="font-data-mono-bold text-data-mono text-error">LEGAL_DISCLAIMER</p>
+                    <p class="font-data-mono text-label-xs text-on-surface-variant leading-relaxed">GNNscan is designed for authorized network reconnaissance on systems you own or have explicit written permission to test. Unauthorized scanning of networks is illegal in most jurisdictions. The developer assumes no liability for misuse. Use responsibly and within the bounds of applicable law.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+
     <!-- Page Logic Script -->
     <script>
         // Active scan tracking variables
@@ -782,6 +921,8 @@
                 headerTitle.textContent = 'RECON_LOGS_HISTORY';
             } else if (viewName === 'configuration') {
                 headerTitle.textContent = 'ENGINE_PARAMETERS';
+            } else if (viewName === 'about') {
+                headerTitle.textContent = 'SYSTEM_MANIFEST';
             }
 
             if (viewName === 'history') {
@@ -1190,7 +1331,9 @@
             document.getElementById('cfg-banner-grab').checked = settings.bannerGrabbing || false;
             document.getElementById('cfg-online-vendor-lookup').checked = settings.enableOnlineVendorLookup || false;
             if (settings.appVersion) {
-                document.getElementById('update-current-version').textContent = 'v' + settings.appVersion;
+                const vStr = 'v' + settings.appVersion;
+                document.getElementById('update-current-version').textContent = vStr;
+                document.getElementById('about-version').textContent = vStr;
             }
 
             if (settings.hostname) {
