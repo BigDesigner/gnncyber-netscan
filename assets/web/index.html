@@ -200,7 +200,7 @@
             </div>
             <div id="nav-configuration" onclick="switchView('configuration')" class="nav-item text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors px-6 py-3 flex items-center gap-3 cursor-pointer">
                 <span class="material-symbols-outlined text-[18px]">settings_suggest</span>
-                <span class="font-data-mono text-data-mono">Advanced Configuration</span>
+                <span class="font-data-mono text-data-mono">Settings</span>
             </div>
         </nav>
 
@@ -582,7 +582,7 @@
         </div>
     </main>
 
-    <!-- VIEW 4: Advanced Configuration -->
+    <!-- VIEW 4: Settings -->
     <main id="view-configuration" class="view-stage hidden ml-64 mt-12 h-[calc(100vh-3rem)] overflow-y-auto bg-background p-margin flex flex-col gap-4">
         <!-- Configuration Header -->
         <div class="flex-none flex items-center justify-between border-b border-outline-variant pb-4">
@@ -668,8 +668,44 @@
                             </div>
                         </div>
                     </section>
+                    <section>
+                        <h3 class="font-data-mono-bold text-data-mono text-primary-fixed-dim mb-6 flex items-center">
+                            <span class="material-symbols-outlined text-[18px] mr-2">travel_explore</span> OUI_VENDOR_RESOLUTION
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-surface-container border border-error/40 hover:border-error transition-colors group">
+                                <div class="pr-6">
+                                    <p class="font-data-mono-bold text-data-mono text-on-surface">ONLINE_VENDOR_LOOKUP <span class="text-error">[EXTERNAL / NETWORK CALL]</span></p>
+                                    <p class="font-data-mono text-label-xs text-on-surface-variant opacity-70 mt-1">The engine already resolves MAC vendors offline using a bundled local OUI database sourced directly from the IEEE public registry (~39,700 prefixes). Enable this only if you want a live fallback query to macvendors.com for prefixes missing from the local database.</p>
+                                    <p class="font-data-mono text-label-xs text-error opacity-90 mt-2">WARNING: when enabled, unresolved MAC address prefixes of scanned devices are sent to a third-party server (macvendors.com) over the internet. This breaks fully-offline/air-gapped operation and may not be permitted on sensitive networks. Enabling this is done at your own risk and responsibility. Default: OFF.</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                    <input id="cfg-online-vendor-lookup" class="sr-only peer" type="checkbox"/>
+                                    <div class="w-10 h-5 bg-surface-container-highest border border-outline-variant peer-checked:bg-error/30 peer-checked:border-error after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-on-surface-variant after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-5 peer-checked:after:bg-error"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+                    <section>
+                        <h3 class="font-data-mono-bold text-data-mono text-primary-fixed-dim mb-6 flex items-center">
+                            <span class="material-symbols-outlined text-[18px] mr-2">system_update</span> SYSTEM_UPDATE
+                        </h3>
+                        <div class="p-4 bg-surface-container border border-outline-variant space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-data-mono-bold text-data-mono text-on-surface">CURRENT_VERSION</p>
+                                    <p class="font-data-mono text-label-xs text-on-surface-variant opacity-70 mt-1" id="update-current-version">v2.10.5</p>
+                                </div>
+                                <button id="btn-check-update" onclick="checkForUpdates()" class="border border-primary-container/50 hover:bg-primary-container/10 text-primary-fixed-dim font-data-mono text-[11px] h-8 px-4 flex items-center gap-2 transition-all shrink-0">
+                                    <span class="material-symbols-outlined text-[16px]">refresh</span>
+                                    <span id="btn-check-update-label">CHECK_FOR_UPDATES</span>
+                                </button>
+                            </div>
+                            <div id="update-status-area" class="hidden pt-4 border-t border-outline-variant"></div>
+                        </div>
+                    </section>
                 </div>
-                
+
                 <!-- Tab: Proxy/VPN -->
                 <div class="config-tab-content hidden h-full p-8 space-y-8 overflow-y-auto" id="config-proxy-vpn">
                     <section>
@@ -715,7 +751,8 @@
             onHostDiscovered: (ip, label, isUp, mac, vendor, os, hostname) => addHostDiscovered(ip, label, isUp, mac, vendor, os, hostname),
             onPortDiscovered: (ip, port, protocol, state, service, version, vulnScore, vulnLevel) => addPortDiscovered(ip, port, protocol, state, service, version, vulnScore, vulnLevel),
             onProgressUpdate: (progress) => onProgressUpdate(progress),
-            onScanFinished: () => onScanFinished()
+            onScanFinished: () => onScanFinished(),
+            onUpdateDownloadProgress: (percent) => onUpdateDownloadProgress(percent)
         };
 
         // UI Tabs switching
@@ -1151,7 +1188,11 @@
             document.getElementById('val-timeout').textContent = settings.timeoutMs || 500;
             document.getElementById('cfg-aggressive').checked = settings.aggressive || false;
             document.getElementById('cfg-banner-grab').checked = settings.bannerGrabbing || false;
-            
+            document.getElementById('cfg-online-vendor-lookup').checked = settings.enableOnlineVendorLookup || false;
+            if (settings.appVersion) {
+                document.getElementById('update-current-version').textContent = 'v' + settings.appVersion;
+            }
+
             if (settings.hostname) {
                 document.getElementById('sidebar-hostname').textContent = settings.hostname.toUpperCase();
             }
@@ -1166,12 +1207,14 @@
             const timeoutMs = parseInt(document.getElementById('cfg-timeout').value);
             const aggressive = document.getElementById('cfg-aggressive').checked;
             const bannerGrabbing = document.getElementById('cfg-banner-grab').checked;
+            const enableOnlineVendorLookup = document.getElementById('cfg-online-vendor-lookup').checked;
 
             const settings = {
                 maxThreads,
                 timeoutMs,
                 aggressive,
-                bannerGrabbing
+                bannerGrabbing,
+                enableOnlineVendorLookup
             };
 
             if (window.flutter_inappwebview) {
@@ -1191,9 +1234,157 @@
                 maxThreads: 64,
                 timeoutMs: 500,
                 aggressive: true,
-                bannerGrabbing: true
+                bannerGrabbing: true,
+                enableOnlineVendorLookup: false
             };
             applySettingsToUI(defaults);
+        }
+
+        // UI trigger: Manually check GitHub Releases for a newer version
+        function checkForUpdates() {
+            const btn = document.getElementById('btn-check-update');
+            const label = document.getElementById('btn-check-update-label');
+            if (btn.disabled) return;
+
+            btn.disabled = true;
+            label.textContent = 'CHECKING...';
+            document.getElementById('update-status-area').classList.add('hidden');
+
+            if (!window.flutter_inappwebview) {
+                btn.disabled = false;
+                label.textContent = 'CHECK_FOR_UPDATES';
+                showToast('MOCK MODE: Update check unavailable.', 'error');
+                return;
+            }
+
+            window.flutter_inappwebview.callHandler('checkForUpdates').then(result => {
+                btn.disabled = false;
+                label.textContent = 'CHECK_FOR_UPDATES';
+                renderUpdateStatus(result || {});
+            }).catch(() => {
+                btn.disabled = false;
+                label.textContent = 'CHECK_FOR_UPDATES';
+                renderUpdateStatus({ error: 'Update check failed. Check your internet connection.' });
+            });
+        }
+
+        function renderUpdateStatus(result) {
+            const statusArea = document.getElementById('update-status-area');
+            statusArea.innerHTML = '';
+            statusArea.classList.remove('hidden');
+
+            if (result.error) {
+                const p = document.createElement('p');
+                p.className = 'font-data-mono text-label-xs text-error';
+                p.textContent = 'CHECK FAILED: ' + result.error;
+                statusArea.appendChild(p);
+                return;
+            }
+
+            if (!result.updateAvailable) {
+                const p = document.createElement('p');
+                p.className = 'font-data-mono text-label-xs text-secondary-fixed-dim';
+                p.textContent = 'You are running the latest version (v' + result.currentVersion + ').';
+                statusArea.appendChild(p);
+                return;
+            }
+
+            window.__pendingUpdate = result;
+
+            const wrap = document.createElement('div');
+            wrap.className = 'space-y-3';
+
+            const title = document.createElement('p');
+            title.className = 'font-data-mono-bold text-data-mono text-primary-container';
+            title.textContent = 'NEW VERSION AVAILABLE: v' + result.latestVersion;
+            wrap.appendChild(title);
+
+            const sub = document.createElement('p');
+            sub.className = 'font-data-mono text-label-xs text-on-surface-variant opacity-70';
+            sub.textContent = 'Currently installed: v' + result.currentVersion + '. Clicking UPDATE will close GNNscan and launch the installer.';
+            wrap.appendChild(sub);
+
+            const btnRow = document.createElement('div');
+            btnRow.className = 'flex gap-3 pt-1';
+
+            const updateBtn = document.createElement('button');
+            updateBtn.className = 'bg-primary-container text-on-primary font-data-mono-bold text-[11px] h-8 px-4 flex items-center gap-2 hover:opacity-90 transition-opacity';
+            updateBtn.textContent = 'UPDATE';
+            updateBtn.onclick = startUpdateDownload;
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'border border-outline-variant text-on-surface-variant font-data-mono text-[11px] h-8 px-4 hover:bg-surface-container-high transition-colors';
+            cancelBtn.textContent = 'CANCEL';
+            cancelBtn.onclick = cancelUpdate;
+
+            btnRow.appendChild(updateBtn);
+            btnRow.appendChild(cancelBtn);
+            wrap.appendChild(btnRow);
+
+            statusArea.appendChild(wrap);
+        }
+
+        function cancelUpdate() {
+            window.__pendingUpdate = null;
+            document.getElementById('update-status-area').classList.add('hidden');
+        }
+
+        function startUpdateDownload() {
+            if (!window.__pendingUpdate || !window.__pendingUpdate.downloadUrl) return;
+            const statusArea = document.getElementById('update-status-area');
+            statusArea.innerHTML = '';
+
+            const wrap = document.createElement('div');
+            wrap.className = 'space-y-2';
+
+            const title = document.createElement('p');
+            title.className = 'font-data-mono-bold text-data-mono text-primary-container';
+            title.textContent = 'DOWNLOADING UPDATE...';
+            wrap.appendChild(title);
+
+            const track = document.createElement('div');
+            track.className = 'w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden';
+            const bar = document.createElement('div');
+            bar.id = 'update-progress-bar';
+            bar.className = 'h-full bg-primary-container transition-all';
+            bar.style.width = '0%';
+            track.appendChild(bar);
+            wrap.appendChild(track);
+
+            const pct = document.createElement('p');
+            pct.id = 'update-progress-label';
+            pct.className = 'font-data-mono text-label-xs text-on-surface-variant';
+            pct.textContent = '0%';
+            wrap.appendChild(pct);
+
+            statusArea.appendChild(wrap);
+
+            const downloadUrl = window.__pendingUpdate.downloadUrl;
+            window.__pendingUpdate = null;
+
+            window.flutter_inappwebview.callHandler('downloadAndInstallUpdate', downloadUrl).then(result => {
+                if (!result || !result.success) {
+                    statusArea.innerHTML = '';
+                    const p = document.createElement('p');
+                    p.className = 'font-data-mono text-label-xs text-error';
+                    p.textContent = 'Update failed: ' + (result && result.error ? result.error : 'Unknown error');
+                    statusArea.appendChild(p);
+                }
+                // On success (Windows) the installer launches and this app exits automatically.
+            }).catch(() => {
+                statusArea.innerHTML = '';
+                const p = document.createElement('p');
+                p.className = 'font-data-mono text-label-xs text-error';
+                p.textContent = 'Update failed: connection error.';
+                statusArea.appendChild(p);
+            });
+        }
+
+        function onUpdateDownloadProgress(percent) {
+            const bar = document.getElementById('update-progress-bar');
+            const label = document.getElementById('update-progress-label');
+            if (bar) bar.style.width = percent + '%';
+            if (label) label.textContent = Math.round(percent) + '%';
         }
 
         // Bridge: Load History

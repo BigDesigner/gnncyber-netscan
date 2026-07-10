@@ -30,3 +30,4 @@ flutter:
     - assets/gnnecosystem-logo.png
     - assets/cve_db.sqlite
     - assets/cve_db_version.txt
+    - assets/oui_db.txt

@@ -10,6 +10,7 @@ import 'package:pdf/pdf.dart';
 import 'history_db.dart';
 import 'database_helper.dart';
 import 'scan_engine.dart';
+import 'update_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -207,6 +208,7 @@ class _MainScreenState extends State<MainScreen> {
         final maxThreads = settings['maxThreads'] as int? ?? 64;
         final timeoutMs = settings['timeoutMs'] as int? ?? 500;
         final enableBanner = settings['bannerGrabbing'] as bool? ?? true;
+        final enableOnlineVendorLookup = settings['enableOnlineVendorLookup'] as bool? ?? false;
 
         _scanStartTime = DateTime.now();
 
@@ -221,6 +223,7 @@ class _MainScreenState extends State<MainScreen> {
           maxThreads: maxThreads,
           timeout: Duration(milliseconds: timeoutMs),
           enableBannerGrabbing: enableBanner,
+          enableOnlineVendorLookup: enableOnlineVendorLookup,
           stealthLevel: stealthLevel,
           onLog: (timestamp, type, msg) {
             _runJavaScript("window.gnnscan.onLogReceived(${jsonEncode(timestamp)}, ${jsonEncode(type)}, ${jsonEncode(msg)})");
@@ -305,6 +308,7 @@ class _MainScreenState extends State<MainScreen> {
       callback: (args) async {
         final settings = await HistoryDb.loadSettings();
         settings['hostname'] = Platform.localHostname;
+        settings['appVersion'] = kAppVersion;
         try {
           final interfaces = await NetworkInterface.list(includeLoopback: false, type: InternetAddressType.IPv4);
           if (interfaces.isNotEmpty && interfaces.first.addresses.isNotEmpty) {
@@ -575,6 +579,28 @@ class _MainScreenState extends State<MainScreen> {
         } catch (_) {
           return null;
         }
+      },
+    );
+
+    // 12. checkForUpdates (Manually triggered — queries GitHub Releases API)
+    controller.addJavaScriptHandler(
+      handlerName: 'checkForUpdates',
+      callback: (args) async {
+        return await UpdateService.checkForUpdates();
+      },
+    );
+
+    // 13. downloadAndInstallUpdate (Downloads the installer asset and launches it)
+    controller.addJavaScriptHandler(
+      handlerName: 'downloadAndInstallUpdate',
+      callback: (args) async {
+        final downloadUrl = args[0] as String;
+        return await UpdateService.downloadAndInstall(
+          downloadUrl,
+          onProgress: (progress) {
+            _runJavaScript("window.gnnscan.onUpdateDownloadProgress($progress)");
+          },
+        );
       },
     );
   }

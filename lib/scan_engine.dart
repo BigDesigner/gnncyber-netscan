@@ -11,6 +11,7 @@ class ScanEngine {
   final Duration timeout;
   final bool enableBannerGrabbing;
   final String stealthLevel;
+  final bool enableOnlineVendorLookup;
 
   // Callbacks to communicate status back to UI
   final Function(String timestamp, String type, String msg) onLog;
@@ -30,6 +31,7 @@ class ScanEngine {
     required this.timeout,
     required this.stealthLevel,
     required this.enableBannerGrabbing,
+    required this.enableOnlineVendorLookup,
     required this.onLog,
     required this.onHostDiscovered,
     required this.onPortDiscovered,
@@ -635,40 +637,41 @@ class ScanEngine {
     if (cleanMac.length >= 6) {
       final prefix = cleanMac.substring(0, 6);
       
-      // Local OUI Prefix Cache to prevent privacy leakage and work offline for common nodes
+      // Practical recognition labels for common virtualization NICs. Their official IEEE
+      // registrant (e.g. "PCS Systemtechnik GmbH") is technically accurate but useless for
+      // triage, so these two are intentionally overridden with the vendor pentesters expect.
+      // All other vendor names come straight from the offline IEEE OUI database below.
       const localOuis = {
-        '000c29': 'VMware, Inc.',
-        '005056': 'VMware, Inc.',
         '080027': 'Oracle VirtualBox',
         '00155d': 'Microsoft Hyper-V',
-        '0003ff': 'Microsoft Corporation',
-        '00000c': 'Cisco Systems, Inc.',
-        '000142': 'Cisco Systems, Inc.',
-        '0005b9': 'Cisco Systems, Inc.',
-        '70b3d5': 'Axis Communications',
-        '3c15c2': 'Apple, Inc.',
-        'd89ef3': 'Apple, Inc.',
-        'f40f24': 'Apple, Inc.',
-        'acfdce': 'Intel Corporation',
-        '482c6a': 'Intel Corporation',
-        '74867a': 'Intel Corporation',
-        'f8db82': 'Intel Corporation',
-        '3cd92b': 'Hewlett Packard',
-        'f01faf': 'Dell Inc.',
       };
 
       if (localOuis.containsKey(prefix)) {
         return localOuis[prefix]!;
       }
 
+      // Bundled offline OUI database (~39.7k prefixes, direct from the IEEE public registry). Fully local, no network call.
+      final offlineVendor = DatabaseHelper().lookupOuiVendor(prefix);
+      if (offlineVendor != null) {
+        return offlineVendor;
+      }
+
+      // Online fallback is opt-in only: sends the MAC prefix of scanned devices to
+      // macvendors.com over the internet. Disabled by default to preserve fully-offline operation.
+      if (!enableOnlineVendorLookup) {
+        return 'UNKNOWN';
+      }
+
+      _log('WARN', 'Vendor prefix $prefix not in offline DB. Querying external macvendors.com (online vendor lookup is enabled)...');
+
       final client = HttpClient();
       try {
         client.connectionTimeout = const Duration(seconds: 2);
-        
+
         final uri = Uri.parse('https://macvendors.com/query/$prefix');
         final request = await client.getUrl(uri);
         final response = await request.close();
-        
+
         if (response.statusCode == 200) {
           final body = await response.transform(utf8.decoder).join();
           return body.trim();

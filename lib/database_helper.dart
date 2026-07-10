@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -11,6 +12,7 @@ class DatabaseHelper {
   DatabaseHelper._internal();
 
   Database? _cveDb;
+  final Map<String, String> _ouiMap = {};
 
   Future<void> init() async {
     if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
@@ -23,7 +25,35 @@ class DatabaseHelper {
     } catch (e) {
       debugPrint('CVE DB init failed: $e');
     }
+
+    try {
+      await _loadOuiDb();
+    } catch (e) {
+      debugPrint('OUI DB init failed: $e');
+    }
   }
+
+  // Loads the bundled offline OUI (MAC vendor prefix) database into memory.
+  Future<void> _loadOuiDb() async {
+    final raw = await rootBundle.loadString('assets/oui_db.txt');
+    for (final line in const LineSplitter().convert(raw)) {
+      final tabIdx = line.indexOf('\t');
+      if (tabIdx <= 0) continue;
+      final prefix = line.substring(0, tabIdx).toUpperCase();
+      final vendor = line.substring(tabIdx + 1);
+      if (prefix.length == 6 && vendor.isNotEmpty) {
+        _ouiMap[prefix] = vendor;
+      }
+    }
+  }
+
+  // Looks up a vendor name for a 6-character hex MAC prefix from the local offline database.
+  String? lookupOuiVendor(String prefix6) {
+    return _ouiMap[prefix6.toUpperCase()];
+  }
+
+  @visibleForTesting
+  int get debugOuiEntryCount => _ouiMap.length;
 
   Future<Database> _initCveDb() async {
     final docsDir = await getApplicationSupportDirectory();

@@ -89,7 +89,8 @@ class HistoryDb {
       "maxThreads": 64,
       "timeoutMs": 500,
       "aggressive": true,
-      "bannerGrabbing": true
+      "bannerGrabbing": true,
+      "enableOnlineVendorLookup": false
     };
   }
 }
