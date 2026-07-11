@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.12.0
+**Light Theme / Açık Tema**
+- Added a full light theme (cream/off-white background, indigo + moss-green accents) alongside the existing dark theme, with a SYSTEM / LIGHT / DARK selector in Settings > Appearance. Defaults to following the OS color scheme automatically.
+  - *Mevcut koyu temanın yanına tam bir açık tema (krem/kirli-beyaz zemin, indigo + yosun yeşili vurgular) eklendi; Settings > Appearance altında SİSTEM / AÇIK / KOYU seçici ile. Varsayılan olarak işletim sisteminin renk şemasını otomatik takip eder.*
+
 ## v2.11.1
 **About Screen / Hakkında Ekranı**
 - Added a new "About" navigation item and view with developer info (BigDesigner, gnn.tr, github.com/BigDesigner), technical stack summary, MIT license text, and a legal disclaimer for authorized use only.

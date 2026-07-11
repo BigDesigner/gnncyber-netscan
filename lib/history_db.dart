@@ -90,7 +90,8 @@ class HistoryDb {
       "timeoutMs": 500,
       "aggressive": true,
       "bannerGrabbing": true,
-      "enableOnlineVendorLookup": false
+      "enableOnlineVendorLookup": false,
+      "themeMode": "system"
     };
   }
 }

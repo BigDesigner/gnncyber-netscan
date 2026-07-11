@@ -309,6 +309,8 @@ class _MainScreenState extends State<MainScreen> {
         final settings = await HistoryDb.loadSettings();
         settings['hostname'] = Platform.localHostname;
         settings['appVersion'] = kAppVersion;
+        settings['systemBrightness'] =
+            WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark ? 'dark' : 'light';
         try {
           final interfaces = await NetworkInterface.list(includeLoopback: false, type: InternetAddressType.IPv4);
           if (interfaces.isNotEmpty && interfaces.first.addresses.isNotEmpty) {

@@ -1,12 +1,144 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <script>
+        // Anti-FOUC: apply the theme synchronously, before first paint.
+        // localStorage caches the last-known choice across launches; Dart's
+        // authoritative systemBrightness/themeMode reconciles this ~1s later.
+        (function() {
+            try {
+                var mode = localStorage.getItem('gnnscan_theme') || 'system';
+                var isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
     <title>GNNcyber - NETscan - Brutalist Threat Reconnaissance</title>
     <script src="/tailwind.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Geist:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
     <style>
+        /* ============ THEME TOKENS ============ */
+        /* Dark (default) — pixel-identical to the original hardcoded palette. */
+        :root,
+        :root[data-theme="dark"] {
+            --c-primary: 219 252 255;
+            --c-outline-variant: 59 73 75;
+            --c-outline: 132 148 149;
+            --c-on-tertiary: 104 0 8;
+            --c-on-primary-fixed-variant: 0 79 84;
+            --c-surface-variant: 53 52 54;
+            --c-inverse-on-surface: 49 48 49;
+            --c-on-secondary-fixed: 0 34 3;
+            --c-on-primary: 0 54 58;
+            --c-surface-container-low: 28 27 28;
+            --c-on-tertiary-fixed-variant: 147 0 16;
+            --c-tertiary-fixed-dim: 255 179 173;
+            --c-inverse-primary: 0 105 112;
+            --c-on-error: 105 0 5;
+            --c-tertiary-fixed: 255 218 214;
+            --c-surface-container-lowest: 14 14 15;
+            --c-on-secondary: 0 57 7;
+            --c-on-background: 229 226 227;
+            --c-primary-container: 0 240 255;
+            --c-inverse-surface: 229 226 227;
+            --c-tertiary: 255 243 242;
+            --c-surface-tint: 0 219 233;
+            --c-secondary-container: 19 255 67;
+            --c-surface-container: 32 31 32;
+            --c-surface-bright: 58 57 58;
+            --c-secondary-fixed-dim: 0 230 57;
+            --c-on-secondary-fixed-variant: 0 83 14;
+            --c-surface-container-high: 42 42 43;
+            --c-error: 255 180 171;
+            --c-background: 19 19 20;
+            --c-on-primary-fixed: 0 32 34;
+            --c-secondary-fixed: 114 255 112;
+            --c-primary-fixed: 125 244 255;
+            --c-on-surface: 229 226 227;
+            --c-primary-fixed-dim: 0 219 233;
+            --c-on-tertiary-fixed: 65 0 3;
+            --c-on-error-container: 255 218 214;
+            --c-on-tertiary-container: 192 1 25;
+            --c-on-primary-container: 0 105 112;
+            --c-on-secondary-container: 0 113 23;
+            --c-on-surface-variant: 185 202 203;
+            --c-surface: 19 19 20;
+            --c-surface-dim: 19 19 20;
+            --c-tertiary-container: 255 206 201;
+            --c-error-container: 147 0 10;
+            --c-surface-container-highest: 53 52 54;
+            --c-secondary: 236 255 227;
+
+            --sb-track: 10 10 11;
+            --sb-thumb: 26 26 28;
+            --sb-thumb-hover: 0 219 233;
+            --glow-1: 0 240 255;
+            --glow-2: 125 244 255;
+            --grid-line: 26 26 28;
+        }
+
+        /* Light — krem/kirli-beyaz zemin, indigo + yosun yeşil vurgular. */
+        :root[data-theme="light"] {
+            --c-primary: 58 92 176;
+            --c-outline-variant: 214 205 188;
+            --c-outline: 156 146 132;
+            --c-on-tertiary: 246 242 232;
+            --c-on-primary-fixed-variant: 22 48 92;
+            --c-surface-variant: 226 217 198;
+            --c-inverse-on-surface: 241 235 223;
+            --c-on-secondary-fixed: 22 51 15;
+            --c-on-primary: 246 242 232;
+            --c-surface-container-low: 246 241 229;
+            --c-on-tertiary-fixed-variant: 107 67 24;
+            --c-tertiary-fixed-dim: 168 98 63;
+            --c-inverse-primary: 125 154 223;
+            --c-on-error: 246 242 232;
+            --c-tertiary-fixed: 232 211 186;
+            --c-surface-container-lowest: 250 246 236;
+            --c-on-secondary: 22 51 15;
+            --c-on-background: 30 28 25;
+            --c-primary-container: 43 74 155;
+            --c-inverse-surface: 30 28 25;
+            --c-tertiary: 168 98 63;
+            --c-surface-tint: 43 74 155;
+            --c-secondary-container: 205 227 196;
+            --c-surface-container: 242 236 223;
+            --c-surface-bright: 250 246 236;
+            --c-secondary-fixed-dim: 58 107 53;
+            --c-on-secondary-fixed-variant: 35 77 28;
+            --c-surface-container-high: 233 225 208;
+            --c-error: 164 22 12;
+            --c-background: 241 235 223;
+            --c-on-primary-fixed: 246 242 232;
+            --c-secondary-fixed: 58 107 53;
+            --c-primary-fixed: 74 104 184;
+            --c-on-surface: 30 28 25;
+            --c-primary-fixed-dim: 43 74 155;
+            --c-on-tertiary-fixed: 74 44 16;
+            --c-on-error-container: 107 22 14;
+            --c-on-tertiary-container: 107 67 24;
+            --c-on-primary-container: 22 48 92;
+            --c-on-secondary-container: 35 77 28;
+            --c-on-surface-variant: 92 86 72;
+            --c-surface: 241 235 223;
+            --c-surface-dim: 241 235 223;
+            --c-tertiary-container: 201 146 74;
+            --c-error-container: 201 79 66;
+            --c-surface-container-highest: 222 213 191;
+            --c-secondary: 240 245 234;
+
+            --sb-track: 237 230 216;
+            --sb-thumb: 199 189 168;
+            --sb-thumb-hover: 43 74 155;
+            --glow-1: 43 74 155;
+            --glow-2: 74 104 184;
+            --grid-line: 214 205 188;
+        }
+
         @font-face {
             font-family: 'Material Symbols Outlined';
             font-style: normal;
@@ -31,21 +163,21 @@
             height: 4px;
         }
         ::-webkit-scrollbar-track {
-            background: #0a0a0b;
+            background: rgb(var(--sb-track));
         }
         ::-webkit-scrollbar-thumb {
-            background: #1a1a1c;
+            background: rgb(var(--sb-thumb));
             border-radius: 0;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #00dbe9;
+            background: rgb(var(--sb-thumb-hover));
         }
 
         .terminal-cursor {
             display: inline-block;
             width: 8px;
             height: 16px;
-            background-color: #00f0ff;
+            background-color: rgb(var(--glow-1));
             animation: blink 1s step-end infinite;
             vertical-align: middle;
             margin-left: 4px;
@@ -56,22 +188,22 @@
         }
 
         .grid-bg {
-            background-image: linear-gradient(rgba(26, 26, 28, 0.5) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(26, 26, 28, 0.5) 1px, transparent 1px);
+            background-image: linear-gradient(rgb(var(--grid-line) / 0.5) 1px, transparent 1px),
+                              linear-gradient(90deg, rgb(var(--grid-line) / 0.5) 1px, transparent 1px);
             background-size: 20px 20px;
         }
 
         .bloom-text {
-            text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+            text-shadow: 0 0 8px rgb(var(--glow-1) / 0.4);
         }
 
         .border-glow-focus:focus-within {
-            border-color: #00f0ff !important;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+            border-color: rgb(var(--glow-1)) !important;
+            box-shadow: 0 0 10px rgb(var(--glow-1) / 0.2);
         }
-        
+
         * { border-radius: 0 !important; }
-        
+
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -81,7 +213,7 @@
         }
 
         .scan-progress-shimmer {
-            background: linear-gradient(90deg, #00f0ff 0%, #7df4ff 50%, #00f0ff 100%);
+            background: linear-gradient(90deg, rgb(var(--glow-1)) 0%, rgb(var(--glow-2)) 50%, rgb(var(--glow-1)) 100%);
             background-size: 200% 100%;
             animation: shimmer 2s linear infinite;
         }
@@ -96,53 +228,53 @@
           theme: {
             extend: {
               "colors": {
-                      "primary": "#dbfcff",
-                      "outline-variant": "#3b494b",
-                      "outline": "#849495",
-                      "on-tertiary": "#680008",
-                      "on-primary-fixed-variant": "#004f54",
-                      "surface-variant": "#353436",
-                      "inverse-on-surface": "#313031",
-                      "on-secondary-fixed": "#002203",
-                      "on-primary": "#00363a",
-                      "surface-container-low": "#1c1b1c",
-                      "on-tertiary-fixed-variant": "#930010",
-                      "tertiary-fixed-dim": "#ffb3ad",
-                      "inverse-primary": "#006970",
-                      "on-error": "#690005",
-                      "tertiary-fixed": "#ffdad6",
-                      "surface-container-lowest": "#0e0e0f",
-                      "on-secondary": "#003907",
-                      "on-background": "#e5e2e3",
-                      "primary-container": "#00f0ff",
-                      "inverse-surface": "#e5e2e3",
-                      "tertiary": "#fff3f2",
-                      "surface-tint": "#00dbe9",
-                      "secondary-container": "#13ff43",
-                      "surface-container": "#201f20",
-                      "surface-bright": "#3a393a",
-                      "secondary-fixed-dim": "#00e639",
-                      "on-secondary-fixed-variant": "#00530e",
-                      "surface-container-high": "#2a2a2b",
-                      "error": "#ffb4ab",
-                      "background": "#131314",
-                      "on-primary-fixed": "#002022",
-                      "secondary-fixed": "#72ff70",
-                      "primary-fixed": "#7df4ff",
-                      "on-surface": "#e5e2e3",
-                      "primary-fixed-dim": "#00dbe9",
-                      "on-tertiary-fixed": "#410003",
-                      "on-error-container": "#ffdad6",
-                      "on-tertiary-container": "#c00119",
-                      "on-primary-container": "#006970",
-                      "on-secondary-container": "#007117",
-                      "on-surface-variant": "#b9cacb",
-                      "surface": "#131314",
-                      "surface-dim": "#131314",
-                      "tertiary-container": "#ffcec9",
-                      "error-container": "#93000a",
-                      "surface-container-highest": "#353436",
-                      "secondary": "#ecffe3"
+                      "primary": "rgb(var(--c-primary) / <alpha-value>)",
+                      "outline-variant": "rgb(var(--c-outline-variant) / <alpha-value>)",
+                      "outline": "rgb(var(--c-outline) / <alpha-value>)",
+                      "on-tertiary": "rgb(var(--c-on-tertiary) / <alpha-value>)",
+                      "on-primary-fixed-variant": "rgb(var(--c-on-primary-fixed-variant) / <alpha-value>)",
+                      "surface-variant": "rgb(var(--c-surface-variant) / <alpha-value>)",
+                      "inverse-on-surface": "rgb(var(--c-inverse-on-surface) / <alpha-value>)",
+                      "on-secondary-fixed": "rgb(var(--c-on-secondary-fixed) / <alpha-value>)",
+                      "on-primary": "rgb(var(--c-on-primary) / <alpha-value>)",
+                      "surface-container-low": "rgb(var(--c-surface-container-low) / <alpha-value>)",
+                      "on-tertiary-fixed-variant": "rgb(var(--c-on-tertiary-fixed-variant) / <alpha-value>)",
+                      "tertiary-fixed-dim": "rgb(var(--c-tertiary-fixed-dim) / <alpha-value>)",
+                      "inverse-primary": "rgb(var(--c-inverse-primary) / <alpha-value>)",
+                      "on-error": "rgb(var(--c-on-error) / <alpha-value>)",
+                      "tertiary-fixed": "rgb(var(--c-tertiary-fixed) / <alpha-value>)",
+                      "surface-container-lowest": "rgb(var(--c-surface-container-lowest) / <alpha-value>)",
+                      "on-secondary": "rgb(var(--c-on-secondary) / <alpha-value>)",
+                      "on-background": "rgb(var(--c-on-background) / <alpha-value>)",
+                      "primary-container": "rgb(var(--c-primary-container) / <alpha-value>)",
+                      "inverse-surface": "rgb(var(--c-inverse-surface) / <alpha-value>)",
+                      "tertiary": "rgb(var(--c-tertiary) / <alpha-value>)",
+                      "surface-tint": "rgb(var(--c-surface-tint) / <alpha-value>)",
+                      "secondary-container": "rgb(var(--c-secondary-container) / <alpha-value>)",
+                      "surface-container": "rgb(var(--c-surface-container) / <alpha-value>)",
+                      "surface-bright": "rgb(var(--c-surface-bright) / <alpha-value>)",
+                      "secondary-fixed-dim": "rgb(var(--c-secondary-fixed-dim) / <alpha-value>)",
+                      "on-secondary-fixed-variant": "rgb(var(--c-on-secondary-fixed-variant) / <alpha-value>)",
+                      "surface-container-high": "rgb(var(--c-surface-container-high) / <alpha-value>)",
+                      "error": "rgb(var(--c-error) / <alpha-value>)",
+                      "background": "rgb(var(--c-background) / <alpha-value>)",
+                      "on-primary-fixed": "rgb(var(--c-on-primary-fixed) / <alpha-value>)",
+                      "secondary-fixed": "rgb(var(--c-secondary-fixed) / <alpha-value>)",
+                      "primary-fixed": "rgb(var(--c-primary-fixed) / <alpha-value>)",
+                      "on-surface": "rgb(var(--c-on-surface) / <alpha-value>)",
+                      "primary-fixed-dim": "rgb(var(--c-primary-fixed-dim) / <alpha-value>)",
+                      "on-tertiary-fixed": "rgb(var(--c-on-tertiary-fixed) / <alpha-value>)",
+                      "on-error-container": "rgb(var(--c-on-error-container) / <alpha-value>)",
+                      "on-tertiary-container": "rgb(var(--c-on-tertiary-container) / <alpha-value>)",
+                      "on-primary-container": "rgb(var(--c-on-primary-container) / <alpha-value>)",
+                      "on-secondary-container": "rgb(var(--c-on-secondary-container) / <alpha-value>)",
+                      "on-surface-variant": "rgb(var(--c-on-surface-variant) / <alpha-value>)",
+                      "surface": "rgb(var(--c-surface) / <alpha-value>)",
+                      "surface-dim": "rgb(var(--c-surface-dim) / <alpha-value>)",
+                      "tertiary-container": "rgb(var(--c-tertiary-container) / <alpha-value>)",
+                      "error-container": "rgb(var(--c-error-container) / <alpha-value>)",
+                      "surface-container-highest": "rgb(var(--c-surface-container-highest) / <alpha-value>)",
+                      "secondary": "rgb(var(--c-secondary) / <alpha-value>)"
               },
               "borderRadius": {
                       "DEFAULT": "0px",
@@ -225,7 +357,7 @@
         <div class="flex items-center gap-4">
             <span id="header-title" class="font-data-mono-bold text-on-surface text-sm tracking-widest">BLUE_TEAM_TERMINAL</span>
             <div class="h-4 w-px bg-outline-variant"></div>
-            <span class="font-data-mono text-[11px] text-outline bg-surface-container-high px-2 py-0.5 rounded border border-outline-variant">v2.11.1-STABLE</span>
+            <span class="font-data-mono text-[11px] text-outline bg-surface-container-high px-2 py-0.5 rounded border border-outline-variant">v2.12.0-STABLE</span>
         </div>
         <div class="flex items-center gap-6 h-full">
             <div id="header-scan-progress-container" class="hidden flex items-center bg-surface-container-high px-3 h-8 border-x border-outline-variant shrink-0 gap-3">
@@ -674,6 +806,28 @@
                     </section>
                     <section>
                         <h3 class="font-data-mono-bold text-data-mono text-primary-fixed-dim mb-6 flex items-center">
+                            <span class="material-symbols-outlined text-[18px] mr-2">palette</span> APPEARANCE
+                        </h3>
+                        <div class="p-4 bg-surface-container border border-outline-variant">
+                            <div class="mb-4">
+                                <p class="font-data-mono-bold text-data-mono text-on-surface">COLOR_SCHEME</p>
+                                <p class="font-data-mono text-label-xs text-on-surface-variant opacity-70 mt-1">Choose a fixed theme, or follow your OS appearance automatically.</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button id="theme-btn-system" onclick="selectTheme('system')" class="flex-1 px-3 py-2.5 font-data-mono text-data-mono flex items-center justify-center gap-2 transition-all rounded-sm">
+                                    <span class="material-symbols-outlined text-[16px]">desktop_windows</span> SYSTEM
+                                </button>
+                                <button id="theme-btn-light" onclick="selectTheme('light')" class="flex-1 px-3 py-2.5 font-data-mono text-data-mono flex items-center justify-center gap-2 transition-all rounded-sm">
+                                    <span class="material-symbols-outlined text-[16px]">light_mode</span> LIGHT
+                                </button>
+                                <button id="theme-btn-dark" onclick="selectTheme('dark')" class="flex-1 px-3 py-2.5 font-data-mono text-data-mono flex items-center justify-center gap-2 transition-all rounded-sm">
+                                    <span class="material-symbols-outlined text-[16px]">dark_mode</span> DARK
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                    <section>
+                        <h3 class="font-data-mono-bold text-data-mono text-primary-fixed-dim mb-6 flex items-center">
                             <span class="material-symbols-outlined text-[18px] mr-2">travel_explore</span> OUI_VENDOR_RESOLUTION
                         </h3>
                         <div class="space-y-4">
@@ -698,7 +852,7 @@
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="font-data-mono-bold text-data-mono text-on-surface">CURRENT_VERSION</p>
-                                    <p class="font-data-mono text-label-xs text-on-surface-variant opacity-70 mt-1" id="update-current-version">v2.11.1</p>
+                                    <p class="font-data-mono text-label-xs text-on-surface-variant opacity-70 mt-1" id="update-current-version">v2.12.0</p>
                                 </div>
                                 <button id="btn-check-update" onclick="checkForUpdates()" class="border border-primary-container/50 hover:bg-primary-container/10 text-primary-fixed-dim font-data-mono text-[11px] h-8 px-4 flex items-center gap-2 transition-all shrink-0">
                                     <span class="material-symbols-outlined text-[16px]">refresh</span>
@@ -763,7 +917,7 @@
                     <p class="font-data-mono-bold text-[22px] text-on-surface tracking-tight leading-none">GNNcyber — NETscan</p>
                     <p class="font-data-mono text-sm text-on-surface-variant">Brutalist Threat Reconnaissance &amp; Network Discovery Tool</p>
                     <div class="flex items-center gap-3 pt-2">
-                        <span id="about-version" class="font-data-mono text-label-xs text-primary-container border border-primary-container/40 bg-primary-container/5 px-2 py-0.5">v2.11.1</span>
+                        <span id="about-version" class="font-data-mono text-label-xs text-primary-container border border-primary-container/40 bg-primary-container/5 px-2 py-0.5">v2.12.0</span>
                         <span class="font-data-mono text-label-xs text-on-surface-variant border border-outline-variant px-2 py-0.5">Windows / macOS</span>
                         <span class="font-data-mono text-label-xs text-secondary-fixed border border-secondary-fixed/30 px-2 py-0.5">STABLE</span>
                     </div>
@@ -883,6 +1037,47 @@
         let selectedHostIp = null;
         let hostsData = {}; // Stores key: hostIp, value: {ip, label, isUp, ports: []}
         let historyData = [];
+
+        // ============ THEME MANAGEMENT ============
+        let currentThemeMode = 'system'; // 'system' | 'light' | 'dark'
+        let systemPrefersDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : true;
+
+        function computeIsDark(mode) {
+            if (mode === 'dark') return true;
+            if (mode === 'light') return false;
+            return systemPrefersDark; // 'system'
+        }
+
+        function applyTheme(mode) {
+            currentThemeMode = mode;
+            const isDark = computeIsDark(mode);
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            try { localStorage.setItem('gnnscan_theme', mode); } catch (e) {}
+            updateThemeSelectorUI();
+        }
+
+        function selectTheme(mode) {
+            applyTheme(mode);
+        }
+
+        function updateThemeSelectorUI() {
+            const activeClass = "flex-1 px-3 py-2.5 bg-surface-container-lowest border border-l-2 border-primary-container font-data-mono-bold text-data-mono text-primary-fixed-dim flex items-center justify-center gap-2 transition-all rounded-sm";
+            const inactiveClass = "flex-1 px-3 py-2.5 bg-surface-container-low border border-outline-variant font-data-mono text-data-mono text-on-surface-variant hover:bg-surface-container-high flex items-center justify-center gap-2 transition-all rounded-sm";
+            ['system', 'light', 'dark'].forEach(mode => {
+                const btn = document.getElementById('theme-btn-' + mode);
+                if (btn) btn.className = (mode === currentThemeMode) ? activeClass : inactiveClass;
+            });
+        }
+
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                systemPrefersDark = e.matches;
+                if (currentThemeMode === 'system') {
+                    document.documentElement.setAttribute('data-theme', systemPrefersDark ? 'dark' : 'light');
+                }
+            });
+        }
+        updateThemeSelectorUI();
 
         // Bridge object for Flutter calls
         window.gnnscan = {
@@ -1330,6 +1525,12 @@
             document.getElementById('cfg-aggressive').checked = settings.aggressive || false;
             document.getElementById('cfg-banner-grab').checked = settings.bannerGrabbing || false;
             document.getElementById('cfg-online-vendor-lookup').checked = settings.enableOnlineVendorLookup || false;
+
+            if (settings.systemBrightness) {
+                systemPrefersDark = settings.systemBrightness === 'dark';
+            }
+            applyTheme(settings.themeMode || 'system');
+
             if (settings.appVersion) {
                 const vStr = 'v' + settings.appVersion;
                 document.getElementById('update-current-version').textContent = vStr;
@@ -1357,7 +1558,8 @@
                 timeoutMs,
                 aggressive,
                 bannerGrabbing,
-                enableOnlineVendorLookup
+                enableOnlineVendorLookup,
+                themeMode: currentThemeMode
             };
 
             if (window.flutter_inappwebview) {
@@ -1378,7 +1580,8 @@
                 timeoutMs: 500,
                 aggressive: true,
                 bannerGrabbing: true,
-                enableOnlineVendorLookup: false
+                enableOnlineVendorLookup: false,
+                themeMode: 'system'
             };
             applySettingsToUI(defaults);
         }
