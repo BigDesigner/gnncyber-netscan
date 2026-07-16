@@ -2,7 +2,7 @@
 ; Targets compiled Windows Flutter executable and bundles WebView2 runtime check.
 
 #define MyAppName "GNNcyber - NETscan"
-#define MyAppVersion "2.13.0"
+#define MyAppVersion "2.14.0"
 #define MyAppPublisher "BigDesigner"
 #define MyAppURL "https://github.com/BigDesigner"
 #define MyAppExeName "netscan.exe"
@@ -33,11 +33,6 @@ Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-
-[InstallDelete]
-; Pre-rename installs shipped "gnnscan.exe". Remove the stale binary on
-; upgrade so it doesn't linger orphaned alongside the new "netscan.exe".
-Type: files; Name: "{app}\gnnscan.exe"
 
 [Files]
 Source: "build\windows\x64\runner\Release\netscan.exe"; DestDir: "{app}"; Flags: ignoreversion

@@ -1,11 +1,16 @@
 # Changelog
 
+## v2.14.0
+**Clean Break: Legacy Identifiers Removed / Temiz Kesim: Eski Tanımlayıcılar Kaldırıldı**
+- Removed the previous version's temporary migration and installer cleanup steps for the old internal identifier. This is a clean-slate release: no legacy references remain anywhere in the codebase, but pre-rename local data/shortcuts from very old installs are no longer auto-migrated.
+  - *Önceki sürümdeki eski dahili tanımlayıcıya ait geçici göç ve kurulum temizleme adımları kaldırıldı. Bu sürüm temiz bir başlangıçtır: kod tabanında hiçbir yerde eski referans kalmadı, ancak çok eski kurulumların yerel verisi/kısayolları artık otomatik taşınmıyor.*
+
 ## v2.13.0
-**Project Rename: GNNscan → GNNcyber - NETscan / Proje Yeniden Adlandırma**
+**Project & Internal Identifier Rename / Proje ve Dahili Tanımlayıcı Yeniden Adlandırma**
 - Renamed the GitHub repository to `gnncyber-netscan` and updated every internal reference (update checker, installer URLs, README, About screen) to match, with no change to the app's display name.
   - *GitHub deposu `gnncyber-netscan` olarak yeniden adlandırıldı ve tüm dahili referanslar (güncelleme kontrolcüsü, kurulum linkleri, README, Hakkında ekranı) buna göre güncellendi; uygulamanın görünen adında bir değişiklik yok.*
-- Renamed the internal `gnnscan` identifier to `netscan` across the Dart package, Windows/macOS/Linux build identifiers, and the JS↔Dart bridge, with automatic migration so existing installs keep their scan history and settings, and the old Windows executable is cleaned up on upgrade.
-  - *Dahili `gnnscan` tanımlayıcısı; Dart paketi, Windows/macOS/Linux derleme kimlikleri ve JS↔Dart köprüsü genelinde `netscan` olarak değiştirildi. Mevcut kurulumların tarama geçmişi ve ayarları otomatik göç ile korunuyor, eski Windows çalıştırılabilir dosyası güncelleme sırasında temizleniyor.*
+- Renamed the app's internal legacy identifier across the Dart package, Windows/macOS/Linux build identifiers, and the JS↔Dart bridge.
+  - *Uygulamanın dahili eski tanımlayıcısı; Dart paketi, Windows/macOS/Linux derleme kimlikleri ve JS↔Dart köprüsü genelinde yeniden adlandırıldı.*
 
 ## v2.12.0
 **Light Theme / Açık Tema**
