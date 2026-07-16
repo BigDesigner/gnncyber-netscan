@@ -1,11 +1,11 @@
-; GNNscan - Inno Setup Installer Script
+; GNNcyber - NETscan - Inno Setup Installer Script
 ; Targets compiled Windows Flutter executable and bundles WebView2 runtime check.
 
 #define MyAppName "GNNcyber - NETscan"
-#define MyAppVersion "2.12.0"
+#define MyAppVersion "2.13.0"
 #define MyAppPublisher "BigDesigner"
 #define MyAppURL "https://github.com/BigDesigner"
-#define MyAppExeName "gnnscan.exe"
+#define MyAppExeName "netscan.exe"
 
 [Setup]
 AppId={{C82F6D18-7F1F-43DE-875C-B24DE7AA9D2B}
@@ -13,8 +13,8 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
-AppSupportURL=https://github.com/BigDesigner/GNNscan
-AppUpdatesURL=https://github.com/BigDesigner/GNNscan
+AppSupportURL=https://github.com/BigDesigner/gnncyber-netscan
+AppUpdatesURL=https://github.com/BigDesigner/gnncyber-netscan
 DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=LICENSE
@@ -34,17 +34,22 @@ Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
+[InstallDelete]
+; Pre-rename installs shipped "gnnscan.exe". Remove the stale binary on
+; upgrade so it doesn't linger orphaned alongside the new "netscan.exe".
+Type: files; Name: "{app}\gnnscan.exe"
+
 [Files]
-Source: "build\windows\x64\runner\Release\gnnscan.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\windows\x64\runner\Release\netscan.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on shared system files
 
 [Icons]
-Name: "{autoprograms}\GNNcyber - NETscan"; Filename: "{app}\gnnscan.exe"
-Name: "{autodesktop}\GNNcyber - NETscan"; Filename: "{app}\gnnscan.exe"; Tasks: desktopicon
+Name: "{autoprograms}\GNNcyber - NETscan"; Filename: "{app}\netscan.exe"
+Name: "{autodesktop}\GNNcyber - NETscan"; Filename: "{app}\netscan.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\gnnscan.exe"; Description: "{cm:LaunchProgram,GNNcyber - NETscan}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\netscan.exe"; Description: "{cm:LaunchProgram,GNNcyber - NETscan}"; Flags: nowait postinstall skipifsilent
 ; Download and install WebView2 with native Microsoft UI so user sees progress
 Filename: "powershell.exe"; Parameters: "-NoProfile -Command ""Invoke-WebRequest -Uri 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' -OutFile '$env:TEMP\MicrosoftEdgeWebview2Setup.exe'; Start-Process -FilePath '$env:TEMP\MicrosoftEdgeWebview2Setup.exe' -Wait"""; StatusMsg: "Downloading WebView2 Runtime... (Please wait, an installer window will appear)"; Check: not IsWebView2Installed; Flags: runhidden
 ; Download and install Visual C++ Redistributable with passive progress UI

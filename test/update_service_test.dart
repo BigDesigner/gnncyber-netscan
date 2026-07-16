@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gnnscan/update_service.dart';
+import 'package:netscan/update_service.dart';
 
 void main() {
   test('checkForUpdates hits the real GitHub Releases API and returns a sane shape', () async {

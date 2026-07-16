@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gnnscan/database_helper.dart';
+import 'package:netscan/database_helper.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

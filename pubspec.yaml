@@ -1,8 +1,8 @@
-name: gnnscan
+name: netscan
 description: "A high-performance network scanning application targeting Windows and macOS."
 publish_to: 'none'
 
-version: 2.12.0+320
+version: 2.13.0+330
 
 environment:
   sdk: '>=3.12.0 <4.0.0'

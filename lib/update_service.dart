@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 // Manually bumped alongside pubspec.yaml / setup.iss / CHANGELOG.md on each release.
-const String kAppVersion = '2.12.0';
+const String kAppVersion = '2.13.0';
 
 const String _kRepoOwner = 'BigDesigner';
-const String _kRepoName = 'GNNscan';
+const String _kRepoName = 'gnncyber-netscan';
 
 class UpdateService {
   // Queries the GitHub Releases API for the latest published release and compares
@@ -15,12 +15,12 @@ class UpdateService {
   static Future<Map<String, dynamic>> checkForUpdates() async {
     final client = HttpClient();
     client.connectionTimeout = const Duration(seconds: 5);
-    client.userAgent = 'GNNscan-UpdateChecker';
+    client.userAgent = 'GNNcyber-NETscan-UpdateChecker';
     try {
       final uri = Uri.parse('https://api.github.com/repos/$_kRepoOwner/$_kRepoName/releases/latest');
       final request = await client.getUrl(uri);
       request.headers.set('Accept', 'application/vnd.github+json');
-      request.headers.set('User-Agent', 'GNNscan-UpdateChecker');
+      request.headers.set('User-Agent', 'GNNcyber-NETscan-UpdateChecker');
       final response = await request.close().timeout(const Duration(seconds: 8));
 
       if (response.statusCode != 200) {
@@ -131,7 +131,7 @@ class UpdateService {
       }
 
       final tempDir = await getTemporaryDirectory();
-      final fileName = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'gnnscan_update';
+      final fileName = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'netscan_update';
       final filePath = '${tempDir.path}${Platform.pathSeparator}$fileName';
       final file = File(filePath);
       final sink = file.openWrite();
@@ -157,7 +157,7 @@ class UpdateService {
         Future.delayed(const Duration(milliseconds: 800), () => exit(0));
         return {'success': true};
       } else if (Platform.isMacOS) {
-        final extractDir = '${tempDir.path}${Platform.pathSeparator}gnnscan_update_extracted';
+        final extractDir = '${tempDir.path}${Platform.pathSeparator}netscan_update_extracted';
         await Process.run('unzip', ['-o', filePath, '-d', extractDir]);
         await Process.run('open', [extractDir]);
         return {'success': true};

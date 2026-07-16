@@ -15,16 +15,16 @@ import 'update_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DatabaseHelper().init();
-  runApp(const GnnscanApp());
+  runApp(const NetscanApp());
 }
 
-class GnnscanApp extends StatelessWidget {
-  const GnnscanApp({super.key});
+class NetscanApp extends StatelessWidget {
+  const NetscanApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GNNscan',
+      title: 'GNNcyber - NETscan',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
       home: const MainScreen(),
@@ -226,7 +226,7 @@ class _MainScreenState extends State<MainScreen> {
           enableOnlineVendorLookup: enableOnlineVendorLookup,
           stealthLevel: stealthLevel,
           onLog: (timestamp, type, msg) {
-            _runJavaScript("window.gnnscan.onLogReceived(${jsonEncode(timestamp)}, ${jsonEncode(type)}, ${jsonEncode(msg)})");
+            _runJavaScript("window.netscan.onLogReceived(${jsonEncode(timestamp)}, ${jsonEncode(type)}, ${jsonEncode(msg)})");
           },
           onHostDiscovered: (ip, label, isUp, mac, vendor, os, hostname) {
             discoveredHostsData[ip] = {
@@ -239,7 +239,7 @@ class _MainScreenState extends State<MainScreen> {
               'hostname': hostname,
               'ports': []
             };
-            _runJavaScript("window.gnnscan.onHostDiscovered(${jsonEncode(ip)}, ${jsonEncode(label)}, $isUp, ${jsonEncode(mac)}, ${jsonEncode(vendor)}, ${jsonEncode(os)}, ${jsonEncode(hostname)})");
+            _runJavaScript("window.netscan.onHostDiscovered(${jsonEncode(ip)}, ${jsonEncode(label)}, $isUp, ${jsonEncode(mac)}, ${jsonEncode(vendor)}, ${jsonEncode(os)}, ${jsonEncode(hostname)})");
           },
           onPortDiscovered: (ip, port, protocol, state, service, version, vulnScore, vulnLevel) {
             findingsCount++;
@@ -256,11 +256,11 @@ class _MainScreenState extends State<MainScreen> {
               });
             }
             _runJavaScript(
-              "window.gnnscan.onPortDiscovered(${jsonEncode(ip)}, $port, ${jsonEncode(protocol)}, ${jsonEncode(state)}, ${jsonEncode(service)}, ${jsonEncode(version)}, ${jsonEncode(vulnScore)}, ${jsonEncode(vulnLevel)})"
+              "window.netscan.onPortDiscovered(${jsonEncode(ip)}, $port, ${jsonEncode(protocol)}, ${jsonEncode(state)}, ${jsonEncode(service)}, ${jsonEncode(version)}, ${jsonEncode(vulnScore)}, ${jsonEncode(vulnLevel)})"
             );
           },
           onProgress: (progress) {
-            _runJavaScript("window.gnnscan.onProgressUpdate($progress)");
+            _runJavaScript("window.netscan.onProgressUpdate($progress)");
           },
           onFinished: () async {
             final durationMs = DateTime.now().difference(_scanStartTime!).inMilliseconds;
@@ -280,7 +280,7 @@ class _MainScreenState extends State<MainScreen> {
 
             await HistoryDb.saveHistoryItem(historyItem);
 
-            _runJavaScript("window.gnnscan.onScanFinished()");
+            _runJavaScript("window.netscan.onScanFinished()");
             _activeScanEngine = null;
             _scanWasAborted = false;
           },
@@ -354,7 +354,7 @@ class _MainScreenState extends State<MainScreen> {
         try {
           final logsText = args[0] as String;
           final directory = await getApplicationDocumentsDirectory();
-          final file = File('${directory.path}/gnnscan_terminal_logs_${DateTime.now().millisecondsSinceEpoch}.txt');
+          final file = File('${directory.path}/netscan_terminal_logs_${DateTime.now().millisecondsSinceEpoch}.txt');
           await file.writeAsString(logsText);
           return file.path;
         } catch (e) {
@@ -373,7 +373,7 @@ class _MainScreenState extends State<MainScreen> {
           final directory = await getApplicationDocumentsDirectory();
           
           if (format == 'json') {
-            final file = File('${directory.path}/gnnscan_export_${DateTime.now().millisecondsSinceEpoch}.json');
+            final file = File('${directory.path}/netscan_export_${DateTime.now().millisecondsSinceEpoch}.json');
             await file.writeAsString(jsonEncode(history), flush: true);
             return file.path;
           } else if (format == 'pdf') {
@@ -429,7 +429,7 @@ class _MainScreenState extends State<MainScreen> {
             return file.path;
           } else {
             // CSV
-            final file = File('${directory.path}/gnnscan_export_${DateTime.now().millisecondsSinceEpoch}.csv');
+            final file = File('${directory.path}/netscan_export_${DateTime.now().millisecondsSinceEpoch}.csv');
             final csvBuffer = StringBuffer();
             csvBuffer.writeln('Target,Module,Timestamp,DurationMs,FindingsCount,Status,OperatorHost');
             for (var item in history) {
@@ -600,7 +600,7 @@ class _MainScreenState extends State<MainScreen> {
         return await UpdateService.downloadAndInstall(
           downloadUrl,
           onProgress: (progress) {
-            _runJavaScript("window.gnnscan.onUpdateDownloadProgress($progress)");
+            _runJavaScript("window.netscan.onUpdateDownloadProgress($progress)");
           },
         );
       },

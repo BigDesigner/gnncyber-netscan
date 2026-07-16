@@ -1,7 +1,7 @@
 <div align="center">
-  <h1>GNNscan <br> <sub>Advanced Network Discovery & Vulnerability Scanner</sub></h1>
+  <h1>GNNcyber - NETscan <br> <sub>Advanced Network Discovery & Vulnerability Scanner</sub></h1>
   <br>
-  <a href="https://github.com/BigDesigner/GNNscan/releases/latest/download/GNNcyber_NETscan_Setup.exe"><img src="https://img.shields.io/badge/Windows-Download%20Setup.exe-0078D4?style=flat-square&logo=windows&logoColor=white" alt="Download Windows Setup"/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/BigDesigner/GNNscan/releases/latest/download/GNNcyber_NETscan_macOS.zip"><img src="https://img.shields.io/badge/macOS-Download%20macOS.zip-1f1f1f?style=flat-square&logo=apple&logoColor=white" alt="Download macOS ZIP"/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/BigDesigner/GNNscan/releases/latest"><img src="https://img.shields.io/github/v/release/BigDesigner/GNNscan?style=flat-square&color=00F0FF&label=version" alt="Latest Version"/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/BigDesigner/GNNscan/releases"><img src="https://img.shields.io/github/downloads/BigDesigner/GNNscan/total?style=flat-square&color=72FF70&label=downloads" alt="Total Downloads"/></a>
+  <a href="https://github.com/BigDesigner/gnncyber-netscan/releases/latest/download/GNNcyber_NETscan_Setup.exe"><img src="https://img.shields.io/badge/Windows-Download%20Setup.exe-0078D4?style=flat-square&logo=windows&logoColor=white" alt="Download Windows Setup"/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/BigDesigner/gnncyber-netscan/releases/latest/download/GNNcyber_NETscan_macOS.zip"><img src="https://img.shields.io/badge/macOS-Download%20macOS.zip-1f1f1f?style=flat-square&logo=apple&logoColor=white" alt="Download macOS ZIP"/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/BigDesigner/gnncyber-netscan/releases/latest"><img src="https://img.shields.io/github/v/release/BigDesigner/gnncyber-netscan?style=flat-square&color=00F0FF&label=version" alt="Latest Version"/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/BigDesigner/gnncyber-netscan/releases"><img src="https://img.shields.io/github/downloads/BigDesigner/gnncyber-netscan/total?style=flat-square&color=72FF70&label=downloads" alt="Total Downloads"/></a>
   <br><br>
   <video src="https://github.com/user-attachments/assets/e97ea786-b083-464e-a9f4-50b305adca22" width="100%" controls autoplay muted loop></video>
 </div>
@@ -30,10 +30,10 @@
 <details open>
 <summary><h2>🇬🇧 English</h2></summary>
 
-<p>GNNscan is a next-generation network discovery tool designed for cybersecurity experts, Blue/Red Team operators, and system administrators. Going beyond traditional network scanners, it provides <strong>completely local, stealthy, and deep</strong> network analysis.</p>
+<p>GNNcyber - NETscan is a next-generation network discovery tool designed for cybersecurity experts, Blue/Red Team operators, and system administrators. Going beyond traditional network scanners, it provides <strong>completely local, stealthy, and deep</strong> network analysis.</p>
 
-## 🎯 Why GNNscan?
-Standard ping and ARP-based network scanners often produce superficial results. GNNscan doesn't just find IP and MAC addresses on your network; it also detects **operating systems, exact service versions, vulnerability levels, and real machine names (Hostnames)**. It does all this while using **Stealth** algorithms to evade detection by firewalls and IDSs.
+## 🎯 Why GNNcyber - NETscan?
+Standard ping and ARP-based network scanners often produce superficial results. GNNcyber - NETscan doesn't just find IP and MAC addresses on your network; it also detects **operating systems, exact service versions, vulnerability levels, and real machine names (Hostnames)**. It does all this while using **Stealth** algorithms to evade detection by firewalls and IDSs.
 
 ## 🚀 Key Features (What Sets Us Apart)
 
@@ -78,8 +78,8 @@ This tool is developed for authorized personnel to use during penetration testin
 
 <p>Siber güvenlik uzmanları, Blue/Red Team operasyonları ve sistem yöneticileri için tasarlanmış, geleneksel ağ tarayıcılarının ötesine geçerek <strong>tamamen yerel, gizli ve derinlemesine</strong> ağ analizi yapan yeni nesil bir araçtır.</p>
 
-## 🎯 Neden GNNscan?
-Standart ping ve ARP tabanlı ağ tarayıcıları genellikle yüzeysel sonuçlar üretir. GNNscan ise ağınızdaki cihazların sadece IP'sini ve MAC adresini bulmakla kalmaz; o cihazın **işletim sistemini, üzerindeki servislerin tam versiyonunu, zafiyet seviyesini ve gerçek makine ismini (Hostname)** de tespit eder. Tüm bu işlemleri yaparken güvenlik duvarlarına yakalanmamak için **Stealth (Gizlilik)** algoritmaları kullanır.
+## 🎯 Neden GNNcyber - NETscan?
+Standart ping ve ARP tabanlı ağ tarayıcıları genellikle yüzeysel sonuçlar üretir. GNNcyber - NETscan ise ağınızdaki cihazların sadece IP'sini ve MAC adresini bulmakla kalmaz; o cihazın **işletim sistemini, üzerindeki servislerin tam versiyonunu, zafiyet seviyesini ve gerçek makine ismini (Hostname)** de tespit eder. Tüm bu işlemleri yaparken güvenlik duvarlarına yakalanmamak için **Stealth (Gizlilik)** algoritmaları kullanır.
 
 ## 🚀 Öne Çıkan Özellikler (Geleneksel Araçlardan Farkımız)
 

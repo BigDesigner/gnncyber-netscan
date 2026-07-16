@@ -91,11 +91,11 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "BigDesigner" "\0"
-            VALUE "FileDescription", "GNNscan" "\0"
+            VALUE "FileDescription", "GNNcyber - NETscan" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "gnnscan" "\0"
+            VALUE "InternalName", "netscan" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024-2026 BigDesigner. All rights reserved." "\0"
-            VALUE "OriginalFilename", "gnnscan.exe" "\0"
+            VALUE "OriginalFilename", "netscan.exe" "\0"
             VALUE "ProductName", "GNNcyber - NETscan" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END

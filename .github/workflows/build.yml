@@ -1,4 +1,4 @@
-name: GNNscan Build CI/CD
+name: GNNcyber - NETscan Build CI/CD
 
 on:
   push:
@@ -93,7 +93,7 @@ jobs:
 
       - name: Verify Build Artifacts
         run: |
-          if (Test-Path "build\windows\x64\runner\Release\gnnscan.exe") {
+          if (Test-Path "build\windows\x64\runner\Release\netscan.exe") {
             Write-Host "Windows build success!"
           } else {
             Write-Error "Windows executable missing!"

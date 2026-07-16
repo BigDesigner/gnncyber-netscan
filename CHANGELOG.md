@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.13.0
+**Project Rename: GNNscan → GNNcyber - NETscan / Proje Yeniden Adlandırma**
+- Renamed the GitHub repository to `gnncyber-netscan` and updated every internal reference (update checker, installer URLs, README, About screen) to match, with no change to the app's display name.
+  - *GitHub deposu `gnncyber-netscan` olarak yeniden adlandırıldı ve tüm dahili referanslar (güncelleme kontrolcüsü, kurulum linkleri, README, Hakkında ekranı) buna göre güncellendi; uygulamanın görünen adında bir değişiklik yok.*
+- Renamed the internal `gnnscan` identifier to `netscan` across the Dart package, Windows/macOS/Linux build identifiers, and the JS↔Dart bridge, with automatic migration so existing installs keep their scan history and settings, and the old Windows executable is cleaned up on upgrade.
+  - *Dahili `gnnscan` tanımlayıcısı; Dart paketi, Windows/macOS/Linux derleme kimlikleri ve JS↔Dart köprüsü genelinde `netscan` olarak değiştirildi. Mevcut kurulumların tarama geçmişi ve ayarları otomatik göç ile korunuyor, eski Windows çalıştırılabilir dosyası güncelleme sırasında temizleniyor.*
+
 ## v2.12.0
 **Light Theme / Açık Tema**
 - Added a full light theme (cream/off-white background, indigo + moss-green accents) alongside the existing dark theme, with a SYSTEM / LIGHT / DARK selector in Settings > Appearance. Defaults to following the OS color scheme automatically.

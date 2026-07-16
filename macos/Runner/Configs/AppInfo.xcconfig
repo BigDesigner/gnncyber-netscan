@@ -8,7 +8,7 @@
 PRODUCT_NAME = GNNcyber - NETscan
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.gnnscan.gnnscan
+PRODUCT_BUNDLE_IDENTIFIER = com.netscan.netscan
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.gnnscan. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 com.netscan. All rights reserved.
