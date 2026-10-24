@@ -112,6 +112,9 @@ class UpdateService {
   // SECURITY: Whitelist URL validation to prevent Remote Code Execution (RCE) / Arbitrary File Download
   static bool isValidUpdateUrl(String downloadUrl) {
     try {
+      if (downloadUrl.isEmpty || downloadUrl.contains('\x00') || downloadUrl.contains('%00')) {
+        return false;
+      }
       final uri = Uri.parse(downloadUrl);
       if (uri.scheme != 'https' || uri.host.toLowerCase() != 'github.com') {
         return false;

@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.18.1
+**Security Patch: Null-Byte URL Sanitization & Adversarial Hardening / Güvenlik Yaması: Null-Byte URL Sanitizasyonu ve Güvenlik Sıkılaştırması**
+- Fixed a null-byte injection vulnerability in `UpdateService.isValidUpdateUrl()` where null characters (`\x00` and `%00`) in update URLs could cause string truncation during download validation.
+  - *`UpdateService.isValidUpdateUrl()` fonksiyonunda indirme URL doğrulamasında null karakterlerin (`\x00` ve `%00`) sebep olabileceği kesme açığı giderildi.*
+- Added automated adversarial security regression tests (`test/security_boundary_redteam_test.dart`) covering RCE whitelist bypasses, command injection shields, and SQL injection shields.
+  - *RCE beyaz liste atlatma, komut enjeksiyonu ve SQL enjeksiyon kalkanlarını kapsayan otomatik Red Team güvenlik regresyon testleri eklendi.*
+
 ## v2.18.0
 **Single Source of Truth Versioning & Node 24 Workflow Migration / Tek Noktadan Versiyonlama ve Node 24 İş Akışı Dönüşümü**
 - Introduced root VERSION file as the project's single source of truth along with scripts/sync_version.py to automatically propagate versions across pubspec, Inno Setup, Dart, and HTML.
