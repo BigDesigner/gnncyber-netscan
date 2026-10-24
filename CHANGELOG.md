@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.18.0
+**Single Source of Truth Versioning & Node 24 Workflow Migration / Tek Noktadan Versiyonlama ve Node 24 İş Akışı Dönüşümü**
+- Introduced root VERSION file as the project's single source of truth along with scripts/sync_version.py to automatically propagate versions across pubspec, Inno Setup, Dart, and HTML.
+  - *Projenin tek versiyon kaynağı olarak VERSION dosyası ve tüm pubspec, Inno Setup, Dart ve HTML dosyalarını otomatik güncelleyen scripts/sync_version.py aracı eklendi.*
+- Upgraded GitHub Actions CI/CD workflows and actions natively to the Node 24 runner environment, eliminating all Node 20 deprecation warnings.
+  - *GitHub Actions CI/CD iş akışları yerel Node 24 çalışma ortamına yükseltildi ve tüm Node 20 eskime uyarıları giderildi.*
+- Dynamically bound the app header badge, update view, and about section to runtime version state, eliminating stale static version text.
+  - *Uygulama başlık rozeti, güncelleme alanı ve hakkında paneli çalışma zamanı versiyon durumuna dinamik bağlanarak statik metin uyumsuzlukları kalıcı olarak çözüldü.*
+
 ## v2.17.0
 **Dependency Maintenance, XSS Sanitization & Lint Hardening / Bağımlılık Güncellemesi, XSS Sanitizasyonu ve Kod Kalitesi İyileştirmesi**
 - Upgraded 20 project dependencies to resolve security and stability enhancements across sqlite, pdf, and platform plugins.

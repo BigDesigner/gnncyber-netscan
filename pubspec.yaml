@@ -2,7 +2,7 @@ name: netscan
 description: "A high-performance network scanning application targeting Windows and macOS."
 publish_to: 'none'
 
-version: 2.17.0+370
+version: 2.18.0+390
 
 environment:
   sdk: '>=3.12.0 <4.0.0'
@@ -32,3 +32,4 @@ flutter:
     - assets/cve_db.sqlite
     - assets/cve_db_version.txt
     - assets/oui_db.txt
+    - assets/version.txt

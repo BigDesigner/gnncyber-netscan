@@ -34,6 +34,9 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Verify Version Consistency
+        run: python scripts/sync_version.py --check
+
       - name: Parse CHANGELOG.md
         id: parse
         run: python scripts/parse_changelog.py

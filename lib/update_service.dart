@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-
-// Manually bumped alongside pubspec.yaml / setup.iss / CHANGELOG.md on each release.
-const String kAppVersion = '2.17.0';
+import 'version.dart';
+export 'version.dart' show kAppVersion;
 
 const String _kRepoOwner = 'BigDesigner';
 const String _kRepoName = 'gnncyber-netscan';
