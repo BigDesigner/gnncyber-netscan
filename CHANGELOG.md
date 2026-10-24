@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.17.0
+**Dependency Maintenance, XSS Sanitization & Lint Hardening / Bağımlılık Güncellemesi, XSS Sanitizasyonu ve Kod Kalitesi İyileştirmesi**
+- Upgraded 20 project dependencies to resolve security and stability enhancements across sqlite, pdf, and platform plugins.
+  - *sqlite, pdf ve platform eklentilerindeki güvenlik ve kararlılık iyileştirmelerini içeren 20 proje bağımlılığı güncellendi.*
+- Fixed DOM XSS risk in the host selection panel by strictly escaping MAC address and vendor strings (htmlEscape).
+  - *Cihaz seçim panelindeki MAC adresi ve üretici (vendor) dizgeleri htmlEscape ile süzgeçten geçirilerek DOM XSS riski kapatıldı.*
+- Replaced production print calls in network interface helper with structured debugPrint logging for zero analyzer lint issues.
+  - *Ağ arayüzü yardımcısındaki ham print çağrıları debugPrint ile değiştirilerek statik analiz uyarıları sıfırlandı.*
+
 ## v2.16.0
 **Interactive Save Dialogs & macOS Update Fix / İnteraktif Dosya Kaydetme Penceresi ve macOS Güncelleme Düzeltmesi**
 - PDF, JSON, CSV and Terminal Log exports now open an interactive Save File Dialog (`FilePicker.saveFile`) allowing users to choose the save location while retaining auto-suggested file names.

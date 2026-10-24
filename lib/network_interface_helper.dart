@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class NetworkAdapterInfo {
   final String name;
@@ -33,7 +34,7 @@ class NetworkInterfaceHelper {
         adapters = await _getDartInterfaces();
       }
     } catch (e) {
-      print('[ERROR] Failed to list network interfaces: $e');
+      debugPrint('[ERROR] Failed to list network interfaces: $e');
     }
     return adapters;
   }
@@ -74,7 +75,7 @@ class NetworkInterfaceHelper {
         }
       }
     } catch (e) {
-      print('[WARN] IPConfig parsing failed: $e');
+      debugPrint('[WARN] IPConfig parsing failed: $e');
     }
     return result;
   }
@@ -115,7 +116,7 @@ class NetworkInterfaceHelper {
         }
       }
     } catch (e) {
-      print('[WARN] ifconfig parsing failed: $e');
+      debugPrint('[WARN] ifconfig parsing failed: $e');
     }
     return result;
   }

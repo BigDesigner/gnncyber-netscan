@@ -1413,8 +1413,8 @@
             }
             const macSpan = document.getElementById('selected-host-mac');
             if (host.mac && host.mac !== 'N/A') {
-                macSpan.innerHTML = `MAC Address: <span class="text-primary-fixed-dim font-bold">${host.mac}</span>` + 
-                    (host.vendor && host.vendor !== 'UNKNOWN' ? ` <span class="text-outline">[ ${host.vendor} ]</span>` : '');
+                macSpan.innerHTML = `MAC Address: <span class="text-primary-fixed-dim font-bold">${htmlEscape(host.mac)}</span>` + 
+                    (host.vendor && host.vendor !== 'UNKNOWN' ? ` <span class="text-outline">[ ${htmlEscape(host.vendor)} ]</span>` : '');
             } else {
                 macSpan.innerHTML = `MAC Address: <span class="text-primary-fixed-dim">N/A</span>`;
             }
