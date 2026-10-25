@@ -357,7 +357,7 @@
         <div class="flex items-center gap-4">
             <span id="header-title" class="font-data-mono-bold text-on-surface text-sm tracking-widest">BLUE_TEAM_TERMINAL</span>
             <div class="h-4 w-px bg-outline-variant"></div>
-            <span class="font-data-mono text-[11px] text-outline bg-surface-container-high px-2 py-0.5 rounded border border-outline-variant" id="header-app-version">v2.18.1-STABLE</span>
+            <span class="font-data-mono text-[11px] text-outline bg-surface-container-high px-2 py-0.5 rounded border border-outline-variant" id="header-app-version">v2.18.2-STABLE</span>
         </div>
         <div class="flex items-center gap-6 h-full">
             <div id="header-scan-progress-container" class="hidden flex items-center bg-surface-container-high px-3 h-8 border-x border-outline-variant shrink-0 gap-3">
@@ -854,7 +854,7 @@
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="font-data-mono-bold text-data-mono text-on-surface">CURRENT_VERSION</p>
-                                    <p class="font-data-mono text-label-xs text-on-surface-variant opacity-70 mt-1" id="update-current-version">v2.18.1</p>
+                                    <p class="font-data-mono text-label-xs text-on-surface-variant opacity-70 mt-1" id="update-current-version">v2.18.2</p>
                                 </div>
                                 <button id="btn-check-update" onclick="checkForUpdates()" class="border border-primary-container/50 hover:bg-primary-container/10 text-primary-fixed-dim font-data-mono text-[11px] h-8 px-4 flex items-center gap-2 transition-all shrink-0">
                                     <span class="material-symbols-outlined text-[16px]">refresh</span>
@@ -919,7 +919,7 @@
                     <p class="font-data-mono-bold text-[22px] text-on-surface tracking-tight leading-none">GNNcyber — NETscan</p>
                     <p class="font-data-mono text-sm text-on-surface-variant">Brutalist Threat Reconnaissance &amp; Network Discovery Tool</p>
                     <div class="flex items-center gap-3 pt-2">
-                        <span id="about-version" class="font-data-mono text-label-xs text-primary-container border border-primary-container/40 bg-primary-container/5 px-2 py-0.5">v2.18.1</span>
+                        <span id="about-version" class="font-data-mono text-label-xs text-primary-container border border-primary-container/40 bg-primary-container/5 px-2 py-0.5">v2.18.2</span>
                         <span class="font-data-mono text-label-xs text-on-surface-variant border border-outline-variant px-2 py-0.5">Windows / macOS</span>
                         <span class="font-data-mono text-label-xs text-secondary-fixed border border-secondary-fixed/30 px-2 py-0.5">STABLE</span>
                     </div>
@@ -1257,6 +1257,15 @@
                 .replace(/'/g, '&#039;');
         }
 
+        // Security (M-01): Encode a CSV cell - doubles quotes and neutralizes spreadsheet formula triggers.
+        function csvCell(value) {
+            let s = (value === null || value === undefined) ? '' : String(value);
+            if (s.length > 0 && '=+-@\t\r'.includes(s[0])) {
+                s = "'" + s;
+            }
+            return '"' + s.replace(/"/g, '""') + '"';
+        }
+
         // Bridge: Add log to terminal
         function addLog(timestamp, type, msg) {
             const content = document.getElementById('terminal-content');
@@ -1374,7 +1383,7 @@
 
                 html += `
                 <li>
-                        <div onclick="selectHost('${htmlEscape(ip)}')" class="flex items-center justify-between py-1.5 px-3 ${activeClasses}">
+                        <div data-host-ip="${htmlEscape(ip)}" class="host-tree-item flex items-center justify-between py-1.5 px-3 ${activeClasses}">
                             <div class="flex items-center space-x-3">
                                 <div class="w-1.5 h-1.5 ${statusDot} rounded-full shrink-0"></div>
                                 <div class="flex flex-col">
@@ -1396,6 +1405,11 @@
 
             html += `</ul></div>`;
             container.innerHTML = html;
+
+            // Security (L-01): bind handlers via DOM APIs instead of inline JS built from data.
+            container.querySelectorAll('.host-tree-item').forEach(el => {
+                el.addEventListener('click', () => selectHost(el.dataset.hostIp));
+            });
         }
 
         // Select host from tree view
@@ -1404,6 +1418,7 @@
             updateHostsTreeView();
             
             const host = hostsData[ip];
+            if (!host) return;
             document.getElementById('selected-host-title').textContent = 'Target: ' + host.ip;
             document.getElementById('selected-host-os').textContent = host.label;
             
@@ -1455,9 +1470,10 @@
                 if (p.vulnLevel === 'HIGH' || p.vulnLevel === 'CRITICAL') vulnClass = 'text-error font-data-mono-bold';
                 else if (p.vulnLevel === 'MEDIUM') vulnClass = 'text-tertiary-fixed-dim';
 
-                const displayVuln = p.vulnScore !== 'N/A' ? `${p.vulnScore} <span class="text-[10px]">${p.vulnLevel}</span>` : 'N/A';
+                const displayVuln = p.vulnScore !== 'N/A' ? `${htmlEscape(p.vulnScore)} <span class="text-[10px]">${htmlEscape(p.vulnLevel)}</span>` : 'N/A';
 
-                let portDisplay = `${p.port}`;
+                const portNum = parseInt(p.port, 10);
+                let portDisplay = htmlEscape(p.port);
                 const serviceLower = p.service.toLowerCase();
                 const isWebPort = [80, 443, 8080, 8443, 5000, 5001, 3000, 8000, 8081, 8888].includes(p.port) || 
                                   serviceLower.startsWith('http') || 
@@ -1466,10 +1482,10 @@
                                   serviceLower.includes('https-');
                 if (isWebPort) {
                     const protocol = (p.port === 443 || p.port === 8443 || p.port === 5001 || serviceLower.includes('https')) ? 'https' : 'http';
-                    const targetUrl = `${protocol}://${host.ip}:${p.port}`;
+                    const targetUrl = `${protocol}://${host.ip}:${portNum}`;
                     portDisplay = `<div class="flex items-center gap-1.5">
-                        <span>${p.port}</span>
-                        <span onclick="event.stopPropagation(); openExternalLink('${targetUrl}')" class="material-symbols-outlined text-[13px] text-primary-container hover:text-primary-fixed cursor-pointer transition-colors" title="Open Web Interface: ${targetUrl}">open_in_new</span>
+                        <span>${htmlEscape(portNum)}</span>
+                        <span data-open-url="${htmlEscape(targetUrl)}" class="open-web-link material-symbols-outlined text-[13px] text-primary-container hover:text-primary-fixed cursor-pointer transition-colors" title="Open Web Interface: ${htmlEscape(targetUrl)}">open_in_new</span>
                     </div>`;
                 }
 
@@ -1487,6 +1503,14 @@
             });
 
             body.innerHTML = html;
+
+            // Security (L-01): bind link handlers via DOM APIs instead of inline JS built from data.
+            body.querySelectorAll('.open-web-link').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openExternalLink(el.dataset.openUrl);
+                });
+            });
         }
 
         // Bridge: Update progress
@@ -1813,7 +1837,7 @@
                     </td>
                     <td class="p-2 border-r border-outline-variant/20 uppercase">${htmlEscape(dateStr)}</td>
                     <td class="p-2 border-r border-outline-variant/20">${htmlEscape(durationStr)}</td>
-                    <td class="p-2 border-r border-outline-variant/20 text-primary-fixed-dim font-bold">${item.findingsCount} OPEN</td>
+                    <td class="p-2 border-r border-outline-variant/20 text-primary-fixed-dim font-bold">${htmlEscape(item.findingsCount)} OPEN</td>
                     <td class="p-2 border-r border-outline-variant/20">${statusBadge}</td>
                     <td class="p-2">
                         <div class="flex items-center gap-1.5 export-btn-container">
@@ -1926,11 +1950,12 @@
                     const host = hosts[ip];
                     const ports = host.ports || [];
                     const hostNameVal = (host.hostname && host.hostname !== 'UNKNOWN' && host.hostname !== '') ? host.hostname : (host.label || 'UNKNOWN');
+                    const hostCols = [host.ip, hostNameVal, host.isUp ? 'UP' : 'DOWN', host.label, host.mac || 'N/A', host.vendor || 'UNKNOWN'];
                     if (ports.length === 0) {
-                        csv += `"${host.ip}","${hostNameVal}","${host.isUp ? 'UP' : 'DOWN'}","${host.label}","${host.mac || 'N/A'}","${host.vendor || 'UNKNOWN'}","","","","","","","${scanHost}"\n`;
+                        csv += [...hostCols, '', '', '', '', '', '', '', scanHost].map(csvCell).join(',') + '\n';
                     } else {
                         ports.forEach(p => {
-                            csv += `"${host.ip}","${hostNameVal}","${host.isUp ? 'UP' : 'DOWN'}","${host.label}","${host.mac || 'N/A'}","${host.vendor || 'UNKNOWN'}","${p.port}","${p.protocol}","${p.state}","${p.service}","${p.version || 'UNKNOWN'}","${p.vulnScore}","${p.vulnLevel}","${scanHost}"\n`;
+                            csv += [...hostCols, p.port, p.protocol, p.state, p.service, p.version || 'UNKNOWN', p.vulnScore, p.vulnLevel, scanHost].map(csvCell).join(',') + '\n';
                         });
                     }
                 }

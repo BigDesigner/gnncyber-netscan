@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.18.2
+**Security Hardening: Bridge RCE, CSV Injection & WebView Lockdown / Güvenlik Sıkılaştırması: Köprü RCE, CSV Enjeksiyonu ve WebView Kilitleme**
+- Fixed an OS command injection risk in the `openExternalUrl` bridge: URLs are now validated against a strict http/https whitelist (no shell metacharacters, UNC or file paths) and launched via `rundll32 url.dll,FileProtocolHandler` instead of `cmd /c start`.
+  - *`openExternalUrl` köprüsündeki OS komut enjeksiyonu riski giderildi: URL'ler katı http/https beyaz listesiyle doğrulanıyor (shell metakarakteri, UNC veya dosya yolu yok) ve `cmd /c start` yerine `rundll32 url.dll,FileProtocolHandler` ile açılıyor.*
+- Privileged bridge handlers (external URL, update install) now verify the caller is the bundled loopback UI, and the WebView is blocked from navigating to any other origin.
+  - *Yetkili köprü işleyicileri (harici URL, güncelleme kurulumu) çağıranın yerel arayüz olduğunu doğruluyor; WebView'in başka bir kaynağa yönlenmesi engellendi.*
+- Fixed CSV/formula injection in single-scan and global history CSV exports where attacker-controlled service banners or PTR hostnames could break out of cells.
+  - *Saldırgan kontrollü servis banner'ları veya PTR host adlarının hücre dışına taşabildiği tekil tarama ve genel geçmiş CSV dışa aktarımlarındaki CSV/formül enjeksiyonu giderildi.*
+- Replaced inline `onclick` handlers built from scan data with DOM event binding and escaped all remaining dynamic values written to `innerHTML`.
+  - *Tarama verisinden üretilen satır içi `onclick` işleyicileri DOM olay bağlamayla değiştirildi; `innerHTML`'e yazılan kalan tüm dinamik değerler escape edildi.*
+- Disabled unnecessary `file://` cross-origin WebView access, added a Host-header (DNS rebinding) guard to the loopback asset server, and clamped/whitelisted persisted engine settings.
+  - *Gereksiz `file://` çapraz kaynak WebView erişimi kapatıldı, yerel asset sunucusuna Host başlığı (DNS rebinding) koruması eklendi ve kaydedilen motor ayarları sınırlandırıldı.*
+
 ## v2.18.1
 **Security Patch: Null-Byte URL Sanitization & Adversarial Hardening / Güvenlik Yaması: Null-Byte URL Sanitizasyonu ve Güvenlik Sıkılaştırması**
 - Fixed a null-byte injection vulnerability in `UpdateService.isValidUpdateUrl()` where null characters (`\x00` and `%00`) in update URLs could cause string truncation during download validation.

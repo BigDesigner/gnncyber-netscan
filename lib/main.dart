@@ -12,6 +12,7 @@ import 'database_helper.dart';
 import 'scan_engine.dart';
 import 'update_service.dart';
 import 'network_interface_helper.dart';
+import 'security_utils.dart';
 import 'package:file_picker/file_picker.dart';
 
 void main() async {
@@ -102,6 +103,14 @@ class _MainScreenState extends State<MainScreen> {
       });
 
       _server!.listen((HttpRequest request) async {
+        // SECURITY (L-04): Reject requests whose Host header is not our loopback origin (DNS rebinding guard).
+        final hostHeader = request.headers.value(HttpHeaders.hostHeader);
+        if (hostHeader != '127.0.0.1:$_port') {
+          request.response.statusCode = HttpStatus.forbidden;
+          await request.response.close();
+          return;
+        }
+
         final path = request.uri.path;
         
         String assetPath = '';
@@ -140,9 +149,9 @@ class _MainScreenState extends State<MainScreen> {
           }
 
           request.response.add(buffer);
-        } catch (e) {
+        } catch (_) {
           request.response.statusCode = HttpStatus.notFound;
-          request.response.write('Asset not found: $e');
+          request.response.write('Not found');
         }
         await request.response.close();
       });
@@ -154,6 +163,22 @@ class _MainScreenState extends State<MainScreen> {
   // Helper to run JS on the webview controller
   void _runJavaScript(String jsCode) {
     _webViewController?.evaluateJavascript(source: jsCode);
+  }
+
+  // SECURITY (H-01): The only origin allowed to drive privileged bridge handlers.
+  bool _isTrustedUrl(Uri? url) {
+    return url != null && url.scheme == 'http' && url.host == '127.0.0.1' && url.port == _port;
+  }
+
+  // SECURITY (H-01): Verifies the WebView main frame is still on the bundled loopback UI
+  // before executing privileged handlers (process launch, update install).
+  Future<bool> _isTrustedCaller(InAppWebViewController controller) async {
+    try {
+      final current = await controller.getUrl();
+      return _isTrustedUrl(current);
+    } catch (_) {
+      return false;
+    }
   }
 
   @override
@@ -180,12 +205,22 @@ class _MainScreenState extends State<MainScreen> {
           initialSettings: InAppWebViewSettings(
             javaScriptEnabled: true,
             useOnLoadResource: true,
-            allowFileAccessFromFileURLs: true,
-            allowUniversalAccessFromFileURLs: true,
+            // SECURITY (L-03): Content is served over loopback HTTP; file:// cross-origin access is not needed.
+            allowFileAccessFromFileURLs: false,
+            allowUniversalAccessFromFileURLs: false,
+            useShouldOverrideUrlLoading: true,
           ),
           onWebViewCreated: (controller) {
             _webViewController = controller;
             _setupJavaScriptHandlers(controller);
+          },
+          // SECURITY (H-01 / L-03): Never let the privileged WebView navigate away from the bundled UI.
+          shouldOverrideUrlLoading: (controller, navigationAction) async {
+            final target = navigationAction.request.url;
+            if (_isTrustedUrl(target) || target?.scheme == 'about') {
+              return NavigationActionPolicy.ALLOW;
+            }
+            return NavigationActionPolicy.CANCEL;
           },
           onConsoleMessage: (controller, consoleMessage) {
             debugPrint("WEBVIEW CONSOLE: ${consoleMessage.message}");
@@ -206,11 +241,11 @@ class _MainScreenState extends State<MainScreen> {
         final customPorts = data['customPorts'] as String?;
         final stealthLevel = data['stealthLevel'] as String? ?? 'T5';
 
-        final settings = await HistoryDb.loadSettings();
-        final maxThreads = settings['maxThreads'] as int? ?? 64;
-        final timeoutMs = settings['timeoutMs'] as int? ?? 500;
-        final enableBanner = settings['bannerGrabbing'] as bool? ?? true;
-        final enableOnlineVendorLookup = settings['enableOnlineVendorLookup'] as bool? ?? false;
+        final settings = sanitizeSettings(await HistoryDb.loadSettings());
+        final maxThreads = settings['maxThreads'] as int;
+        final timeoutMs = settings['timeoutMs'] as int;
+        final enableBanner = settings['bannerGrabbing'] as bool;
+        final enableOnlineVendorLookup = settings['enableOnlineVendorLookup'] as bool;
 
         _scanStartTime = DateTime.now();
 
@@ -327,7 +362,8 @@ class _MainScreenState extends State<MainScreen> {
     controller.addJavaScriptHandler(
       handlerName: 'saveSettings',
       callback: (args) async {
-        final settings = args[0] as Map<String, dynamic>;
+        if (args.isEmpty || args[0] is! Map) return false;
+        final settings = sanitizeSettings(Map<String, dynamic>.from(args[0] as Map));
         return await HistoryDb.saveSettings(settings);
       },
     );
@@ -467,7 +503,10 @@ class _MainScreenState extends State<MainScreen> {
             csvBuffer.writeln('Target,Module,Timestamp,DurationMs,FindingsCount,Status,OperatorHost');
             for (var item in history) {
               final scanHost = item['scanHost'] ?? 'UNKNOWN';
-              csvBuffer.writeln('${item['target']},${item['module']},${item['timestamp']},${item['durationMs']},${item['findingsCount']},${item['status']},$scanHost');
+              csvBuffer.writeln([
+                item['target'], item['module'], item['timestamp'], item['durationMs'],
+                item['findingsCount'], item['status'], scanHost,
+              ].map(csvCell).join(','));
             }
             await file.writeAsString(csvBuffer.toString(), flush: true);
             return file.path;
@@ -483,13 +522,18 @@ class _MainScreenState extends State<MainScreen> {
       handlerName: 'openExternalUrl',
       callback: (args) async {
         try {
-          final urlString = args[0] as String;
+          if (args.isEmpty || args[0] is! String) return false;
+          if (!await _isTrustedCaller(controller)) return false;
+          // SECURITY (H-01): Strict http/https whitelist; rejects shell metacharacters, UNC and file paths.
+          final safeUrl = sanitizeExternalUrl(args[0] as String);
+          if (safeUrl == null) return false;
           if (Platform.isWindows) {
-            await Process.run('cmd', ['/c', 'start', '', urlString]);
+            // No cmd.exe involved: the URL is never parsed by a shell.
+            await Process.run('rundll32', ['url.dll,FileProtocolHandler', safeUrl]);
           } else if (Platform.isMacOS) {
-            await Process.run('open', [urlString]);
+            await Process.run('open', [safeUrl]);
           } else if (Platform.isLinux) {
-            await Process.run('xdg-open', [urlString]);
+            await Process.run('xdg-open', [safeUrl]);
           }
           return true;
         } catch (_) {
@@ -645,6 +689,9 @@ class _MainScreenState extends State<MainScreen> {
       callback: (args) async {
         if (args.isEmpty || args[0] is! String) {
           return {'success': false, 'error': 'Invalid arguments'};
+        }
+        if (!await _isTrustedCaller(controller)) {
+          return {'success': false, 'error': 'Security Exception: Untrusted caller origin.'};
         }
         final downloadUrl = args[0] as String;
         return await UpdateService.downloadAndInstall(
